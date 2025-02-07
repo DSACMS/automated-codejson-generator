@@ -1,10 +1,45 @@
 {
-  "projectType": "Website",
+  "name": "automated-codejson-generator",
+  "description": "",
+  "longDescription": "",
+  "status": "",
+  "permissions": {
+    "license": [
+      {
+        "name": "",
+        "URL": ""
+      }
+    ],
+    "usageType": "",
+    "exemptionText": ""
+  },
+  "organization": "",
+  "repositoryURL": "https://github.com/DSACMS/automated-codejson-generator",
+  "vcs": "git",
+  "laborHours": 11686,
+  "platforms": [],
+  "categories": [],
+  "softwareType": "",
+  "languages": [],
+  "maintenance": "",
+  "date": {
+    "created": "2025-02-07T16:29:38Z",
+    "lastModified": "2025-02-07T16:37:06Z",
+    "metaDataLastUpdated": "2025-02-07T16:37:33.767Z"
+  },
+  "tags": [],
+  "contact": {
+    "email": "",
+    "name": ""
+  },
+  "localisation": false,
+  "repositoryType": "",
   "userInput": "No",
   "fismaLevel": "Low",
   "group": "CMS/OA/DSAC",
   "subsetInHealthcare": "Operational",
   "userType": "Government",
   "repositoryHost": "Github.com",
-  "maturityModelTier": "3"
+  "maturityModelTier": "3",
+  "projectType": "Website"
 }
