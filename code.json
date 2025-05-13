@@ -1,10 +1,60 @@
 {
-  "projectType": "Website",
-  "userInput": "No",
-  "fismaLevel": "Low",
-  "group": "CMS/OA/DSAC",
-  "subsetInHealthcare": "Operational",
-  "userType": "Government",
-  "repositoryHost": "Github.com",
-  "maturityModelTier": "3"
+  "name": "automated-codejson-generator",
+  "description": "Tooling that allows for code.json creation through automation",
+  "longDescription": "",
+  "status": "",
+  "permissions": {
+    "license": [
+      {
+        "name": "",
+        "URL": ""
+      }
+    ],
+    "usageType": "",
+    "exemptionText": ""
+  },
+  "organization": "",
+  "repositoryURL": "https://github.com/DSACMS/automated-codejson-generator",
+  "vcs": "git",
+  "laborHours": 11709,
+  "platforms": [],
+  "categories": [],
+  "softwareType": "",
+  "languages": [
+    "TypeScript",
+    "JavaScript"
+  ],
+  "maintenance": "",
+  "date": {
+    "created": "2025-02-07T16:29:38Z",
+    "lastModified": "2025-05-13T16:45:15Z",
+    "metaDataLastUpdated": "2025-05-13T16:46:05.579Z"
+  },
+  "tags": [],
+  "contact": {
+    "email": "",
+    "name": ""
+  },
+  "localisation": false,
+  "repositoryType": "",
+  "userInput": false,
+  "fismaLevel": "",
+  "group": "",
+  "subsetInHealthcare": [],
+  "userType": [],
+  "repositoryHost": "github",
+  "maturityModelTier": 0,
+  "projectURL": "",
+  "repositoryVisibility": "",
+  "reuseFrequency": {
+    "forks": 0,
+    "clones": 0
+  },
+  "contractNumber": "",
+  "feedbackMechanisms": [
+    "https://github.com/DSACMS/automated-codejson-generator/issues"
+  ],
+  "projects": [],
+  "systems": [],
+  "upstream": ""
 }
