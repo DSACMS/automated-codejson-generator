@@ -1,10 +1,73 @@
 {
-  "projectType": "Website",
-  "userInput": "No",
+  "name": "automated-codejson-generator",
+  "description": "Tooling that allows for code.json creation through automation",
+  "longDescription": "This project provides a GitHub Action that helps federal agencies maintain their code.json files, which are required for compliance with the Federal Source Code Policy. The action automatically calculates and updates various metadata fields including labor hours, programming languages used, repository information, and timestamps. It creates pull requests with these updates, making it easier to keep code.json files accurate and up-to-date.",
+  "status": "Production",
+  "permissions": {
+    "licenses": [
+      {
+        "name": "CC0-1.0",
+        "URL": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    ],
+    "usageType": "openSource",
+    "exemptionText": ""
+  },
+  "organization": "Centers for Medicare & Medicaid Services",
+  "repositoryURL": "https://github.com/DSACMS/automated-codejson-generator",
+  "projectURL": "",
+  "repositoryHost": "github.com/DSACMS",
+  "repositoryVisibility": "",
+  "vcs": "git",
+  "laborHours": 11709,
+  "reuseFrequency": {
+    "forks": 0,
+    "clones": 0
+  },
+  "platforms": [
+    "web",
+    "linux"
+  ],
+  "categories": [
+    "developer-tools",
+    "automation"
+  ],
+  "softwareType": "standalone/backend",
+  "languages": [
+    "TypeScript",
+    "JavaScript"
+  ],
+  "maintenance": "internal",
+  "contractNumber": "",
+  "date": {
+    "created": "2025-02-07T16:29:38Z",
+    "lastModified": "2025-05-23T19:09:39Z",
+    "metaDataLastUpdated": "2025-05-23T19:10:25.569Z"
+  },
+  "tags": [
+    "github-action",
+    "codejson"
+  ],
+  "contact": {
+    "email": "opensource@cms.hhs.gov",
+    "name": "CMS Open Source Team"
+  },
+  "feedbackMechanisms": [
+    "https://github.com/DSACMS/automated-codejson-generator/issues"
+  ],
+  "localisation": false,
+  "repositoryType": "tools",
+  "userInput": false,
   "fismaLevel": "Low",
   "group": "CMS/OA/DSAC",
-  "subsetInHealthcare": "Operational",
-  "userType": "Government",
-  "repositoryHost": "Github.com",
-  "maturityModelTier": "3"
+  "projects": [],
+  "systems": [],
+  "upstream": "",
+  "subsetInHealthcare": [
+    "Operational"
+  ],
+  "userType": [
+    "Government"
+  ],
+  "maturityModelTier": 3
 }
