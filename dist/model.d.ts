@@ -60,6 +60,9 @@ export interface BasicRepoInfo {
     title: string;
     description: string;
     url: string;
-    date: Date;
     repositoryVisibility: string;
+    languages: string[];
+    forks: number;
+    tags: string[];
+    date: Date;
 }

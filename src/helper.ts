@@ -33,18 +33,23 @@ const HOURS_PER_MONTH = 730.001;
 //===============================================
 export async function calculateMetaData(): Promise<Partial<CodeJSON>> {
   try {
-    const [laborHours, basicInfo, languages] = await Promise.all([
+    const [laborHours, basicInfo] = await Promise.all([
       getLaborHours(),
       getBasicInfo(),
-      getProgrammingLanguages(),
     ]);
 
     return {
       name: basicInfo.title,
       description: basicInfo.description,
       repositoryURL: basicInfo.url,
+      repositoryVisibility: basicInfo.repositoryVisibility,
       laborHours: laborHours,
-      languages: languages,
+      languages: basicInfo.languages,
+      reuseFrequency: {
+        forks: basicInfo.forks,
+        clones: 0,
+      },
+      tags: basicInfo.tags,
       date: {
         created: basicInfo.date.created,
         lastModified: basicInfo.date.lastModified,
@@ -59,13 +64,25 @@ export async function calculateMetaData(): Promise<Partial<CodeJSON>> {
 
 async function getBasicInfo(): Promise<BasicRepoInfo> {
   try {
-    const repoData = await octokit.rest.repos.get({ owner, repo });
+    const [repoData, languagesData] = await Promise.all([
+      octokit.rest.repos.get({ owner, repo }),
+      octokit.rest.repos.listLanguages({ owner, repo }),
+    ]);
+
+    const languages = Object.keys(languagesData.data);
+    const topics = repoData.data.topics || [];
+    const tags = topics.filter(
+      (topic) => typeof topic === "string" && topic.trim() !== "",
+    );
 
     return {
       title: repoData.data.name,
       description: repoData.data.description ?? "",
       url: repoData.data.html_url,
       repositoryVisibility: repoData.data.private ? "private" : "public",
+      languages: languages,
+      forks: repoData.data.forks_count,
+      tags: tags,
       date: {
         created: repoData.data.created_at,
         lastModified: repoData.data.updated_at,
@@ -89,18 +106,6 @@ async function getLaborHours(): Promise<number> {
     return laborHours;
   } catch (error) {
     core.error(`Failed to get labor hours: ${error}`);
-    throw error;
-  }
-}
-
-async function getProgrammingLanguages(): Promise<string[]> {
-  try {
-    const repoData = await octokit.rest.repos.listLanguages({ owner, repo });
-    const languages = Object.keys(repoData.data);
-
-    return languages;
-  } catch (error) {
-    core.error(`Failed to get languages: ${error}`);
     throw error;
   }
 }
