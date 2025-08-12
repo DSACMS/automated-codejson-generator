@@ -39,7 +39,7 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@octokit/action": "^7.0.0",
-    "octokit-plugin-create-pull-request": "^6.0.0"
+    "octokit-plugin-create-pull-request": "^6.0.1"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.6",
