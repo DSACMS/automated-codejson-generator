@@ -38,7 +38,7 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@octokit/action": "^7.0.0",
+    "@octokit/action": "^8.0.2",
     "octokit-plugin-create-pull-request": "^6.0.0"
   },
   "devDependencies": {
