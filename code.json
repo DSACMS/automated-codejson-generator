@@ -1,5 +1,6 @@
 {
   "name": "automated-codejson-generator",
+  "version": "",
   "description": "Tooling that allows for code.json creation through automation",
   "longDescription": "This project provides a GitHub Action that helps federal agencies maintain their code.json files, which are required for compliance with the Federal Source Code Policy. The action automatically calculates and updates various metadata fields including labor hours, programming languages used, repository information, and timestamps. It creates pull requests with these updates, making it easier to keep code.json files accurate and up-to-date.",
   "status": "Production",
@@ -15,11 +16,14 @@
   },
   "organization": "Centers for Medicare & Medicaid Services",
   "repositoryURL": "https://github.com/DSACMS/automated-codejson-generator",
-  "projectURL": "",
   "repositoryHost": "github.com/DSACMS",
   "repositoryVisibility": "public",
+  "homepageURL": "",
+  "downloadURL": "",
+  "disclaimerURL": "",
+  "disclaimerText": "",
   "vcs": "git",
-  "laborHours": 11721,
+  "laborHours": 11729,
   "reuseFrequency": {
     "forks": 2,
     "clones": 0
@@ -39,10 +43,14 @@
   ],
   "maintenance": "internal",
   "contractNumber": [],
+  "SBOM": "https://github.com/DSACMS/automated-codejson-generator/network/dependencies",
+  "relatedCode": [],
+  "reusedCode": [],
+  "partners": [],
   "date": {
     "created": "2025-02-07T16:29:38Z",
-    "lastModified": "2025-08-05T17:50:57Z",
-    "metaDataLastUpdated": "2025-09-11T21:04:23.351Z"
+    "lastModified": "2025-09-12T17:38:19Z",
+    "metaDataLastUpdated": "2025-09-15T22:58:57.512Z"
   },
   "tags": [
     "cmsoss-tier2"
@@ -52,6 +60,7 @@
     "name": "CMS Open Source Team"
   },
   "feedbackMechanism": "https://github.com/DSACMS/automated-codejson-generator/issues",
+  "AIUseCaseID": "0",
   "localisation": false,
   "repositoryType": "tools",
   "userInput": false,
@@ -59,12 +68,13 @@
   "group": "CMS/OA/DSAC",
   "projects": [],
   "systems": [],
-  "upstream": "",
   "subsetInHealthcare": [
     "Operational"
   ],
   "userType": [
     "Government"
   ],
-  "maturityModelTier": 3
+  "maturityModelTier": 3,
+  "projectURL": "",
+  "upstream": ""
 }
