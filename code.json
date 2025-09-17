@@ -19,7 +19,7 @@
   "repositoryHost": "github.com/DSACMS",
   "repositoryVisibility": "public",
   "vcs": "git",
-  "laborHours": 11721,
+  "laborHours": 11729,
   "reuseFrequency": {
     "forks": 2,
     "clones": 0
@@ -41,8 +41,8 @@
   "contractNumber": [],
   "date": {
     "created": "2025-02-07T16:29:38Z",
-    "lastModified": "2025-08-05T17:50:57Z",
-    "metaDataLastUpdated": "2025-09-11T21:04:23.351Z"
+    "lastModified": "2025-09-17T20:29:11Z",
+    "metaDataLastUpdated": "2025-09-17T20:30:38.468Z"
   },
   "tags": [
     "cmsoss-tier2"
@@ -51,7 +51,9 @@
     "email": "opensource@cms.hhs.gov",
     "name": "CMS Open Source Team"
   },
-  "feedbackMechanism": "https://github.com/DSACMS/automated-codejson-generator/issues",
+  "feedbackMechanisms": [
+    "https://github.com/DSACMS/automated-codejson-generator/issues"
+  ],
   "localisation": false,
   "repositoryType": "tools",
   "userInput": false,
@@ -66,5 +68,6 @@
   "userType": [
     "Government"
   ],
-  "maturityModelTier": 3
+  "maturityModelTier": 3,
+  "feedbackMechanism": "https://github.com/DSACMS/automated-codejson-generator/issues"
 }
