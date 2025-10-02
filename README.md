@@ -73,7 +73,7 @@ jobs:
         uses: DSACMS/automated-codejson-generator@v1.2.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }}  # PAT with admin/push permissions
+          ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }} # PAT with admin/push permissions
           BRANCH: "main"
           SKIP_PR: "true"
 
@@ -117,7 +117,7 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: "main"
-          SKIP_PR: "false" 
+          SKIP_PR: "false"
 ```
 
 ## Setting Up Personal Access Token (PAT)
@@ -133,7 +133,7 @@ To use the direct push functionality, you'll need to create a Personal Access To
 5. **Configure Token**:
    - **Name**: Give it a descriptive name like "Code.json Generator"
    - **Expiration**: Set appropriate expiration (recommend 90 days or 1 year)
-   - **Scopes**: 
+   - **Scopes**:
      - For classic tokens: Select `repo` (full repository access)
      - For fine-grained tokens: Select `Contents` (write) and `Metadata` (read)
 
@@ -149,7 +149,6 @@ To use the direct push functionality, you'll need to create a Personal Access To
 
 ⚠️ _Please make sure the following are enabled within your Repository Action Settings in order to work properly_ ⚠️
 <img width="789" height="361" alt="Screenshot 2025-08-05 at 1 44 36 PM" src="https://github.com/user-attachments/assets/3795dc0e-c4c4-4378-8eb2-b7b9d861c08a" />
-
 
 ## Generation Context
 

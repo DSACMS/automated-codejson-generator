@@ -21,7 +21,7 @@ jobs:
         uses: DSACMS/automated-codejson-generator@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }} 
+          ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }}
           BRANCH: "main"
           SKIP_PR: "true"
 
@@ -33,4 +33,3 @@ jobs:
           elif [ "${{ steps.generator.outputs.method_used }}" = "pull_request" ]; then
             echo "Created pull request: ${{ steps.generator.outputs.pr_url }}"
             fi
-  

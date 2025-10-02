@@ -28,19 +28,10 @@
     "forks": 2,
     "clones": 0
   },
-  "platforms": [
-    "web",
-    "linux"
-  ],
-  "categories": [
-    "developer-tools",
-    "automation"
-  ],
+  "platforms": ["web", "linux"],
+  "categories": ["developer-tools", "automation"],
   "softwareType": "standalone/backend",
-  "languages": [
-    "TypeScript",
-    "JavaScript"
-  ],
+  "languages": ["TypeScript", "JavaScript"],
   "maintenance": "internal",
   "contractNumber": [],
   "SBOM": "https://github.com/DSACMS/automated-codejson-generator/network/dependencies",
@@ -52,9 +43,7 @@
     "lastModified": "2025-09-17T22:40:02Z",
     "metaDataLastUpdated": "2025-09-26T15:08:24.592Z"
   },
-  "tags": [
-    "cmsoss-tier2"
-  ],
+  "tags": ["cmsoss-tier2"],
   "contact": {
     "email": "opensource@cms.hhs.gov",
     "name": "CMS Open Source Team"
@@ -66,15 +55,9 @@
   "userInput": false,
   "fismaLevel": "Low",
   "group": "CMS/OA/DSAC",
-  "projects": [
-    "SHARE IT Act"
-  ],
+  "projects": ["SHARE IT Act"],
   "systems": [],
-  "subsetInHealthcare": [
-    "Operational"
-  ],
-  "userType": [
-    "Government"
-  ],
+  "subsetInHealthcare": ["Operational"],
+  "userType": ["Government"],
   "maturityModelTier": 3
 }

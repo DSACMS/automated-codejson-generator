@@ -119,42 +119,70 @@ async function getMetaData(
 }
 
 export async function run(): Promise<void> {
-  const currentCodeJSON = await helpers.readJSON("/github/workspace/code.json");
-  const metaData = await getMetaData(currentCodeJSON);
-  let finalCodeJSON = {} as CodeJSON;
+  try {
+    const eventName = process.env.GITHUB_EVENT_NAME;
+    core.info(`Event name: ${eventName}`);
 
-  if (currentCodeJSON) {
-    finalCodeJSON = {
-      ...baselineCodeJSON,
-      ...currentCodeJSON,
-      ...metaData,
-    };
-  } else {
-    finalCodeJSON = {
-      ...baselineCodeJSON,
-      ...metaData,
-    };
-  }
-
-  const baseBranchName = await helpers.getBaseBranch();
-  const skipPR = core.getInput("SKIP_PR", { required: false }) === "true";
-  const adminToken = core.getInput("ADMIN_TOKEN", { required: false });
-
-  if (skipPR) {
-    if (!adminToken) {
-      core.warning("SKIP_PR is enabled but ADMIN_TOKEN is not provided.");
-      core.warning(
-        "Direct push requires a Personal Access Token with appropriate permissions.",
-      );
-
-      core.info("Falling back to pull request creation");
-      await helpers.sendPR(finalCodeJSON, baseBranchName);
-    } else {
-      core.info("Attempting direct push");
-      await helpers.pushDirectlyWithFallback(finalCodeJSON, baseBranchName);
+    // Validaiton only
+    if (eventName === "pull_request") {
+      core.info("Detected pull request event - validation code.json!");
+      await helpers.validateOnly();
+      return;
     }
-  } else {
-    core.info("Attempting pull request creation");
-    await helpers.sendPR(finalCodeJSON, baseBranchName);
+
+    const currentCodeJSON = await helpers.readJSON(
+      "/github/workspace/code.json",
+    );
+    const metaData = await getMetaData(currentCodeJSON);
+    let finalCodeJSON = {} as CodeJSON;
+
+    if (currentCodeJSON) {
+      core.info("Existing code.json found - merging with calculated metadata");
+      finalCodeJSON = {
+        ...baselineCodeJSON,
+        ...currentCodeJSON,
+        ...metaData,
+      };
+    } else {
+      finalCodeJSON = {
+        ...baselineCodeJSON,
+        ...metaData,
+      };
+    }
+
+    core.info("Validating generated code.json before output");
+    const validationErrors = helpers.validateCodeJSON(finalCodeJSON);
+
+    if (validationErrors.length > 0) {
+      const errorMessage = `Generated code.json is invalid:\n\n${validationErrors.map((err, idx) => `${idx + 1}. ${err}`).join("\n")}`;
+      core.setFailed(errorMessage);
+      return;
+    }
+
+    core.info("Generated code.json passed validation!");
+
+    const baseBranchName = await helpers.getBaseBranch();
+    const skipPR = core.getInput("SKIP_PR", { required: false }) === "true";
+    const adminToken = core.getInput("ADMIN_TOKEN", { required: false });
+
+    if (skipPR) {
+      if (!adminToken) {
+        core.warning("SKIP_PR is enabled but ADMIN_TOKEN is not provided.");
+        core.warning(
+          "Direct push requires a Personal Access Token with appropriate permissions.",
+        );
+
+        core.info("Falling back to pull request creation");
+        await helpers.sendPR(finalCodeJSON, baseBranchName);
+      } else {
+        core.info("Attempting direct push to branch");
+        await helpers.pushDirectlyWithFallback(finalCodeJSON, baseBranchName);
+      }
+    } else {
+      core.info("Creating pull request with updated code.json");
+      await helpers.sendPR(finalCodeJSON, baseBranchName);
+    }
+  } catch (error) {
+    core.setFailed(`Action failed: ${error}`);
   }
 }

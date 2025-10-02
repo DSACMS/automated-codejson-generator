@@ -7,6 +7,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 
 import { CodeJSON, BasicRepoInfo } from "./model.js";
+import { validateCodeJSON } from "./validation.js";
 
 const execAsync = promisify(exec);
 
@@ -138,6 +139,42 @@ export async function getBaseBranch(): Promise<string> {
     }
   }
 }
+
+//===============================================
+// Validation
+//===============================================
+
+// Used when triggered by pull request events
+export async function validateOnly(): Promise<void> {
+  core.info("🔍 Running in validation-only mode");
+
+  try {
+    const codeJSON = await readJSON("/github/workspace/code.json");
+
+    if (!codeJSON) {
+      core.setFailed(
+        "code.json file not found, is empty, or contains invalid JSON syntax...",
+      );
+      return;
+    }
+
+    core.info("code.json file successfully parsed!");
+
+    const validationErrors = validateCodeJSON(codeJSON);
+
+    if (validationErrors.length > 0) {
+      const errorMessage = `code.json validation failed with following errors:\n\n${validationErrors.map((err, idx) => `${idx + 1}. ${err}`).join("\n")}`;
+      core.setFailed(errorMessage);
+      return;
+    }
+
+    core.info("code.json is valid!");
+  } catch (error) {
+    core.setFailed(`Validation error: ${error}`);
+  }
+}
+
+export { validateCodeJSON };
 
 //===============================================
 // Data Handling
