@@ -56,7 +56,7 @@
     "cmsoss-tier2"
   ],
   "contact": {
-    "email": "opensourcecms.hhs.gov",
+    "email": "opensource@cms.hhs.gov",
     "name": "CMS Open Source Team"
   },
   "feedbackMechanism": "https://github.com/DSACMS/automated-codejson-generator/issues",
