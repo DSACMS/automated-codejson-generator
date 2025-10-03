@@ -38,6 +38,16 @@ npm run package
 npm test
 ```
 
+## Validation
+
+The action uses [Zod](https://zod.dev/) for schema validation, automatically validating code.json in two scenarios:
+
+### 1. Before Generation
+Every time the action generates or updates code.json (via schedule or workflow_dispatch), it validates the output before creating a PR or pushing. If validation fails, no changes are made.
+
+### 2. On PR Edits
+When the `pull_request` trigger is configured, the action validates code.json whenever it's edited in a PR. This ensures users cannot accidentally merge invalid JSON.
+
 ### Workflow and Branching
 
 We follow the [GitHub Flow Workflow](https://guides.github.com/introduction/flow/):

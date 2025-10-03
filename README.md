@@ -33,26 +33,33 @@ ADMIN_TOKEN:
 ```yaml
 updated:
   description: "Boolean indicating whether code.json was updated"
+
 pr_url:
   description: "URL of the created pull request if changes were made via PR"
+
 commit_sha:
   description: "SHA of the commit if pushed directly to branch"
+
 method_used:
   description: "Method used for the update: 'direct_push' or 'pull_request'"
 ```
 
 ## Workflow Examples
 
-### Option 1: Direct Push
+### Option 1: Direct Push 
 
-This approach tries to push directly to the branch using a Personal Access Token, but falls back to creating a pull request if the direct push fails.
+This approach tries to push directly to the branch using a Personal Access Token, but falls back to creating a pull request if the direct push fails. When users need to edit code.json, they should create a PR which will automatically validate their changes.
 
 ```yaml
-name: Update Code.json (Smart Mode)
+name: Update Code.json
 on:
   schedule:
     - cron: 0 0 1 * * # First day of every month
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'code.json'
 
 permissions:
   contents: write
@@ -89,7 +96,7 @@ jobs:
 
 ### Option 2: Pull Request Only
 
-This approach always creates a pull request, ensuring code review for all changes.
+This approach always creates a pull request for both automatic generation and validation of manual edits, ensuring code review for all changes.
 
 ```yaml
 name: Update Code.json
@@ -97,6 +104,10 @@ on:
   schedule:
     - cron: 0 0 1 * * # First day of every month
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'code.json'
 
 permissions:
   contents: write
@@ -113,12 +124,26 @@ jobs:
           fetch-depth: 0
 
       - name: Update code.json
-        uses: DSACMS/automated-codejson-generator@latest
+        uses: DSACMS/automated-codejson-generator@v1.2.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: "main"
           SKIP_PR: "false" 
 ```
+
+### How It Works
+
+**Automatic Generation**
+- The action calculates metadata, validates it, and creates a PR or pushes directly
+- Validation ensures only valid code.json is created
+- Users can then fill in manual fields by editing the PR
+
+**PR Validation**
+- When users edit code.json in a PR, validation runs automatically on every commit
+- The PR cannot be merged if validation fails (when branch protection is enabled)
+- Error messages help users fix issues quickly
+
+**Important:** For direct push mode, users should always create PRs when manually editing code.json to ensure validation runs. Direct edits to the main branch will not be validated by this action.
 
 ## Setting Up Personal Access Token (PAT)
 
@@ -128,14 +153,14 @@ To use the direct push functionality, you'll need to create a Personal Access To
 
 1. **Go to GitHub Settings**: Navigate to your GitHub account settings
 2. **Developer Settings**: Click on "Developer settings" in the left sidebar
-3. **Personal Access Tokens**: Choose "Tokens (classic)" or "Fine-grained tokens"
+3. **Personal Access Tokens**: Choose "Tokens (classic)"
 4. **Generate New Token**: Click "Generate new token"
 5. **Configure Token**:
-   - **Name**: Give it a descriptive name like "Code.json Generator"
+   - **Name**: Give it a name like "code.json Generator"
    - **Expiration**: Set appropriate expiration (recommend 90 days or 1 year)
    - **Scopes**: 
-     - For classic tokens: Select `repo` (full repository access)
-     - For fine-grained tokens: Select `Contents` (write) and `Metadata` (read)
+     - Select `repo` (full repository access)
+6. **Store Token**: Copy and paste your token and store it for the next part
 
 ### Adding PAT to Repository
 
@@ -148,8 +173,7 @@ To use the direct push functionality, you'll need to create a Personal Access To
 5. **Save**: Click "Add secret"
 
 ⚠️ _Please make sure the following are enabled within your Repository Action Settings in order to work properly_ ⚠️
-<img width="789" height="361" alt="Screenshot 2025-08-05 at 1 44 36 PM" src="https://github.com/user-attachments/assets/3795dc0e-c4c4-4378-8eb2-b7b9d861c08a" />
-
+<img width="789" height="361" alt="Screenshot 2025-08-05 at 1 44 36 PM" src="https://github.com/user-attachments/assets/3795dc0e-c4c4-4378-8eb2-b7b9d861c08a" />
 
 ## Generation Context
 
@@ -213,6 +237,7 @@ An up-to-date list of core team members can be found in [MAINTAINERS.md](MAINTAI
 .
 ├── src/
 │   ├── model.ts          # TypeScript interfaces for code.json schema
+│   ├── validation.ts     # Zod schema definitions and validation logic
 │   ├── main.ts           # Main action logic
 │   ├── helper.ts         # Helper functions for GitHub API interactions
 │   └── index.ts          # Action entrypoint
