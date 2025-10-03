@@ -1,5 +1,8 @@
 # Dependency directory
-node_modules
+node_modules/
+
+# Typescript build files
+dist/
 
 # Rest pulled from https://github.com/github/gitignore/blob/master/Node.gitignore
 # Logs
@@ -23,7 +26,7 @@ pids
 lib-cov
 
 # Coverage directory used by tools like istanbul
-coverage
+coverage/
 *.lcov
 
 # nyc test coverage
