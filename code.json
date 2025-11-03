@@ -11,7 +11,9 @@
         "URL": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     ],
-    "usageType": ["openSource"],
+    "usageType": [
+      "openSource"
+    ],
     "exemptionText": ""
   },
   "organization": "Centers for Medicare & Medicaid Services",
@@ -23,7 +25,7 @@
   "disclaimerURL": "",
   "disclaimerText": "",
   "vcs": "git",
-  "laborHours": 3137,
+  "laborHours": 3150,
   "reuseFrequency": {
     "forks": 4,
     "clones": 0
@@ -49,8 +51,8 @@
   "partners": [],
   "date": {
     "created": "2025-02-07T16:29:38Z",
-    "lastModified": "2025-10-21T21:52:17Z",
-    "metadataLastUpdated": "2025-10-30T22:53:09.463Z"
+    "lastModified": "2025-10-30T22:56:04Z",
+    "metadataLastUpdated": "2025-11-03T16:54:05.920Z"
   },
   "tags": [
     "cmsoss-tier2"
