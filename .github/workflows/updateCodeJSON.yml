@@ -22,7 +22,7 @@ jobs:
 
       - name: Update code.json
         id: generator
-        uses: DSACMS/automated-codejson-generator@sachin/archivalMode
+        uses: DSACMS/automated-codejson-generator@v1.2.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }}
