@@ -1,6 +1,6 @@
 {
   "name": "automated-codejson-generator",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "description": "Tooling that allows for code.json creation through automation",
   "longDescription": "This project provides a GitHub Action that helps federal agencies maintain their code.json files, which are required for compliance with the Federal Source Code Policy. The action automatically calculates and updates various metadata fields including labor hours, programming languages used, repository information, and timestamps. It creates pull requests with these updates, making it easier to keep code.json files accurate and up-to-date.",
   "status": "Production",
@@ -53,7 +53,13 @@
     "metadataLastUpdated": "2025-10-30T22:53:09.463Z"
   },
   "tags": [
-    "cmsoss-tier2"
+    "cmsoss-tier2",
+    "metadata",
+    "codejson",
+    "ci",
+    "github-action",
+    "workflow",
+    "featured"
   ],
   "contact": {
     "email": "opensource@cms.hhs.gov",
@@ -67,7 +73,7 @@
   "fismaLevel": "low",
   "group": "CMS/OA/DSAC",
   "projects": [
-    "SHARE IT Act"
+    "share-it-act"
   ],
   "systems": [],
   "subsetInHealthcare": [
