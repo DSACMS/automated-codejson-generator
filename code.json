@@ -3,6 +3,7 @@
   "version": "1.2.1",
   "description": "Tooling that allows for code.json creation through automation",
   "longDescription": "This project provides a GitHub Action that helps federal agencies maintain their code.json files, which are required for compliance with the Federal Source Code Policy. The action automatically calculates and updates various metadata fields including labor hours, programming languages used, repository information, and timestamps. It creates pull requests with these updates, making it easier to keep code.json files accurate and up-to-date.",
+  "status": "Production",
   "permissions": {
     "licenses": [
       {
