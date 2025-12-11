@@ -123,7 +123,7 @@ async function getMetaData(
 
   // handling archive option
   const isArchived = core.getInput("ARCHIVE", { required: false }) === "true";
-  const status = isArchived ? "Archived" : (existingCodeJSON?.status || "");
+  const status = isArchived ? "Archival" : (existingCodeJSON?.status || "");
 
   return {
     name: partialCodeJSON.name,
