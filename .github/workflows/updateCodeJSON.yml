@@ -28,6 +28,7 @@ jobs:
           ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }}
           BRANCH: "main"
           SKIP_PR: "false"
+          ARCHIVE: "true"
 
       - name: Post update information
         run: |
