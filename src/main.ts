@@ -121,9 +121,14 @@ async function getMetaData(
     }
   }
 
+  // handling archive option
+  const isArchived = core.getInput("ARCHIVE", { required: false }) === "true";
+  const status = isArchived ? "archived" : (existingCodeJSON?.status || "");
+
   return {
     name: partialCodeJSON.name,
     description: description,
+    status: status,
     repositoryURL: partialCodeJSON.repositoryURL,
     repositoryVisibility: partialCodeJSON.repositoryVisibility,
     laborHours: partialCodeJSON.laborHours,

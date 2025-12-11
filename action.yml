@@ -21,6 +21,11 @@ inputs:
     description: "Personal Access Token with admin/write privileges for direct push. Required when SKIP_PR is true."
     required: false
 
+  ARCHIVE:
+    description: "Option to set this tool to archive mode which prepares a repository for archival."
+    required: false
+    default: "false"
+
 outputs:
   updated:
     description: "Boolean indicating whether code.json was updated"
