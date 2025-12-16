@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const DateSchema = z.object({
+export const DateSchema = z.object({
   created: z.string().min(1, "created date is required"),
   lastModified: z.string().min(1, "lastModified date is required"),
   metadataLastUpdated: z
@@ -8,17 +8,17 @@ const DateSchema = z.object({
     .min(1, "metadataLastUpdated date is required"),
 });
 
-const ContactSchema = z.object({
+export const ContactSchema = z.object({
   email: z.email("must be a valid email").min(1, "email is required"),
   name: z.string().min(1, "name is required"),
 });
 
-const LicenseSchema = z.object({
+export const LicenseSchema = z.object({
   name: z.string().min(1, "license name is required"),
   URL: z.url("license URL must be valid").min(1, "license URL is required"),
 });
 
-const PermissionsSchema = z
+export const PermissionsSchema = z
   .object({
     licenses: z.array(LicenseSchema).min(1, "at least one license is required"),
     usageType: z.union([z.array(z.string()), z.string()]),
@@ -46,27 +46,28 @@ const PermissionsSchema = z
     },
   );
 
-const ReuseFrequencySchema = z.object({
+export const ReuseFrequencySchema = z.object({
   forks: z.number(),
   clones: z.number().optional(),
 });
 
-const RelatedCodeSchema = z.object({
+export const RelatedCodeSchema = z.object({
   name: z.string(),
   URL: z.url(),
   isGovernmentRepo: z.boolean(),
 });
 
-const ReusedCodeSchema = z.object({
+export const ReusedCodeSchema = z.object({
   name: z.string(),
   URL: z.url(),
 });
 
-const PartnerSchema = z.object({
+export const PartnerSchema = z.object({
   name: z.string(),
   email: z.email(),
 });
 
+// we define our final runtime code.json schema here
 export const CodeJSONSchema = z.object({
   name: z.string().min(1, "name is required"),
   version: z.string().optional(),
@@ -127,3 +128,6 @@ export function validateCodeJSON(codeJSON: any): string[] {
     return `${field}: ${err.message}`;
   });
 }
+
+export type Date = z.infer<typeof DateSchema>;
+export type CodeJSON = z.infer<typeof CodeJSONSchema>; // we create our compile time code.json type inferance here

@@ -4,8 +4,15 @@
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "resolveJsonModule": true
   },
-  "exclude": ["__fixtures__", "__tests__", "coverage", "dist", "node_modules"],
+  "exclude": [
+    "src/__tests__/fixtures",
+    "src/__tests__",
+    "coverage",
+    "dist",
+    "node_modules"
+  ],
   "include": ["src"]
 }

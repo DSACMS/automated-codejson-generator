@@ -1,4 +1,5 @@
 # Code.json Auto Generator
+
 ###### _⚠️ Please update your action to v1.2.1 if your workflow is failing due to Docker builds within the action ⚠️_
 
 A GitHub Action that automatically generates and maintains code.json files for federal open source repositories, ensuring schema consistency and automating metadata calculations.
@@ -32,6 +33,7 @@ This approach tries to push directly to the branch using a Personal Access Token
 #### Direct Push Mode Limitations
 
 **Important:** Direct push mode (`SKIP_PR: "true"`) will fall back to creating a pull request if:
+
 - Branch protection rules are enabled on the target branch
 - The PAT doesn't have sufficient permissions
 - Any other push restriction exists
@@ -39,12 +41,14 @@ This approach tries to push directly to the branch using a Personal Access Token
 This is expected behavior. If you need all updates to go through pull requests, use `SKIP_PR: "false"`.
 
 ##### When Direct Push Works
+
 - No branch protection on target branch
 - PAT has write access
 - No other repository restrictions
 
 ##### When It Falls Back to PR
-- Any branch protection enabled 
+
+- Any branch protection enabled
 - Any push restrictions
 
 **Recommendation:** For repositories with branch protection, use `SKIP_PR: "false"` to always create pull requests.
@@ -181,7 +185,7 @@ To use the direct push functionality, you'll need to create a Personal Access To
 5. **Configure Token**:
    - **Name**: Give it a name like "code.json Generator"
    - **Expiration**: Set appropriate expiration (recommend 90 days or 1 year)
-   - **Scopes**: 
+   - **Scopes**:
      - For classic tokens: Select `repo` (full repository access)
      - For fine-grained tokens: Select `Contents` (write) and `Metadata` (read)
 6. **Copy the generated token**: Copy the token and keep it handy for the next section

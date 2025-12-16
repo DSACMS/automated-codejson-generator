@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize]
     paths:
-      - 'code.json'
+      - "code.json"
 
 permissions:
   contents: write
