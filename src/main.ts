@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { CodeJSON } from "./model.js";
+import { CodeJSON } from "./zod-validation.js";
 import * as helpers from "./helper.js";
 
 const baselineCodeJSON: CodeJSON = {
@@ -117,13 +117,13 @@ async function getMetaData(
     if (typeof existingContract === "string") {
       contractNumber = existingContract.trim() ? [existingContract.trim()] : [];
     } else if (Array.isArray(existingContract)) {
-      contractNumber = existingContract
+      contractNumber = existingContract;
     }
   }
 
   // handling archive option
   const isArchived = core.getInput("ARCHIVE", { required: false }) === "true";
-  let status: string = existingCodeJSON?.status || ""
+  let status: string = existingCodeJSON?.status || "";
 
   if (isArchived) {
     status = "Archival";
@@ -174,7 +174,7 @@ export async function run(): Promise<void> {
     if (currentCodeJSON) {
       // filter out outdated fields before merging
       const filteredExisting = filterValidFields(currentCodeJSON);
-      
+
       finalCodeJSON = {
         ...baselineCodeJSON,
         ...filteredExisting,

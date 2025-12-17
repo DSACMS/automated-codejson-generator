@@ -1,0 +1,56 @@
+{
+  "name": "automated-codejson-generator",
+  "version": "1.0.0",
+  "description": "A GitHub Action that generates code.json files",
+  "longDescription": "This action helps federal agencies maintain code.json files for compliance.",
+  "status": "Production",
+  "permissions": {
+    "licenses": [
+      {
+        "name": "CC0 1.0 Universal",
+        "URL": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    ],
+    "usageType": ["openSource"],
+    "exemptionText": ""
+  },
+  "organization": "DSACMS",
+  "repositoryURL": "https://github.com/DSACMS/automated-codejson-generator",
+  "repositoryHost": "github",
+  "repositoryVisibility": "public",
+  "vcs": "git",
+  "laborHours": 500,
+  "reuseFrequency": {
+    "forks": 10,
+    "clones": 50
+  },
+  "platforms": ["github-actions"],
+  "categories": ["compliance", "automation"],
+  "softwareType": "tool",
+  "languages": ["TypeScript"],
+  "maintenance": "active",
+  "contractNumber": [],
+  "SBOM": "https://github.com/DSACMS/automated-codejson-generator/network/dependencies",
+  "date": {
+    "created": "2024-01-01T00:00:00Z",
+    "lastModified": "2024-06-15T00:00:00Z",
+    "metadataLastUpdated": "2024-06-20T00:00:00Z"
+  },
+  "tags": ["code.json", "federal", "open-source"],
+  "contact": {
+    "email": "opensource@cms.hhs.gov",
+    "name": "CMS Open Source Team"
+  },
+  "feedbackMechanism": "https://github.com/DSACMS/automated-codejson-generator/issues",
+  "AIUseCaseID": "0",
+  "localisation": false,
+  "repositoryType": "source",
+  "userInput": false,
+  "fismaLevel": "low",
+  "group": "DSACMS",
+  "projects": [],
+  "systems": [],
+  "subsetInHealthcare": [],
+  "userType": ["developer"],
+  "maturityModelTier": 1
+}

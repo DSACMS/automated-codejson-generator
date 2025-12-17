@@ -28,19 +28,10 @@
     "forks": 4,
     "clones": 0
   },
-  "platforms": [
-    "web",
-    "linux"
-  ],
-  "categories": [
-    "developer-tools",
-    "automation"
-  ],
+  "platforms": ["web", "linux"],
+  "categories": ["developer-tools", "automation"],
   "softwareType": "standalone/backend",
-  "languages": [
-    "TypeScript",
-    "JavaScript"
-  ],
+  "languages": ["TypeScript", "JavaScript"],
   "maintenance": "internal",
   "contractNumber": [],
   "SBOM": "https://github.com/DSACMS/automated-codejson-generator/network/dependencies",
@@ -72,15 +63,9 @@
   "userInput": false,
   "fismaLevel": "low",
   "group": "CMS/OA/DSAC",
-  "projects": [
-    "share-it-act"
-  ],
+  "projects": ["share-it-act"],
   "systems": [],
-  "subsetInHealthcare": [
-    "operational"
-  ],
-  "userType": [
-    "government"
-  ],
+  "subsetInHealthcare": ["operational"],
+  "userType": ["government"],
   "maturityModelTier": 3
 }
