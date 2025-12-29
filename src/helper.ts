@@ -6,7 +6,7 @@ import { createPullRequest } from "octokit-plugin-create-pull-request";
 import { exec } from "child_process";
 import { promisify } from "util";
 
-import { CodeJSON } from "./zod-validation.js";
+import { CodeJSON } from "./types/CodeJSONSchema.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
 import { validateCodeJSON } from "./zod-validation.js";
 
