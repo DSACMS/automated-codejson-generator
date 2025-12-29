@@ -1,7 +1,7 @@
 {
   "name": "automated-codejson-generator",
   "version": "1.2.1",
-  "description": "Tooling that allows for code.json creation through automation",
+  "description": "Github Action that allows for automated code.json creation and maintenance ",
   "longDescription": "This project provides a GitHub Action that helps federal agencies maintain their code.json files, which are required for compliance with the Federal Source Code Policy. The action automatically calculates and updates various metadata fields including labor hours, programming languages used, repository information, and timestamps. It creates pull requests with these updates, making it easier to keep code.json files accurate and up-to-date.",
   "status": "Production",
   "permissions": {
@@ -11,7 +11,9 @@
         "URL": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     ],
-    "usageType": ["openSource"],
+    "usageType": [
+      "openSource"
+    ],
     "exemptionText": ""
   },
   "organization": "Centers for Medicare & Medicaid Services",
@@ -23,15 +25,24 @@
   "disclaimerURL": "",
   "disclaimerText": "",
   "vcs": "git",
-  "laborHours": 3137,
+  "laborHours": 4052,
   "reuseFrequency": {
     "forks": 4,
     "clones": 0
   },
-  "platforms": ["web", "linux"],
-  "categories": ["developer-tools", "automation"],
+  "platforms": [
+    "web",
+    "linux"
+  ],
+  "categories": [
+    "developer-tools",
+    "automation"
+  ],
   "softwareType": "standalone/backend",
-  "languages": ["TypeScript", "JavaScript"],
+  "languages": [
+    "TypeScript",
+    "JavaScript"
+  ],
   "maintenance": "internal",
   "contractNumber": [],
   "SBOM": "https://github.com/DSACMS/automated-codejson-generator/network/dependencies",
@@ -40,17 +51,14 @@
   "partners": [],
   "date": {
     "created": "2025-02-07T16:29:38Z",
-    "lastModified": "2025-10-21T21:52:17Z",
-    "metadataLastUpdated": "2025-10-30T22:53:09.463Z"
+    "lastModified": "2025-12-17T15:57:09Z",
+    "metadataLastUpdated": "2025-12-29T17:28:24.221Z"
   },
   "tags": [
     "cmsoss-tier2",
-    "metadata",
     "codejson",
-    "ci",
-    "github-action",
-    "workflow",
-    "featured"
+    "featured",
+    "metadata"
   ],
   "contact": {
     "email": "opensource@cms.hhs.gov",
@@ -63,9 +71,15 @@
   "userInput": false,
   "fismaLevel": "low",
   "group": "CMS/OA/DSAC",
-  "projects": ["share-it-act"],
+  "projects": [
+    "share-it-act"
+  ],
   "systems": [],
-  "subsetInHealthcare": ["operational"],
-  "userType": ["government"],
+  "subsetInHealthcare": [
+    "operational"
+  ],
+  "userType": [
+    "government"
+  ],
   "maturityModelTier": 3
 }
