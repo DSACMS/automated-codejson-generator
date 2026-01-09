@@ -58,10 +58,18 @@ async function formatFile(filePath: string) {
 }
 
 async function generateSchema() {
+    console.log(`Fetching JSON schema from GitHub...`);
     const response = await fetch(schemaURL);
+    
+    if (!response.ok) {
+        throw new Error(`Failed to fetch schema: ${response.status} ${response.statusText}`);
+    }
+
     const jsonSchema = (await response.json()) as JsonSchema;
 
+    console.log(`Converting JSON schema to Zod...`);
     let zodSourceCode = jsonSchemaToZod(jsonSchema);
+
     zodSourceCode = fixUniqueArrays(zodSourceCode);
 
     const fileContent = `
@@ -75,7 +83,21 @@ async function generateSchema() {
     `;
 
     fs.writeFileSync(filePath, fileContent);
+    console.log(`File written to ${filePath}...`);
+
     await formatFile(filePath);
+    console.log(`Schema generation complete!`);
 }
 
-await generateSchema();
+try {
+    await generateSchema();
+} catch (error) {
+    console.error(`Schema generation failed!`);
+    
+    if (error instanceof Error) {
+        console.error(`Error: ${error.message}`);
+    } else {
+        console.error(`Unknown error:`, error);
+    }
+    process.exit(1);
+}
