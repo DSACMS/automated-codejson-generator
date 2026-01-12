@@ -1,27 +1,27 @@
 import * as core from "@actions/core";
-import { CodeJSON } from "./zod-validation.js";
+import { CodeJSON } from "./types/CodeJSONSchema.js";
 import * as helpers from "./helper.js";
 
-const baselineCodeJSON: CodeJSON = {
+const baselineCodeJSON: Partial<CodeJSON> = {
   name: "",
   version: "",
   description: "",
   longDescription: "",
-  status: "",
+  status: undefined,
   permissions: {
     licenses: [
       {
-        name: "",
+        name: "CC0-1.0",
         URL: "",
       },
     ],
     usageType: [],
     exemptionText: "",
   },
-  organization: "",
+  organization: "Centers for Medicare & Medicaid Services",
   repositoryURL: "",
-  repositoryHost: "github",
-  repositoryVisibility: "",
+  repositoryHost: undefined,
+  repositoryVisibility: undefined,
   homepageURL: "",
   downloadURL: "",
   disclaimerURL: "",
@@ -34,9 +34,9 @@ const baselineCodeJSON: CodeJSON = {
   },
   platforms: [],
   categories: [],
-  softwareType: "",
+  softwareType: undefined,
   languages: [],
-  maintenance: "",
+  maintenance: undefined,
   contractNumber: [],
   SBOM: "",
   relatedCode: [],
@@ -55,9 +55,9 @@ const baselineCodeJSON: CodeJSON = {
   feedbackMechanism: "",
   AIUseCaseID: "0",
   localisation: false,
-  repositoryType: "",
+  repositoryType: undefined,
   userInput: false,
-  fismaLevel: "",
+  fismaLevel: undefined,
   group: "",
   projects: [],
   systems: [],
@@ -123,7 +123,7 @@ async function getMetaData(
 
   // handling archive option
   const isArchived = core.getInput("ARCHIVE", { required: false }) === "true";
-  let status: string = existingCodeJSON?.status || "";
+  let status = existingCodeJSON?.status || undefined;
 
   if (isArchived) {
     status = "Archival";
@@ -179,12 +179,12 @@ export async function run(): Promise<void> {
         ...baselineCodeJSON,
         ...filteredExisting,
         ...metaData,
-      };
+      } as CodeJSON;
     } else {
       finalCodeJSON = {
         ...baselineCodeJSON,
         ...metaData,
-      };
+      } as CodeJSON;
     }
 
     core.info("Generated code.json successfully!");

@@ -33,14 +33,16 @@
     "package": "npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "package:watch": "npm run package -- --watch",
     "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
-    "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
+    "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package",
+    "generate-schema": "npx tsx src/scripts/generate-schema.ts"
   },
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@octokit/action": "^7.0.0",
+    "json-schema-to-zod": "^2.7.0",
     "octokit-plugin-create-pull-request": "^6.0.0",
-    "zod": "^4.1.11"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.6",
