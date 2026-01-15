@@ -22,7 +22,7 @@ jobs:
 
       - name: Update code.json
         id: generator
-        uses: DSACMS/automated-codejson-generator@sachin/inheriting-from-source-model
+        uses: DSACMS/automated-codejson-generator@sachin/fixing-broken-fields-validation
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }}
