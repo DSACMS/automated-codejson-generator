@@ -2,9 +2,9 @@ import fs from "fs";
 import path from "path";
 import prettier from "prettier";
 import { JsonSchema, jsonSchemaToZod } from "json-schema-to-zod";
+import { getLatestSchemaVersion } from "./get-latest-schema.js";
 
-const schemaVersion = "2.0.0";
-const schemaURL = `https://raw.githubusercontent.com/DSACMS/gov-codejson/refs/heads/main/schemas/cms/schema-${schemaVersion}.json`;
+const SCHEMA_BASE_URL = "https://raw.githubusercontent.com/DSACMS/gov-codejson/refs/heads/main/schemas/cms";
 const filePath = "src/types/CodeJSONSchema.ts";
 
 function allowEmptyUrls(zodCode: string): string {
@@ -63,6 +63,10 @@ async function formatFile(filePath: string) {
 }
 
 async function generateSchema() {
+    const schemaVersion = await getLatestSchemaVersion();
+    console.log(`Latest schema version: ${schemaVersion}`);
+
+    const schemaURL = `${SCHEMA_BASE_URL}/schema-${schemaVersion}.json`;
     console.log(`Fetching JSON schema from GitHub...`);
     const response = await fetch(schemaURL);
     
@@ -80,6 +84,7 @@ async function generateSchema() {
 
     const fileContent = `
         // DO NOT EDIT - AUTOMATICALLY GENERATED FILE!!!
+        // Schema Version: ${schemaVersion}
 
         import { z } from "zod";
 
