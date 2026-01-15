@@ -8,10 +8,6 @@ export function validateCodeJSON(codeJSON: any): string[] {
     return [];
   }
 
-  return result.error.issues.map((err: z.ZodIssue) => {
-    const path = err.path.join(".");
-    const field = path || "root";
-    return `${field}: ${err.message}`;
-  });
+  return [z.prettifyError(result.error)]
 }
 
