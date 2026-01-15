@@ -1,5 +1,10 @@
 import { z } from "zod";
+import { createErrorMap } from "zod-validation-error";
 import { CodeJSONSchema } from "./types/CodeJSONSchema.js";
+
+z.config({
+  customError: createErrorMap(),
+});
 
 export function validateCodeJSON(codeJSON: any): string[] {
   const result = CodeJSONSchema.safeParse(codeJSON);
@@ -8,10 +13,6 @@ export function validateCodeJSON(codeJSON: any): string[] {
     return [];
   }
 
-  return result.error.issues.map((err: z.ZodIssue) => {
-    const path = err.path.join(".");
-    const field = path || "root";
-    return `${field}: ${err.message}`;
-  });
+  return [z.prettifyError(result.error)]
 }
 

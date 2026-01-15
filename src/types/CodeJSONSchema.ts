@@ -57,6 +57,7 @@ export const CodeJSONSchema = z
                 URL: z
                   .string()
                   .url()
+                  .or(z.literal(""))
                   .describe("The URL of the release license in the repository"),
               })
               .strict(),
@@ -115,6 +116,7 @@ export const CodeJSONSchema = z
     repositoryURL: z
       .string()
       .url()
+      .or(z.literal(""))
       .describe(
         "The URL of the public release repository for open source repositories. This field is not required for repositories that are only available as government-wide reuse or are closed (pursuant to one of the exemptions). It can be listed as 'private' for repositories that are closed.",
       ),
@@ -134,16 +136,19 @@ export const CodeJSONSchema = z
     homepageURL: z
       .string()
       .url()
+      .or(z.literal(""))
       .describe("The URL of the public release homepage.")
       .optional(),
     downloadURL: z
       .string()
       .url()
+      .or(z.literal(""))
       .describe("The URL where a distribution of the release can be found.")
       .optional(),
     disclaimerURL: z
       .string()
       .url()
+      .or(z.literal(""))
       .describe(
         "The URL where disclaimer language regarding the release can be found.",
       )
@@ -236,6 +241,7 @@ export const CodeJSONSchema = z
             URL: z
               .string()
               .url()
+              .or(z.literal(""))
               .describe(
                 "The URL where the code repository, project, library or release can be found.",
               )
@@ -264,6 +270,7 @@ export const CodeJSONSchema = z
             URL: z
               .string()
               .url()
+              .or(z.literal(""))
               .describe("The URL where the software can be found.")
               .optional(),
           })
@@ -336,6 +343,7 @@ export const CodeJSONSchema = z
     feedbackMechanism: z
       .string()
       .url()
+      .or(z.literal(""))
       .describe(
         "Method a repository receives feedback from the community (i.e. URL to GitHub repository issues page)",
       ),
