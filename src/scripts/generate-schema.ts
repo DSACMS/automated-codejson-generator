@@ -7,6 +7,11 @@ const schemaVersion = "2.0.0";
 const schemaURL = `https://raw.githubusercontent.com/DSACMS/gov-codejson/refs/heads/main/schemas/cms/schema-${schemaVersion}.json`;
 const filePath = "src/types/CodeJSONSchema.ts";
 
+function allowEmptyUrls(zodCode: string): string {
+    // allow empty strings for all URL fields while still validating non-empty values
+    return zodCode.replace(/\.url\(\)/g, '.url().or(z.literal(""))');
+  }
+
 function fixUniqueArrays(zodCode: string): string {
     // replace .unique() with .refine() pattern since Zod doesn't have .unique() for arrays but converter adds it in there
     return zodCode.replace(
@@ -71,6 +76,7 @@ async function generateSchema() {
     let zodSourceCode = jsonSchemaToZod(jsonSchema);
 
     zodSourceCode = fixUniqueArrays(zodSourceCode);
+    zodSourceCode = allowEmptyUrls(zodSourceCode)
 
     const fileContent = `
         // DO NOT EDIT - AUTOMATICALLY GENERATED FILE!!!
