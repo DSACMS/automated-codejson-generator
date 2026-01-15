@@ -1,4 +1,5 @@
 // DO NOT EDIT - AUTOMATICALLY GENERATED FILE!!!
+// Schema Version: 2.0.0
 
 import { z } from "zod";
 
