@@ -1,5 +1,5 @@
 // DO NOT EDIT - AUTOMATICALLY GENERATED FILE!!!
-// Schema Version: 2.0.0
+// Schema Version: 2.1.0
 
 import { z } from "zod";
 
@@ -127,6 +127,7 @@ export const CodeJSONSchema = z
         "github.com/CMS-Enterprise",
         "github.com/Enterprise-CMCS",
         "github.com/DSACMS",
+        "github.com/MeasureAuthoringTool",
         "github.cms.gov",
         "CCSQ GitHub",
       ])
@@ -395,13 +396,32 @@ export const CodeJSONSchema = z
       )
       .optional(),
     subsetInHealthcare: z
-      .array(z.enum(["policy", "operational", "medicare", "medicaid"]))
+      .array(
+        z.enum([
+          "policy",
+          "operational",
+          "medicare",
+          "medicaid",
+          "SNAP",
+          "TANF",
+          "human-benefit-services",
+        ]),
+      )
       .refine((items) => new Set(items).size === items.length, {
         message: "Array must contain unique values",
       })
       .describe("Healthcare-related subset"),
     userType: z
-      .array(z.enum(["providers", "patients", "government"]))
+      .array(
+        z.enum([
+          "providers",
+          "patients",
+          "government",
+          "applicants",
+          "beneficiaries",
+          "enrollees",
+        ]),
+      )
       .refine((items) => new Set(items).size === items.length, {
         message: "Array must contain unique values",
       })
