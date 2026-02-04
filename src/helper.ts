@@ -250,7 +250,7 @@ async function pushDirectlyWithPAT(
         currentFileSha = currentFile.data.sha;
       }
     } catch (error) {
-      core.info("code.json doesn't exist yet, will create new file");
+      core.info(`code.json doesn't exist yet, will create new file ${error}`);
     }
 
     const result = await adminOctokit.rest.repos.createOrUpdateFileContents({

@@ -66,9 +66,9 @@ const baselineCodeJSON: Partial<CodeJSON> = {
   maturityModelTier: 0,
 };
 
-function filterValidFields(existingCodeJSON: any): Partial<CodeJSON> {
+function filterValidFields(existingCodeJSON: Record<string, unknown>): Partial<CodeJSON> {
   const validKeys = new Set(Object.keys(baselineCodeJSON));
-  const filtered: any = {};
+  const filtered: Record<string, unknown> = {};
 
   for (const key of Object.keys(existingCodeJSON)) {
     if (validKeys.has(key)) {
@@ -112,7 +112,7 @@ async function getMetaData(
 
   // handling legacy contractNumber that turned from string to array which caused validation errors
   let contractNumber: string[] = [];
-  const existingContract = existingCodeJSON?.contractNumber as any;
+  const existingContract: unknown = existingCodeJSON?.contractNumber;
   if (existingContract) {
     if (typeof existingContract === "string") {
       contractNumber = existingContract.trim() ? [existingContract.trim()] : [];
