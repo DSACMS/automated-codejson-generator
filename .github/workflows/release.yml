@@ -1,0 +1,98 @@
+name: Release a New Verison
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get release label
+        id: label
+        run: |
+          labels='${{ toJson(github.event.pull_request.labels) }}'
+
+          if echo "$labels" | grep -q 'release:major'; then
+            echo "bump=major" >> $GITHUB_OUTPUT
+          elif echo "$labels" | grep -q 'release:minor'; then
+            echo "bump=minor" >> $GITHUB_OUTPUT
+          elif echo "$labels" | grep -q 'release:patch'; then
+            echo "bump=patch" >> $GITHUB_OUTPUT
+          elif echo "$labels" | grep -q 'release:none'; then
+            echo "bump=none" >> $GITHUB_OUTPUT
+          else
+            echo "No release label found. Add one of:"
+            echo "release:patch | release:minor | release:major | release:none"
+            exit 1
+          fi
+
+      - name: Exit if no release needed
+        if: steps.label.outputs.bump == 'none'
+        run: |
+          echo "No release requested. Exiting."
+          exit 0
+
+      - name: Get latest version tag
+        id: version
+        run: |
+          latest=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          echo "latest=$latest" >> $GITHUB_OUTPUT
+
+      - name: Calculate next version
+        id: next
+        run: |
+          version=${{ steps.version.outputs.latest }}
+          bump=${{ steps.label.outputs.bump }}
+
+          version=${version#v}
+          IFS='.' read -r major minor patch <<< "$version"
+
+          case "$bump" in
+            major)
+              major=$((major+1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor+1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch+1))
+              ;;
+          esac
+
+          next="v$major.$minor.$patch"
+          echo "next=$next" >> $GITHUB_OUTPUT
+
+      - name: Create version tag
+        run: |
+          git tag ${{ steps.next.outputs.next }}
+          git push origin ${{ steps.next.outputs.next }}
+
+      - name: Update moving major tag (v1)
+        run: |
+          major=$(echo "${{ steps.next.outputs.next }}" | cut -d. -f1)
+          git tag -f $major
+          git push origin $major --force
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.next.outputs.next }}
+          name: Release ${{ steps.next.outputs.next }}
+          generate_release_notes: true
