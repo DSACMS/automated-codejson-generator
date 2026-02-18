@@ -14,6 +14,7 @@ const execAsync = promisify(exec);
 
 const TOKEN = core.getInput("GITHUB_TOKEN", { required: true });
 const ADMIN_TOKEN = core.getInput("ADMIN_TOKEN", { required: false });
+const isArchived = core.getInput("ARCHIVE", { required: false }) === "true";
 
 const MyOctoKit = ActionKit.plugin(createPullRequest);
 const octokit = new MyOctoKit({
@@ -28,14 +29,14 @@ const octokit = new MyOctoKit({
 
 const adminOctokit = ADMIN_TOKEN
   ? new MyOctoKit({
-      auth: ADMIN_TOKEN,
-      log: {
-        debug: core.debug,
-        info: core.info,
-        warn: core.warning,
-        error: core.error,
-      },
-    })
+    auth: ADMIN_TOKEN,
+    log: {
+      debug: core.debug,
+      info: core.info,
+      warn: core.warning,
+      error: core.error,
+    },
+  })
   : null;
 
 const owner = process.env.GITHUB_REPOSITORY_OWNER ?? "";
@@ -195,11 +196,11 @@ export async function sendPR(
     const PR = await octokit.createPullRequest({
       owner,
       repo,
-      title: "Update code.json",
-      body: bodyOfPR(),
+      title: isArchived ? "Update code.json for archival" : "Update code.json",
+      body: isArchived ? bodyOfArchivalPR() : bodyOfPR(),
       base: baseBranchName,
       head: headBranchName,
-      labels: ["codejson-initialized"],
+      labels: isArchived ? ["archived"] : ["codejson-initialized"],
       changes: [
         {
           files: {
@@ -316,6 +317,26 @@ function bodyOfPR(): string {
   ### Add Missing Information to code.json
   - We have automatically calculated some fields but many require manual input
   - Please enter the missing fields by directly editing code.json in Files Changed tab on your pull-request
+  - We also have a [form](https://dsacms.github.io/codejson-generator/) where you can create your code.json via a website, and then download directly to your local machine, and then you can copy and paste into here.
+
+  If you would like additional information about the code.json metadata requirements, please visit the repository [here](https://github.com/DSACMS/gov-codejson).
+  `;
+}
+
+function bodyOfArchivalPR(): string {
+  return `
+  ## Archiving the Repository
+
+  Hello, and thank you for your contributions to the Federal Open Source Community. 🙏
+  
+  As part of preparing the repository for archival, this pull request marks the repository for archival and ensures code.json repository metadata is up-to-date.
+
+  If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues) or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ).
+
+  ## Next Steps
+  ### Verify project metadata in code.json
+  - Review all fields to ensure metadata is correct and accurate
+  - We have automatically updated some fields but some require manual input. Please update fields by directly editing code.json in Files Changed tab on your pull-request
   - We also have a [form](https://dsacms.github.io/codejson-generator/) where you can create your code.json via a website, and then download directly to your local machine, and then you can copy and paste into here.
 
   If you would like additional information about the code.json metadata requirements, please visit the repository [here](https://github.com/DSACMS/gov-codejson).
