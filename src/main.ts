@@ -127,7 +127,7 @@ async function getMetaData(
 
   if (isArchived) {
     status = "Archival";
-    tags?.push("Archived");
+    tags?.push("archived");
   }
 
   return {
