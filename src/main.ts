@@ -1,6 +1,7 @@
-import * as core from "@actions/core";
 import { CodeJSON } from "./types/CodeJSONSchema.js";
-import * as helpers from "./helper.js";
+import { Dependencies } from "./types/Dependencies.js";
+import { createHelpers, Helpers } from "./helper.js";
+import { createProductionDeps } from "./create-deps.js";
 
 const baselineCodeJSON: Partial<CodeJSON> = {
   name: "",
@@ -66,6 +67,8 @@ const baselineCodeJSON: Partial<CodeJSON> = {
   maturityModelTier: 0,
 };
 
+export { baselineCodeJSON };
+
 function filterValidFields(existingCodeJSON: Record<string, unknown>): Partial<CodeJSON> {
   const validKeys = new Set(Object.keys(baselineCodeJSON));
   const filtered: Record<string, unknown> = {};
@@ -74,14 +77,18 @@ function filterValidFields(existingCodeJSON: Record<string, unknown>): Partial<C
     if (validKeys.has(key)) {
       filtered[key] = existingCodeJSON[key];
     } else {
-      core.info(`Removing outdated field from current code.json: ${key}`);
+      console.log(`Removing outdated field from current code.json: ${key}`);
     }
   }
 
   return filtered as Partial<CodeJSON>;
 }
 
+export { filterValidFields };
+
 async function getMetaData(
+  helpers: Helpers,
+  deps: Dependencies,
   existingCodeJSON?: CodeJSON | null,
 ): Promise<Partial<CodeJSON>> {
   const partialCodeJSON = await helpers.calculateMetaData();
@@ -122,12 +129,11 @@ async function getMetaData(
   }
 
   // handling archive option
-  const isArchived = core.getInput("ARCHIVE", { required: false }) === "true";
   let status = existingCodeJSON?.status || undefined;
 
-  if (isArchived) {
+  if (deps.isArchived) {
     status = "Archival";
-    tags?.push("Archived");
+    tags?.push("archived");
   }
 
   return {
@@ -155,12 +161,16 @@ async function getMetaData(
   };
 }
 
-export async function run(): Promise<void> {
+export { getMetaData };
+
+export async function runWithDeps(deps: Dependencies): Promise<void> {
+  const helpers = createHelpers(deps);
+
   try {
     const eventName = process.env.GITHUB_EVENT_NAME;
 
     if (eventName === "pull_request") {
-      core.info("Detected pull_request event - validating only!");
+      deps.log.info("Detected pull_request event - validating only!");
       await helpers.validateOnly();
       return;
     }
@@ -168,7 +178,7 @@ export async function run(): Promise<void> {
     const currentCodeJSON = await helpers.readJSON(
       "/github/workspace/code.json",
     );
-    const metaData = await getMetaData(currentCodeJSON);
+    const metaData = await getMetaData(helpers, deps, currentCodeJSON);
     let finalCodeJSON = {} as CodeJSON;
 
     if (currentCodeJSON) {
@@ -187,30 +197,34 @@ export async function run(): Promise<void> {
       } as CodeJSON;
     }
 
-    core.info("Generated code.json successfully!");
+    deps.log.info("Generated code.json successfully!");
 
     const baseBranchName = await helpers.getBaseBranch();
-    const skipPR = core.getInput("SKIP_PR", { required: false }) === "true";
-    const adminToken = core.getInput("ADMIN_TOKEN", { required: false });
 
-    if (skipPR) {
-      if (!adminToken) {
-        core.warning("SKIP_PR is enabled but ADMIN_TOKEN is not provided.");
-        core.warning(
+    if (deps.skipPR) {
+      if (!deps.adminToken) {
+        deps.log.warning("SKIP_PR is enabled but ADMIN_TOKEN is not provided.");
+        deps.log.warning(
           "Direct push requires a Personal Access Token with appropriate permissions.",
         );
 
-        core.info("Falling back to pull request creation");
+        deps.log.info("Falling back to pull request creation");
         await helpers.sendPR(finalCodeJSON, baseBranchName);
       } else {
-        core.info("Attempting direct push to branch");
+        deps.log.info("Attempting direct push to branch");
         await helpers.pushDirectlyWithFallback(finalCodeJSON, baseBranchName);
       }
     } else {
-      core.info("Creating pull request with updated code.json");
+      deps.log.info("Creating pull request with updated code.json");
       await helpers.sendPR(finalCodeJSON, baseBranchName);
     }
   } catch (error) {
-    core.setFailed(`Action failed: ${error}`);
+    deps.setFailed(`Action failed: ${error}`);
   }
+}
+
+// prod entry point
+export async function run(): Promise<void> {
+  const deps = createProductionDeps();
+  return runWithDeps(deps);
 }
