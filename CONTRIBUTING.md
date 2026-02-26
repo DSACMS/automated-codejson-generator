@@ -10,7 +10,7 @@ Look for issues labeled `good-first-issue` for good opportunities to contribute.
 
 ### Team Specific Guidelines
 
-Our project maintainers are listed in [MAINTAINERS.md](MAINTAINERS.md). They are responsible for reviewing and merging all pull requests. Feel free to tag them in issues or pull requests for assistance.
+Our project maintainers are listed in [COMMUNITY.md](COMMUNITY.md). They are responsible for reviewing and merging all pull requests. Feel free to tag them in issues or pull requests for assistance.
 
 ### Building Dependencies
 
@@ -25,14 +25,14 @@ To work on this project, you'll need:
 
 ```bash
 # Clone the repository
-git clone https://github.com/DSACMS/code-json-generator.git
-cd code-json-generator
+git clone https://github.com/DSACMS/automated-codejson-generator.git
+cd automated-codejson-generator
 
 # Install dependencies
 npm install
 
 # Build the project
-npm run package
+npm run bundle
 
 # Run tests
 npm test
@@ -52,16 +52,23 @@ When the `pull_request` trigger is configured, the action validates code.json wh
 
 ### Workflow and Branching
 
-We follow the [GitHub Flow Workflow](https://guides.github.com/introduction/flow/):
+We follow a **GitHub Flow–inspired workflow** with a protected `main` branch and a `dev` integration branch.
 
 1. Fork the project
-2. Check out the `main` branch
-3. Create a feature branch
+2. Check out the `dev` branch
+3. Create a feature branch from `dev`
 4. Write code and tests for your change
-5. From your branch, make a pull request against `DSACMS/code-json-generator/main`
-6. Work with repo maintainers to get your change reviewed
-7. Wait for your change to be pulled into `DSACMS/code-json-generator/main`
-8. Delete your feature branch
+5. Open a pull request from your feature branch **into `dev`**
+6. Work with repo maintainers to get your change reviewed and merged into `dev`
+7. When `dev` is ready for release, open a pull request from **`dev` into `main`**
+8. Add **exactly one** release label to the PR:
+   - `release:patch`
+   - `release:minor`
+   - `release:major`
+9. Once the required checks pass, merge the PR into `main`
+   - This triggers automatic versioning, tagging, and GitHub Release creation
+10. Delete your feature branch after merge
+
 
 ### Testing Conventions
 
@@ -123,7 +130,7 @@ feat(scope): description of feature
 
 ### Reviewing Pull Requests
 
-Pull requests are reviewed by the maintainers listed in [MAINTAINERS.md](MAINTAINERS.md). Reviews will check for:
+Pull requests are reviewed by the maintainers listed in [COMMUNITY.md](COMMUNITY.md). Reviews will check for:
 
 - Code quality and style
 - Test coverage

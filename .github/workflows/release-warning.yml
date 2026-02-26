@@ -1,0 +1,50 @@
+name: Require release label for main PRs
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+    branches:
+      - main
+
+permissions:
+  pull-requests: read
+
+jobs:
+  require-release-label:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for release label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+
+            const allowed = [
+              'release:patch',
+              'release:minor',
+              'release:major',
+              'release:none'
+            ];
+
+            const found = labels.filter(l => allowed.includes(l));
+
+            if (found.length === 0) {
+              core.setFailed(
+                "Missing release label. Add one of: " +
+                "release:patch | release:minor | release:major | release:none"
+              );
+            }
+
+            if (found.length > 1) {
+              core.setFailed(
+                "Multiple release labels found. Exactly one is required."
+              );
+            }
+
+            console.log(`Release label OK: ${found[0]}`);

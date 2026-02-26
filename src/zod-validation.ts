@@ -8,7 +8,7 @@ z.config({
   }),
 });
 
-export function validateCodeJSON(codeJSON: any): string[] {
+export function validateCodeJSON(codeJSON: unknown): string[] {
   const result = CodeJSONSchema.safeParse(codeJSON);
 
   if (result.success) {
