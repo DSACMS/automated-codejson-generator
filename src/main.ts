@@ -1,6 +1,6 @@
 import { CodeJSON } from "./types/CodeJSONSchema.js";
 import { Dependencies } from "./types/Dependencies.js";
-import { createHelpers, Helpers } from "./helper.js";
+import { createHelpers, Helpers, mergeReusedCode } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
 
 const baselineCodeJSON: Partial<CodeJSON> = {
@@ -136,6 +136,12 @@ async function getMetaData(
     tags?.push("archived");
   }
 
+  // detect government-made dependencies and merge with any existing reusedCode
+  const reusedCode = mergeReusedCode(
+    existingCodeJSON?.reusedCode ?? [],
+    await helpers.detectReusedCode(),
+  );
+
   return {
     name: partialCodeJSON.name,
     description: description,
@@ -158,6 +164,7 @@ async function getMetaData(
     feedbackMechanism,
     SBOM,
     contractNumber,
+    reusedCode,
   };
 }
 

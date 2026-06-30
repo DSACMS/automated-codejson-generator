@@ -2,6 +2,7 @@ import { CodeJSON } from "./types/CodeJSONSchema.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
 import { validateCodeJSON } from "./zod-validation.js";
 import { Dependencies } from "./types/Dependencies.js";
+import { ReusedCodeEntry, lookupGovDependency } from "./gov-dependencies.js";
 
 const HOURS_PER_MONTH = 730.001;
 
@@ -87,6 +88,39 @@ export function createHelpers(deps: Dependencies) {
     } catch (error) {
       log.error(`Failed to get labor hours: ${error}`);
       throw error;
+    }
+  }
+
+  //===============================================
+  // Reused Code
+  //===============================================
+  async function detectReusedCode(): Promise<ReusedCodeEntry[]> {
+    const [packageJSON, requirements] = await Promise.all([
+      readManifest("/github/workspace/package.json"),
+      readManifest("/github/workspace/requirements.txt"),
+    ]);
+
+    const names: string[] = [];
+    if (packageJSON) names.push(...parsePackageJSON(packageJSON));
+    if (requirements) names.push(...parseRequirementsTxt(requirements));
+
+    const entries: ReusedCodeEntry[] = [];
+    const seen = new Set<string>();
+    for (const name of names) {
+      const entry = lookupGovDependency(name);
+      if (entry && !seen.has(entry.URL)) {
+        seen.add(entry.URL);
+        entries.push(entry);
+      }
+    }
+    return entries;
+  }
+
+  async function readManifest(filepath: string): Promise<string | null> {
+    try {
+      return await deps.readFile(filepath);
+    } catch {
+      return null;
     }
   }
 
@@ -267,6 +301,7 @@ export function createHelpers(deps: Dependencies) {
 
   return {
     calculateMetaData,
+    detectReusedCode,
     getBaseBranch,
     validateOnly,
     validateCodeJSON,
@@ -278,6 +313,56 @@ export function createHelpers(deps: Dependencies) {
 
 // export the type for convenience
 export type Helpers = ReturnType<typeof createHelpers>;
+
+export function parsePackageJSON(content: string): string[] {
+  try {
+    const pkg = JSON.parse(content);
+    return [
+      ...Object.keys(pkg.dependencies ?? {}),
+      ...Object.keys(pkg.devDependencies ?? {}),
+    ];
+  } catch {
+    return [];
+  }
+}
+
+// strips version specifiers, extras, markers and comments, leaving the bare package name
+export function parseRequirementsTxt(content: string): string[] {
+  const names: string[] = [];
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.split("#")[0].trim();
+    if (!line || line.startsWith("-")) continue;
+    const match = line.match(/^[A-Za-z0-9._-]+/);
+    if (match) names.push(match[0]);
+  }
+  return names;
+}
+
+// keeps existing entries (manual edits) and appends detected ones, de-duped by name and URL
+export function mergeReusedCode(
+  existing: Array<{ name?: string; URL?: string }>,
+  detected: ReusedCodeEntry[],
+): Array<{ name?: string; URL?: string }> {
+  const base = Array.isArray(existing) ? existing : [];
+  const merged = [...base];
+  const seenURLs = new Set(
+    base.map((e) => e.URL?.toLowerCase()).filter(Boolean),
+  );
+  const seenNames = new Set(
+    base.map((e) => e.name?.toLowerCase()).filter(Boolean),
+  );
+
+  for (const entry of detected) {
+    const url = entry.URL.toLowerCase();
+    const name = entry.name.toLowerCase();
+    if (seenURLs.has(url) || seenNames.has(name)) continue;
+    merged.push(entry);
+    seenURLs.add(url);
+    seenNames.add(name);
+  }
+
+  return merged;
+}
 
 function bodyOfPR(): string {
   return `
