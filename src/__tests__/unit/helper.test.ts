@@ -15,6 +15,11 @@ import {
 import { createMockDeps, createMockOctokit } from "../fixtures/mock-deps.js";
 import { Dependencies } from "../../types/Dependencies.js";
 
+const CUMULUS_MESSAGE_ADAPTER = {
+  name: "cumulus-message-adapter (NASA)",
+  URL: "https://github.com/nasa/cumulus-message-adapter",
+};
+
 // returns a readFile mock that serves content by filepath and rejects otherwise
 function readFileFrom(files: Record<string, string>) {
   return jest.fn<any>((filepath: string) =>
@@ -290,11 +295,15 @@ describe("createHelpers - detectReusedCode", () => {
   it("matches a known gov dependency from requirements.txt", async () => {
     const deps = createMockDeps({
       readFile: readFileFrom({
-        "/github/workspace/requirements.txt": "uswds==3.0.0\nrequests==2.0",
+        // underscore/mixed-case name should normalize to the hyphenated PyPI key
+        "/github/workspace/requirements.txt":
+          "Cumulus_Message_Adapter==2.0\nrequests==2.0",
       }),
     });
 
-    expect(await createHelpers(deps).detectReusedCode()).toEqual([USWDS]);
+    expect(await createHelpers(deps).detectReusedCode()).toEqual([
+      CUMULUS_MESSAGE_ADAPTER,
+    ]);
   });
 
   it("matches multiple distinct gov dependencies in one manifest", async () => {
@@ -470,7 +479,6 @@ describe("mergeReusedCode", () => {
     expect(mergeReusedCode(undefined as any, [USWDS])).toEqual([USWDS]);
   });
 });
-
 describe("GOV_DEPENDENCIES integrity", () => {
   const entries = Object.entries(GOV_DEPENDENCIES);
 
