@@ -28,6 +28,8 @@ export function createMockOctokit(overrides: Partial<DeepPartial<OctokitClient>>
               created_at: "2024-01-01T00:00:00Z",
               updated_at: "2024-06-01T00:00:00Z",
               default_branch: "main",
+              fork: false,
+              parent: null,
             },
           }),
         listLanguages: overrides.rest?.repos?.listLanguages as OctokitClient["rest"]["repos"]["listLanguages"] ??

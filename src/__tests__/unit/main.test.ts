@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from "@jest/globals";
 import { runWithDeps, filterValidFields, getMetaData } from "../../main.js";
 import { createHelpers } from "../../helper.js";
-import { createMockDeps } from "../fixtures/mock-deps.js";
+import { createMockDeps, createMockOctokit } from "../fixtures/mock-deps.js";
 import validCodeJSON from "../fixtures/test-code.json";
 
 describe("filterValidFields", () => {
@@ -56,6 +56,42 @@ describe("getMetaData", () => {
     const result = await getMetaData(helpers, deps, existing);
 
     expect(result.contractNumber).toEqual(["LEGACY-001"]);
+  });
+
+  it("adds the fork upstream to reusedCode", async () => {
+    const forkOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          get: jest.fn<any>().mockResolvedValue({
+            data: {
+              name: "test-repo",
+              description: "A forked repository",
+              html_url: "https://github.com/test-owner/test-repo",
+              private: false,
+              forks_count: 0,
+              topics: [],
+              created_at: "2024-01-01T00:00:00Z",
+              updated_at: "2024-06-01T00:00:00Z",
+              default_branch: "main",
+              fork: true,
+              parent: {
+                full_name: "upstream-owner/upstream-repo",
+                html_url: "https://github.com/upstream-owner/upstream-repo",
+              },
+            },
+          }),
+        },
+      },
+    });
+    const deps = createMockDeps({ octokit: forkOctokit });
+    const helpers = createHelpers(deps);
+
+    const result = await getMetaData(helpers, deps, null);
+
+    expect(result.reusedCode).toContainEqual({
+      name: "upstream-owner/upstream-repo",
+      URL: "https://github.com/upstream-owner/upstream-repo",
+    });
   });
 });
 

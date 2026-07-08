@@ -136,11 +136,15 @@ async function getMetaData(
     tags?.push("archived");
   }
 
-  // detect government-made dependencies and merge with any existing reusedCode
-  const reusedCode = mergeReusedCode(
-    existingCodeJSON?.reusedCode ?? [],
-    await helpers.detectReusedCode(),
-  );
+  // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode
+  const [forkParent, detectedDeps] = await Promise.all([
+    helpers.detectForkParent(),
+    helpers.detectReusedCode(),
+  ]);
+  const reusedCode = mergeReusedCode(existingCodeJSON?.reusedCode ?? [], [
+    ...(forkParent ? [forkParent] : []),
+    ...detectedDeps,
+  ]);
 
   return {
     name: partialCodeJSON.name,

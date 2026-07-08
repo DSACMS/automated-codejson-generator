@@ -383,6 +383,60 @@ describe("createHelpers - detectReusedCode", () => {
   });
 });
 
+describe("createHelpers - detectForkParent", () => {
+  function mockRepoGet(data: Record<string, unknown>): Dependencies {
+    return createMockDeps({
+      octokit: createMockOctokit({
+        rest: {
+          repos: {
+            get: jest.fn<any>().mockResolvedValue({ data }),
+          },
+        },
+      }),
+    });
+  }
+
+  it("returns the upstream parent when the repo is a fork", async () => {
+    const deps = mockRepoGet({
+      fork: true,
+      parent: {
+        full_name: "upstream-owner/upstream-repo",
+        html_url: "https://github.com/upstream-owner/upstream-repo",
+      },
+    });
+
+    expect(await createHelpers(deps).detectForkParent()).toEqual({
+      name: "upstream-owner/upstream-repo",
+      URL: "https://github.com/upstream-owner/upstream-repo",
+    });
+  });
+
+  it("returns null when the repo is not a fork", async () => {
+    const deps = mockRepoGet({ fork: false, parent: null });
+    expect(await createHelpers(deps).detectForkParent()).toBeNull();
+  });
+
+  it("returns null when fork is true but parent is missing", async () => {
+    const deps = mockRepoGet({ fork: true });
+    expect(await createHelpers(deps).detectForkParent()).toBeNull();
+  });
+
+  it("returns null and logs when the API call fails", async () => {
+    const deps = createMockDeps({
+      octokit: createMockOctokit({
+        rest: {
+          repos: {
+            get: jest.fn<any>().mockRejectedValue(new Error("API down")),
+          },
+        },
+      }),
+    });
+
+    expect(await createHelpers(deps).detectForkParent()).toBeNull();
+    expect(deps.log.error).toHaveBeenCalled();
+  });
+});
+
 describe("mergeReusedCode", () => {
   it("appends detected entries to existing ones", () => {
     const existing = [{ name: "Other Gov Tool", URL: "https://example.gov" }];

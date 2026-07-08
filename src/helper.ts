@@ -124,6 +124,26 @@ export function createHelpers(deps: Dependencies) {
     }
   }
 
+  //===============================================
+  // Fork Upstream
+  //===============================================
+  async function detectForkParent(): Promise<ReusedCodeEntry | null> {
+    try {
+      const repoData = await octokit.rest.repos.get({ owner, repo });
+      const { fork, parent } = repoData.data;
+
+      if (!fork || !parent) return null;
+
+      return {
+        name: parent.full_name,
+        URL: parent.html_url,
+      };
+    } catch (error) {
+      log.error(`Failed to detect fork parent: ${error}`);
+      return null;
+    }
+  }
+
   async function getBaseBranch(): Promise<string> {
     if (deps.branch) {
       return deps.branch;
@@ -302,6 +322,7 @@ export function createHelpers(deps: Dependencies) {
   return {
     calculateMetaData,
     detectReusedCode,
+    detectForkParent,
     getBaseBranch,
     validateOnly,
     validateCodeJSON,

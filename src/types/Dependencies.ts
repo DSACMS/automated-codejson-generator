@@ -71,6 +71,11 @@ export interface RepoResponse {
     created_at: string;
     updated_at: string;
     default_branch: string;
+    fork?: boolean;
+    parent?: {
+      full_name: string;
+      html_url: string;
+    } | null;
   };
 }
 
