@@ -136,6 +136,12 @@ async function getMetaData(
     tags?.push("archived");
   }
 
+  // detect government-made dependencies and merge with any existing reusedCode
+  const reusedCode = helpers.mergeReusedCode(
+    existingCodeJSON?.reusedCode ?? [],
+    await helpers.detectReusedCode(),
+  );
+
   return {
     name: partialCodeJSON.name,
     description: description,
@@ -158,6 +164,7 @@ async function getMetaData(
     feedbackMechanism,
     SBOM,
     contractNumber,
+    reusedCode,
   };
 }
 
