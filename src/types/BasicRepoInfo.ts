@@ -12,7 +12,7 @@ export interface BasicRepoInfo {
 interface Date {
   created: string;
   lastModified: string;
-  metadataLastUpdated: string
+  metadataLastUpdated: string;
 }
 
 type RepositoryVisibility = "public" | "private" | undefined;

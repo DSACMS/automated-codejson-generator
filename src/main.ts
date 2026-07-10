@@ -1,6 +1,6 @@
 import { CodeJSON } from "./types/CodeJSONSchema.js";
 import { Dependencies } from "./types/Dependencies.js";
-import { createHelpers, Helpers, mergeReusedCode } from "./helper.js";
+import { createHelpers, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
 
 const baselineCodeJSON: Partial<CodeJSON> = {
@@ -69,7 +69,9 @@ const baselineCodeJSON: Partial<CodeJSON> = {
 
 export { baselineCodeJSON };
 
-function filterValidFields(existingCodeJSON: Record<string, unknown>): Partial<CodeJSON> {
+function filterValidFields(
+  existingCodeJSON: Record<string, unknown>,
+): Partial<CodeJSON> {
   const validKeys = new Set(Object.keys(baselineCodeJSON));
   const filtered: Record<string, unknown> = {};
 
@@ -141,10 +143,10 @@ async function getMetaData(
     helpers.detectForkParent(),
     helpers.detectReusedCode(),
   ]);
-  const reusedCode = mergeReusedCode(existingCodeJSON?.reusedCode ?? [], [
-    ...(forkParent ? [forkParent] : []),
-    ...detectedDeps,
-  ]);
+  const reusedCode = helpers.mergeReusedCode(
+    existingCodeJSON?.reusedCode ?? [],
+    [...(forkParent ? [forkParent] : []), ...detectedDeps],
+  );
 
   return {
     name: partialCodeJSON.name,

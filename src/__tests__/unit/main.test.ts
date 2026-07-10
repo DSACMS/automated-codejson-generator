@@ -1,4 +1,11 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from "@jest/globals";
+import {
+  describe,
+  it,
+  expect,
+  jest,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 import { runWithDeps, filterValidFields, getMetaData } from "../../main.js";
 import { createHelpers } from "../../helper.js";
 import { createMockDeps, createMockOctokit } from "../fixtures/mock-deps.js";
@@ -6,7 +13,11 @@ import validCodeJSON from "../fixtures/test-code.json";
 
 describe("filterValidFields", () => {
   it("keeps known fields", () => {
-    const result = filterValidFields({ name: "test", version: "1.0", description: "hi" });
+    const result = filterValidFields({
+      name: "test",
+      version: "1.0",
+      description: "hi",
+    });
     expect(result).toHaveProperty("name", "test");
     expect(result).toHaveProperty("version", "1.0");
   });
@@ -23,10 +34,15 @@ describe("getMetaData", () => {
     const deps = createMockDeps();
     const helpers = createHelpers(deps);
 
-    const existing = { ...validCodeJSON, feedbackMechanism: "https://custom.example.com/feedback" } as any;
+    const existing = {
+      ...validCodeJSON,
+      feedbackMechanism: "https://custom.example.com/feedback",
+    } as any;
     const result = await getMetaData(helpers, deps, existing);
 
-    expect(result.feedbackMechanism).toBe("https://custom.example.com/feedback");
+    expect(result.feedbackMechanism).toBe(
+      "https://custom.example.com/feedback",
+    );
   });
 
   it("defaults feedbackMechanism to issues URL", async () => {
@@ -142,9 +158,13 @@ describe("runWithDeps", () => {
     const adminOctokit = {
       rest: {
         repos: {
-          get: jest.fn<any>().mockResolvedValue({ data: { default_branch: "main" } }),
+          get: jest
+            .fn<any>()
+            .mockResolvedValue({ data: { default_branch: "main" } }),
           listLanguages: jest.fn<any>().mockResolvedValue({ data: {} }),
-          getContent: jest.fn<any>().mockResolvedValue({ data: { sha: "abc" } }),
+          getContent: jest
+            .fn<any>()
+            .mockResolvedValue({ data: { sha: "abc" } }),
           createOrUpdateFileContents: jest.fn<any>().mockResolvedValue({
             data: { commit: { sha: "pushed123" } },
           }),
@@ -161,7 +181,9 @@ describe("runWithDeps", () => {
 
     await runWithDeps(deps);
 
-    expect(adminOctokit.rest.repos.createOrUpdateFileContents).toHaveBeenCalled();
+    expect(
+      adminOctokit.rest.repos.createOrUpdateFileContents,
+    ).toHaveBeenCalled();
     expect(deps.setOutput).toHaveBeenCalledWith("method_used", "direct_push");
   });
 

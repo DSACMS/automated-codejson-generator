@@ -37,7 +37,9 @@ describe("createHelpers - calculateMetaData", () => {
 
     expect(result.name).toBe("test-repo");
     expect(result.description).toBe("A test repository");
-    expect(result.repositoryURL).toBe("https://github.com/test-owner/test-repo");
+    expect(result.repositoryURL).toBe(
+      "https://github.com/test-owner/test-repo",
+    );
     expect(result.repositoryVisibility).toBe("public");
     expect(result.languages).toEqual(["TypeScript", "JavaScript"]);
     expect(result.laborHours).toBeGreaterThan(0);
@@ -193,7 +195,9 @@ describe("createHelpers - pushDirectlyWithFallback", () => {
 
     await helpers.pushDirectlyWithFallback({ name: "test" } as any, "main");
 
-    expect(adminOctokit.rest.repos.createOrUpdateFileContents).toHaveBeenCalled();
+    expect(
+      adminOctokit.rest.repos.createOrUpdateFileContents,
+    ).toHaveBeenCalled();
     expect(deps.setOutput).toHaveBeenCalledWith("method_used", "direct_push");
   });
 });
@@ -215,7 +219,11 @@ describe("createHelpers - validateOnly", () => {
   it("succeeds for valid code.json", async () => {
     const validCodeJSON = await import("../fixtures/test-code.json");
     const deps = createMockDeps({
-      readFile: jest.fn<any>().mockResolvedValue(JSON.stringify(validCodeJSON.default ?? validCodeJSON)),
+      readFile: jest
+        .fn<any>()
+        .mockResolvedValue(
+          JSON.stringify(validCodeJSON.default ?? validCodeJSON),
+        ),
     });
     const helpers = createHelpers(deps);
 

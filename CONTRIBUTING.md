@@ -69,7 +69,6 @@ We follow a **GitHub Flow–inspired workflow** with a protected `main` branch a
    - This triggers automatic versioning, tagging, and GitHub Release creation
 10. Delete your feature branch after merge
 
-
 ### Testing Conventions
 
 - Tests are written using Jest and can be found in the `__tests__` directory

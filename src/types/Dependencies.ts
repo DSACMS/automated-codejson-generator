@@ -32,8 +32,16 @@ export interface OctokitClient {
   rest: {
     repos: {
       get: (params: { owner: string; repo: string }) => Promise<RepoResponse>;
-      listLanguages: (params: { owner: string; repo: string }) => Promise<LanguagesResponse>;
-      getContent: (params: { owner: string; repo: string; path: string; ref: string }) => Promise<ContentResponse>;
+      listLanguages: (params: {
+        owner: string;
+        repo: string;
+      }) => Promise<LanguagesResponse>;
+      getContent: (params: {
+        owner: string;
+        repo: string;
+        path: string;
+        ref: string;
+      }) => Promise<ContentResponse>;
       createOrUpdateFileContents: (params: {
         owner: string;
         repo: string;

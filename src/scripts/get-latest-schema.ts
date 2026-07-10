@@ -25,16 +25,18 @@ export async function getLatestSchemaVersion(): Promise<string> {
     throw new Error("No schema versions found");
   }
 
-  const versionNumber = versions.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
-// console.log(versionNumber)
-  return versionNumber
+  const versionNumber = versions.sort((a, b) =>
+    b.localeCompare(a, undefined, { numeric: true }),
+  )[0];
+  // console.log(versionNumber)
+  return versionNumber;
 }
 
 // try {
 //     await getLatestSchemaVersion();
 // } catch (error) {
 //     console.error(`GET operation failed!`);
-    
+
 //     if (error instanceof Error) {
 //         console.error(`Error: ${error.message}`);
 //     } else {
