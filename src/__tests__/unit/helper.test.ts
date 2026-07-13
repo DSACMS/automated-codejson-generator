@@ -37,7 +37,9 @@ describe("createHelpers - calculateMetaData", () => {
 
     expect(result.name).toBe("test-repo");
     expect(result.description).toBe("A test repository");
-    expect(result.repositoryURL).toBe("https://github.com/test-owner/test-repo");
+    expect(result.repositoryURL).toBe(
+      "https://github.com/test-owner/test-repo",
+    );
     expect(result.repositoryVisibility).toBe("public");
     expect(result.languages).toEqual(["TypeScript", "JavaScript"]);
     expect(result.laborHours).toBeGreaterThan(0);
@@ -193,7 +195,9 @@ describe("createHelpers - pushDirectlyWithFallback", () => {
 
     await helpers.pushDirectlyWithFallback({ name: "test" } as any, "main");
 
-    expect(adminOctokit.rest.repos.createOrUpdateFileContents).toHaveBeenCalled();
+    expect(
+      adminOctokit.rest.repos.createOrUpdateFileContents,
+    ).toHaveBeenCalled();
     expect(deps.setOutput).toHaveBeenCalledWith("method_used", "direct_push");
   });
 });
@@ -215,7 +219,11 @@ describe("createHelpers - validateOnly", () => {
   it("succeeds for valid code.json", async () => {
     const validCodeJSON = await import("../fixtures/test-code.json");
     const deps = createMockDeps({
-      readFile: jest.fn<any>().mockResolvedValue(JSON.stringify(validCodeJSON.default ?? validCodeJSON)),
+      readFile: jest
+        .fn<any>()
+        .mockResolvedValue(
+          JSON.stringify(validCodeJSON.default ?? validCodeJSON),
+        ),
     });
     const helpers = createHelpers(deps);
 
@@ -380,6 +388,60 @@ describe("createHelpers - detectReusedCode", () => {
     });
 
     expect(await createHelpers(deps).detectReusedCode()).toEqual([]);
+  });
+});
+
+describe("createHelpers - detectForkParent", () => {
+  function mockRepoGet(data: Record<string, unknown>): Dependencies {
+    return createMockDeps({
+      octokit: createMockOctokit({
+        rest: {
+          repos: {
+            get: jest.fn<any>().mockResolvedValue({ data }),
+          },
+        },
+      }),
+    });
+  }
+
+  it("returns the upstream parent when the repo is a fork", async () => {
+    const deps = mockRepoGet({
+      fork: true,
+      parent: {
+        full_name: "upstream-owner/upstream-repo",
+        html_url: "https://github.com/upstream-owner/upstream-repo",
+      },
+    });
+
+    expect(await createHelpers(deps).detectForkParent()).toEqual({
+      name: "upstream-owner/upstream-repo",
+      URL: "https://github.com/upstream-owner/upstream-repo",
+    });
+  });
+
+  it("returns null when the repo is not a fork", async () => {
+    const deps = mockRepoGet({ fork: false, parent: null });
+    expect(await createHelpers(deps).detectForkParent()).toBeNull();
+  });
+
+  it("returns null when fork is true but parent is missing", async () => {
+    const deps = mockRepoGet({ fork: true });
+    expect(await createHelpers(deps).detectForkParent()).toBeNull();
+  });
+
+  it("returns null and logs when the API call fails", async () => {
+    const deps = createMockDeps({
+      octokit: createMockOctokit({
+        rest: {
+          repos: {
+            get: jest.fn<any>().mockRejectedValue(new Error("API down")),
+          },
+        },
+      }),
+    });
+
+    expect(await createHelpers(deps).detectForkParent()).toBeNull();
+    expect(deps.log.error).toHaveBeenCalled();
   });
 });
 

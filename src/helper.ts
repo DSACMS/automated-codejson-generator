@@ -7,7 +7,8 @@ import { ReusedCodeEntry, lookupGovDependency } from "./gov-dependencies.js";
 const HOURS_PER_MONTH = 730.001;
 
 export function createHelpers(deps: Dependencies) {
-  const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } = deps;
+  const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } =
+    deps;
 
   //===============================================
   // Meta Data
@@ -78,7 +79,9 @@ export function createHelpers(deps: Dependencies) {
 
   async function getLaborHours(): Promise<number> {
     try {
-      const { stdout } = await deps.exec(`scc /github/workspace --format json2`);
+      const { stdout } = await deps.exec(
+        `scc /github/workspace --format json2`,
+      );
       const sccData = JSON.parse(stdout);
 
       const laborHours = Math.ceil(
@@ -120,6 +123,26 @@ export function createHelpers(deps: Dependencies) {
     try {
       return await deps.readFile(filepath);
     } catch {
+      return null;
+    }
+  }
+
+  //===============================================
+  // Fork Upstream
+  //===============================================
+  async function detectForkParent(): Promise<ReusedCodeEntry | null> {
+    try {
+      const repoData = await octokit.rest.repos.get({ owner, repo });
+      const { fork, parent } = repoData.data;
+
+      if (!fork || !parent) return null;
+
+      return {
+        name: parent.full_name,
+        URL: parent.html_url,
+      };
+    } catch (error) {
+      log.error(`Failed to detect fork parent: ${error}`);
       return null;
     }
   }
@@ -179,10 +202,7 @@ export function createHelpers(deps: Dependencies) {
     }
   }
 
-  async function sendPR(
-    updatedCodeJSON: CodeJSON,
-    baseBranchName: string,
-  ) {
+  async function sendPR(updatedCodeJSON: CodeJSON, baseBranchName: string) {
     try {
       const formattedContent = JSON.stringify(updatedCodeJSON, null, 2) + "\n";
       const headBranchName = `code-json-${new Date().getTime()}`;
@@ -190,7 +210,9 @@ export function createHelpers(deps: Dependencies) {
       const PR = await octokit.createPullRequest({
         owner,
         repo,
-        title: isArchived ? "Update code.json for archival" : "Update code.json",
+        title: isArchived
+          ? "Update code.json for archival"
+          : "Update code.json",
         body: isArchived ? bodyOfArchivalPR() : bodyOfPR(),
         base: baseBranchName,
         head: headBranchName,
@@ -258,7 +280,9 @@ export function createHelpers(deps: Dependencies) {
         sha: currentFileSha,
       });
 
-      log.info(`Successfully pushed commit with PAT: ${result.data.commit.sha}`);
+      log.info(
+        `Successfully pushed commit with PAT: ${result.data.commit.sha}`,
+      );
 
       setOutput("updated", true);
       setOutput("commit_sha", result.data.commit.sha);
@@ -302,6 +326,7 @@ export function createHelpers(deps: Dependencies) {
   return {
     calculateMetaData,
     detectReusedCode,
+    detectForkParent,
     mergeReusedCode,
     getBaseBranch,
     validateOnly,

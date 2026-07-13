@@ -69,7 +69,9 @@ const baselineCodeJSON: Partial<CodeJSON> = {
 
 export { baselineCodeJSON };
 
-function filterValidFields(existingCodeJSON: Record<string, unknown>): Partial<CodeJSON> {
+function filterValidFields(
+  existingCodeJSON: Record<string, unknown>,
+): Partial<CodeJSON> {
   const validKeys = new Set(Object.keys(baselineCodeJSON));
   const filtered: Record<string, unknown> = {};
 
@@ -136,10 +138,14 @@ async function getMetaData(
     tags?.push("archived");
   }
 
-  // detect government-made dependencies and merge with any existing reusedCode
+  // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode
+  const [forkParent, detectedDeps] = await Promise.all([
+    helpers.detectForkParent(),
+    helpers.detectReusedCode(),
+  ]);
   const reusedCode = helpers.mergeReusedCode(
     existingCodeJSON?.reusedCode ?? [],
-    await helpers.detectReusedCode(),
+    [...(forkParent ? [forkParent] : []), ...detectedDeps],
   );
 
   return {
