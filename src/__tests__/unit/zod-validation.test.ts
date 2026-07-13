@@ -8,16 +8,13 @@ const createCodeJSON = (overrides: Record<string, unknown> = {}) => ({
 });
 
 // =============================================================================
-// FIXTURE VALIDATION
+// FIXTURE VALIDATION 
 // =============================================================================
 describe("CodeJSONSchema - fixture validation", () => {
   it("accepts the valid test fixture", () => {
     const result = CodeJSONSchema.safeParse(validCodeJSON);
     if (!result.success) {
-      console.error(
-        "Validation errors:",
-        JSON.stringify(result.error, null, 2),
-      );
+      console.error("Validation errors:", JSON.stringify(result.error, null, 2));
     }
     expect(result.success).toBe(true);
   });
@@ -28,15 +25,13 @@ describe("CodeJSONSchema - fixture validation", () => {
     if (result.success) {
       expect(result.data.name).toBe("automated-codejson-generator");
       expect(result.data.status).toBe("Production");
-      expect(result.data.organization).toBe(
-        "Centers for Medicare & Medicaid Services",
-      );
+      expect(result.data.organization).toBe("Centers for Medicare & Medicaid Services");
     }
   });
 });
 
 // =============================================================================
-// REQUIRED FIELDS
+// REQUIRED FIELDS 
 // =============================================================================
 describe("CodeJSONSchema - required fields", () => {
   it("rejects missing name", () => {
@@ -303,15 +298,7 @@ describe("CodeJSONSchema - maturityModelTier enum", () => {
 // PLATFORMS ENUM ARRAY
 // =============================================================================
 describe("CodeJSONSchema - platforms enum array", () => {
-  const validPlatforms = [
-    "web",
-    "windows",
-    "mac",
-    "linux",
-    "ios",
-    "android",
-    "other",
-  ];
+  const validPlatforms = ["web", "windows", "mac", "linux", "ios", "android", "other"];
 
   it("accepts all valid platform values", () => {
     const input = createCodeJSON({ platforms: validPlatforms });
@@ -357,9 +344,7 @@ describe("CodeJSONSchema - subsetInHealthcare enum array", () => {
   });
 
   it("rejects duplicate subsets", () => {
-    const input = createCodeJSON({
-      subsetInHealthcare: ["medicare", "medicare"],
-    });
+    const input = createCodeJSON({ subsetInHealthcare: ["medicare", "medicare"] });
     const result = CodeJSONSchema.safeParse(input);
     expect(result.success).toBe(false);
   });
@@ -495,16 +480,12 @@ describe("CodeJSONSchema - usageType enum", () => {
   });
 
   // Test each exemption type requires exemptionText
-  const exemptionTypes = validUsageTypes.filter((t) =>
-    t.startsWith("exemptBy"),
-  );
+  const exemptionTypes = validUsageTypes.filter((t) => t.startsWith("exemptBy"));
   exemptionTypes.forEach((exemption) => {
     it(`requires exemptionText for ${exemption}`, () => {
       const input = createCodeJSON({
         permissions: {
-          licenses: [
-            { name: "MIT", URL: "https://opensource.org/licenses/MIT" },
-          ],
+          licenses: [{ name: "MIT", URL: "https://opensource.org/licenses/MIT" }],
           usageType: [exemption],
           exemptionText: null,
         },
@@ -516,9 +497,7 @@ describe("CodeJSONSchema - usageType enum", () => {
     it(`accepts ${exemption} with valid exemptionText`, () => {
       const input = createCodeJSON({
         permissions: {
-          licenses: [
-            { name: "MIT", URL: "https://opensource.org/licenses/MIT" },
-          ],
+          licenses: [{ name: "MIT", URL: "https://opensource.org/licenses/MIT" }],
           usageType: [exemption],
           exemptionText: "Valid exemption justification text",
         },

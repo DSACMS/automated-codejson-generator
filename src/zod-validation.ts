@@ -4,7 +4,7 @@ import { CodeJSONSchema } from "./types/CodeJSONSchema.js";
 
 z.config({
   customError: createErrorMap({
-    displayInvalidFormatDetails: true,
+    displayInvalidFormatDetails: true
   }),
 });
 
@@ -15,5 +15,6 @@ export function validateCodeJSON(codeJSON: unknown): string[] {
     return [];
   }
 
-  return [z.prettifyError(result.error)];
+  return [z.prettifyError(result.error)]
 }
+
