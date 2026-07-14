@@ -109,6 +109,51 @@ describe("getMetaData", () => {
       URL: "https://github.com/upstream-owner/upstream-repo",
     });
   });
+
+  it("uses the latest release version when available", async () => {
+    const releaseOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          getLatestRelease: jest.fn<any>().mockResolvedValue({
+            data: {
+              tag_name: "v2.4.6",
+              name: "Release 2.4.6",
+            },
+          }),
+        },
+      },
+    });
+
+    const deps = createMockDeps({ octokit: releaseOctokit });
+    const helpers = createHelpers(deps);
+
+    const result = await getMetaData(helpers, deps, null);
+
+    expect(result.version).toBe("2.4.6");
+  });
+
+  it("falls back to the existing version when latest release cannot be fetched", async () => {
+    const failingReleaseOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          getLatestRelease: jest
+            .fn<any>()
+            .mockRejectedValue(new Error("network issue")),
+        },
+      },
+    });
+
+    const deps = createMockDeps({ octokit: failingReleaseOctokit });
+    const helpers = createHelpers(deps);
+
+    const result = await getMetaData(
+      helpers,
+      deps,
+      { version: "7.8.9" } as any,
+    );
+
+    expect(result.version).toBe("7.8.9");
+  });
 });
 
 describe("runWithDeps", () => {
@@ -161,6 +206,12 @@ describe("runWithDeps", () => {
           get: jest
             .fn<any>()
             .mockResolvedValue({ data: { default_branch: "main" } }),
+          getLatestRelease: jest.fn<any>().mockResolvedValue({
+            data: {
+              tag_name: "v1.2.1",
+              name: "v1.2.1",
+            },
+          }),
           listLanguages: jest.fn<any>().mockResolvedValue({ data: {} }),
           getContent: jest
             .fn<any>()

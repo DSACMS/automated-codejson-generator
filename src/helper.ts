@@ -13,15 +13,19 @@ export function createHelpers(deps: Dependencies) {
   //===============================================
   // Meta Data
   //===============================================
-  async function calculateMetaData(): Promise<Partial<CodeJSON>> {
+  async function calculateMetaData(
+    existingCodeJSON?: CodeJSON | null,
+  ): Promise<Partial<CodeJSON>> {
     try {
-      const [laborHours, basicInfo] = await Promise.all([
+      const [laborHours, basicInfo, version] = await Promise.all([
         getLaborHours(),
         getBasicInfo(),
+        getVersion(existingCodeJSON?.version),
       ]);
 
       return {
         name: basicInfo.title,
+        version: version,
         description: basicInfo.description,
         repositoryURL: basicInfo.url,
         repositoryVisibility: basicInfo.repositoryVisibility,
@@ -42,6 +46,46 @@ export function createHelpers(deps: Dependencies) {
       log.error(`Failed to calculate meta data: ${error}`);
       throw error;
     }
+  }
+
+  async function getVersion(existingVersion?: string): Promise<string> {
+    try {
+      const release = await octokit.rest.repos.getLatestRelease({ owner, repo });
+      const versionFromRelease = normalizeVersionString(release.data.tag_name);
+
+      if (versionFromRelease !== "") {
+        return versionFromRelease;
+      }
+
+      const releaseName = release.data.name;
+      if (typeof releaseName === "string") {
+        const versionFromName = normalizeVersionString(releaseName);
+
+        if (versionFromName !== "") {
+          return versionFromName;
+        }
+      }
+
+      log.warning("Latest release did not include a usable version string.");
+    } catch (error) {
+      log.warning(`Failed to fetch latest release version: ${error}`);
+    }
+
+    if (typeof existingVersion === "string" && existingVersion.trim() !== "") {
+      return existingVersion.trim();
+    }
+
+    return "";
+  }
+
+  function normalizeVersionString(value: string): string {
+    const trimmedValue = value.trim();
+
+    if (trimmedValue.length > 1 && /^v\d/i.test(trimmedValue)) {
+      return trimmedValue.replace(/^v/i, "");
+    }
+
+    return trimmedValue;
   }
 
   async function getBasicInfo(): Promise<BasicRepoInfo> {
