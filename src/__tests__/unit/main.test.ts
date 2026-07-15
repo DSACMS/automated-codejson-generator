@@ -152,6 +152,30 @@ describe("runWithDeps", () => {
     expect(deps.setOutput).toHaveBeenCalledWith("method_used", "pull_request");
   });
 
+  it("includes enum keys in the generated blank code.json", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockRejectedValue(new Error("no file")),
+      skipPR: false,
+    });
+
+    await runWithDeps(deps);
+
+    const createPullRequestMock = deps.octokit.createPullRequest as jest.Mock;
+    const pullRequestArgs = createPullRequestMock.mock.calls[0][0] as any;
+    const codeJSONContent = pullRequestArgs.changes[0].files["code.json"];
+    const generatedCodeJSON = JSON.parse(codeJSONContent);
+
+    expect(generatedCodeJSON).toHaveProperty("status");
+    expect(generatedCodeJSON).toHaveProperty("repositoryHost");
+    expect(generatedCodeJSON).toHaveProperty("repositoryVisibility");
+    expect(generatedCodeJSON).toHaveProperty("softwareType");
+    expect(generatedCodeJSON).toHaveProperty("maintenance");
+    expect(generatedCodeJSON).toHaveProperty("repositoryType");
+    expect(generatedCodeJSON).toHaveProperty("fismaLevel");
+  });
+
   it("attempts direct push when skipPR is true with admin token", async () => {
     process.env.GITHUB_EVENT_NAME = "workflow_dispatch";
 
