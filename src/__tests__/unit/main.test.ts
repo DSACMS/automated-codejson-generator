@@ -121,9 +121,7 @@ describe("getMetaData", () => {
 
     const result = await getMetaData(helpers, deps, existing);
 
-    expect(result.tags).toEqual(
-      expect.arrayContaining(["test", "automation", "featured"]),
-    );
+    expect(result.tags).toEqual(["test", "automation", "featured"]);
   });
 
   it("does not duplicate tags that already exist as repository topics", async () => {
