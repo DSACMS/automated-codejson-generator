@@ -57,17 +57,17 @@ Total number of contributors: <!--CONTRIBUTOR COUNT START--> 4 <!--CONTRIBUTOR C
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/IsaacMilarky">
-                    <img src="https://avatars.githubusercontent.com/u/24639268?v=4" width="100;" alt="IsaacMilarky"/>
-                    <br />
-                    <sub><b>Isaac Milarsky</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/haseebmalik18">
                     <img src="https://avatars.githubusercontent.com/u/118837269?v=4" width="100;" alt="haseebmalik18"/>
                     <br />
                     <sub><b>Haseeb Malik</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/IsaacMilarky">
+                    <img src="https://avatars.githubusercontent.com/u/24639268?v=4" width="100;" alt="IsaacMilarky"/>
+                    <br />
+                    <sub><b>Isaac Milarsky</b></sub>
                 </a>
             </td>
             <td align="center">
