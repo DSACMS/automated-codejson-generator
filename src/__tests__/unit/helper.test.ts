@@ -48,7 +48,7 @@ describe("createHelpers - calculateMetaData", () => {
     expect(result.tags).toEqual(["test", "automation"]);
   });
 
-  it("falls back to the existing version when the release lookup fails", async () => {
+  it("returns an empty version when the release lookup fails", async () => {
     const mockOctokit = createMockOctokit({
       rest: {
         repos: {
@@ -61,9 +61,12 @@ describe("createHelpers - calculateMetaData", () => {
 
     deps = createMockDeps({ octokit: mockOctokit });
     const helpers = createHelpers(deps);
-    const result = await helpers.calculateMetaData({ version: "9.9.9" } as any);
+    const result = await helpers.calculateMetaData();
 
-    expect(result.version).toBe("9.9.9");
+    expect(result.version).toBe("");
+    expect(deps.log.warning).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to fetch latest release version"),
+    );
   });
 
   it("reports private visibility for private repos", async () => {

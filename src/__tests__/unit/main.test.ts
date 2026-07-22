@@ -54,6 +54,29 @@ describe("getMetaData", () => {
     expect(result.feedbackMechanism).toContain("/issues");
   });
 
+  it("preserves an existing version when the latest release is unavailable", async () => {
+    const releaseOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          getLatestRelease: jest
+            .fn<any>()
+            .mockRejectedValue(new Error("not found")),
+        },
+      },
+    });
+
+    const deps = createMockDeps({ octokit: releaseOctokit });
+    const helpers = createHelpers(deps);
+
+    const existing = {
+      ...validCodeJSON,
+      version: "7.8.9",
+    } as any;
+    const result = await getMetaData(helpers, deps, existing);
+
+    expect(result.version).toBe("7.8.9");
+  });
+
   it("sets Archival status when isArchived", async () => {
     const deps = createMockDeps({ isArchived: true });
     const helpers = createHelpers(deps);
@@ -132,28 +155,6 @@ describe("getMetaData", () => {
     expect(result.version).toBe("2.4.6");
   });
 
-  it("falls back to the existing version when latest release cannot be fetched", async () => {
-    const failingReleaseOctokit = createMockOctokit({
-      rest: {
-        repos: {
-          getLatestRelease: jest
-            .fn<any>()
-            .mockRejectedValue(new Error("network issue")),
-        },
-      },
-    });
-
-    const deps = createMockDeps({ octokit: failingReleaseOctokit });
-    const helpers = createHelpers(deps);
-
-    const result = await getMetaData(
-      helpers,
-      deps,
-      { version: "7.8.9" } as any,
-    );
-
-    expect(result.version).toBe("7.8.9");
-  });
 });
 
 describe("runWithDeps", () => {

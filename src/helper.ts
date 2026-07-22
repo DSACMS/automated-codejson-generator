@@ -13,14 +13,12 @@ export function createHelpers(deps: Dependencies) {
   //===============================================
   // Meta Data
   //===============================================
-  async function calculateMetaData(
-    existingCodeJSON?: CodeJSON | null,
-  ): Promise<Partial<CodeJSON>> {
+  async function calculateMetaData(): Promise<Partial<CodeJSON>> {
     try {
       const [laborHours, basicInfo, version] = await Promise.all([
         getLaborHours(),
         getBasicInfo(),
-        getVersion(existingCodeJSON?.version),
+        getVersion(),
       ]);
 
       return {
@@ -48,7 +46,7 @@ export function createHelpers(deps: Dependencies) {
     }
   }
 
-  async function getVersion(existingVersion?: string): Promise<string> {
+  async function getVersion(): Promise<string> {
     try {
       const release = await octokit.rest.repos.getLatestRelease({ owner, repo });
       const versionFromRelease = normalizeVersionString(release.data.tag_name);
@@ -69,10 +67,6 @@ export function createHelpers(deps: Dependencies) {
       log.warning("Latest release did not include a usable version string.");
     } catch (error) {
       log.warning(`Failed to fetch latest release version: ${error}`);
-    }
-
-    if (typeof existingVersion === "string" && existingVersion.trim() !== "") {
-      return existingVersion.trim();
     }
 
     return "";
