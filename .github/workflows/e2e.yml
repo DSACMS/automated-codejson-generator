@@ -1,0 +1,50 @@
+name: End-to-End
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  SANDBOX_REPO: DSACMS/codejson-action-e2e
+  SANDBOX_WORKFLOW: e2e.yml
+
+jobs:
+  e2e:
+    name: End-to-End
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Fork PRs get no secrets, so they can't reach the sandbox. Skip rather than fail
+    # the check, and run the e2e by hand for those.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Trigger sandbox run
+        id: trigger
+        env:
+          GH_TOKEN: ${{ secrets.SANDBOX_E2E_TOKEN }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          # workflow_dispatch doesn't return the run it created, so tag the run with an
+          # id only this job could produce.
+          RUN_NAME="e2e ${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "run_name=${RUN_NAME}" >> "$GITHUB_OUTPUT"
+
+          gh workflow run "$SANDBOX_WORKFLOW" \
+            --repo "$SANDBOX_REPO" \
+            --ref main \
+            -f action_sha="$HEAD_SHA" \
+            -f pr_number="$PR_NUMBER" \
+            -f correlation_id="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+
+          echo "Dispatched ${SANDBOX_REPO} for ${HEAD_SHA} (PR #${PR_NUMBER})"
