@@ -114,12 +114,11 @@ async function getMetaData(
     ? partialCodeJSON.description
     : existingCodeJSON?.description || "";
 
-  // only update tags if we have new ones from GitHub Topics, otherwise keep existing
-  const shouldUpdateTags =
-    partialCodeJSON.tags && partialCodeJSON.tags.length > 0;
-  const tags = shouldUpdateTags
-    ? partialCodeJSON.tags
-    : existingCodeJSON?.tags || [];
+  // preserve existing tags and append repository topics, de-duped
+  const tags = helpers.mergeTags(
+    partialCodeJSON.tags ?? [],
+    existingCodeJSON?.tags ?? [],
+  );
 
   // handling legacy contractNumber that turned from string to array which caused validation errors
   let contractNumber: string[] = [];
@@ -137,7 +136,7 @@ async function getMetaData(
 
   if (deps.isArchived) {
     status = "Archival";
-    tags?.push("archived");
+    tags.push("archived");
   }
 
   // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode

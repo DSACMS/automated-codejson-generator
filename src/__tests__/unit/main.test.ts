@@ -109,6 +109,43 @@ describe("getMetaData", () => {
       URL: "https://github.com/upstream-owner/upstream-repo",
     });
   });
+
+  it("preserves existing tags that are not repository topics", async () => {
+    const deps = createMockDeps();
+    const helpers = createHelpers(deps);
+
+    const existing = {
+      ...validCodeJSON,
+      tags: ["featured"],
+    } as any;
+
+    const result = await getMetaData(helpers, deps, existing);
+
+    expect(result.tags).toEqual(["test", "automation", "featured"]);
+  });
+
+  it("does not duplicate tags that already exist as repository topics", async () => {
+    const deps = createMockDeps();
+    const helpers = createHelpers(deps);
+
+    const existing = {
+      ...validCodeJSON,
+      tags: ["test", "featured"],
+    } as any;
+
+    const result = await getMetaData(helpers, deps, existing);
+
+    expect(result.tags).toEqual(["test", "automation", "featured"]);
+  });
+
+  it("uses repository topics when no existing code.json is present", async () => {
+    const deps = createMockDeps();
+    const helpers = createHelpers(deps);
+
+    const result = await getMetaData(helpers, deps, null);
+
+    expect(result.tags).toEqual(["test", "automation"]);
+  });
 });
 
 describe("runWithDeps", () => {
