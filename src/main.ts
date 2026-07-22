@@ -3,12 +3,14 @@ import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
 
+const blankEnumValue = "" as never;
+
 const baselineCodeJSON: Partial<CodeJSON> = {
   name: "",
   version: "",
   description: "",
   longDescription: "",
-  status: undefined,
+  status: blankEnumValue,
   permissions: {
     licenses: [
       {
@@ -21,8 +23,8 @@ const baselineCodeJSON: Partial<CodeJSON> = {
   },
   organization: "Centers for Medicare & Medicaid Services",
   repositoryURL: "",
-  repositoryHost: undefined,
-  repositoryVisibility: undefined,
+  repositoryHost: blankEnumValue,
+  repositoryVisibility: blankEnumValue,
   homepageURL: "",
   downloadURL: "",
   disclaimerURL: "",
@@ -35,9 +37,9 @@ const baselineCodeJSON: Partial<CodeJSON> = {
   },
   platforms: [],
   categories: [],
-  softwareType: undefined,
+  softwareType: blankEnumValue,
   languages: [],
-  maintenance: undefined,
+  maintenance: blankEnumValue,
   contractNumber: [],
   SBOM: "",
   relatedCode: [],
@@ -56,9 +58,9 @@ const baselineCodeJSON: Partial<CodeJSON> = {
   feedbackMechanism: "",
   AIUseCaseID: "0",
   localisation: false,
-  repositoryType: undefined,
+  repositoryType: blankEnumValue,
   userInput: false,
-  fismaLevel: undefined,
+  fismaLevel: blankEnumValue,
   group: "",
   projects: [],
   systems: [],
@@ -119,12 +121,11 @@ async function getMetaData(
       ? existingCodeJSON.languages
       : partialCodeJSON.languages;
 
-  // only update tags if we have new ones from GitHub Topics, otherwise keep existing
-  const shouldUpdateTags =
-    partialCodeJSON.tags && partialCodeJSON.tags.length > 0;
-  const tags = shouldUpdateTags
-    ? partialCodeJSON.tags
-    : existingCodeJSON?.tags || [];
+  // preserve existing tags and append repository topics, de-duped
+  const tags = helpers.mergeTags(
+    partialCodeJSON.tags ?? [],
+    existingCodeJSON?.tags ?? [],
+  );
 
   // handling legacy contractNumber that turned from string to array which caused validation errors
   let contractNumber: string[] = [];
@@ -142,7 +143,7 @@ async function getMetaData(
 
   if (deps.isArchived) {
     status = "Archival";
-    tags?.push("archived");
+    tags.push("archived");
   }
 
   // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode
@@ -158,7 +159,7 @@ async function getMetaData(
   return {
     name: partialCodeJSON.name,
     description: description,
-    status: status,
+    status: status ?? blankEnumValue,
     repositoryURL: partialCodeJSON.repositoryURL,
     repositoryVisibility: partialCodeJSON.repositoryVisibility,
     laborHours: partialCodeJSON.laborHours,
