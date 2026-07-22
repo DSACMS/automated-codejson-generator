@@ -36,7 +36,7 @@ jobs:
           set -euo pipefail
 
           # workflow_dispatch doesn't return the run it created, so tag the run with an
-          # id only this job could produce.
+          # id only this job could produce and find it by name below.
           RUN_NAME="e2e ${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           echo "run_name=${RUN_NAME}" >> "$GITHUB_OUTPUT"
 
@@ -48,3 +48,43 @@ jobs:
             -f correlation_id="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
 
           echo "Dispatched ${SANDBOX_REPO} for ${HEAD_SHA} (PR #${PR_NUMBER})"
+
+      - name: Wait for sandbox verdict
+        env:
+          GH_TOKEN: ${{ secrets.SANDBOX_E2E_TOKEN }}
+          RUN_NAME: ${{ steps.trigger.outputs.run_name }}
+        run: |
+          set -euo pipefail
+
+          RUN_ID=""
+          for _ in $(seq 1 24); do
+            RUN_ID=$(gh api "repos/${SANDBOX_REPO}/actions/workflows/${SANDBOX_WORKFLOW}/runs?per_page=100" \
+              --jq "[.workflow_runs[] | select(.name == \"${RUN_NAME}\" or .display_title == \"${RUN_NAME}\")] | .[0].id // empty")
+            [ -n "$RUN_ID" ] && break
+            sleep 5
+          done
+
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::Sandbox run '${RUN_NAME}' never appeared in ${SANDBOX_REPO}."
+            exit 1
+          fi
+
+          RUN_URL="https://github.com/${SANDBOX_REPO}/actions/runs/${RUN_ID}"
+          echo "Sandbox run: ${RUN_URL}"
+          echo "Sandbox run: ${RUN_URL}" >> "$GITHUB_STEP_SUMMARY"
+
+          # The sandbox serializes its runs, so this can sit queued behind another PR.
+          while true; do
+            STATUS=$(gh api "repos/${SANDBOX_REPO}/actions/runs/${RUN_ID}" --jq '.status')
+            [ "$STATUS" = "completed" ] && break
+            echo "  ${STATUS}..."
+            sleep 15
+          done
+
+          CONCLUSION=$(gh api "repos/${SANDBOX_REPO}/actions/runs/${RUN_ID}" --jq '.conclusion')
+
+          if [ "$CONCLUSION" != "success" ]; then
+            echo "::error::Sandbox e2e ${CONCLUSION}. See ${RUN_URL}"
+            exit 1
+          fi
+          echo "Sandbox e2e passed."
