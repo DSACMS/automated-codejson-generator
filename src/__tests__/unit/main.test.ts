@@ -54,6 +54,28 @@ describe("getMetaData", () => {
     expect(result.feedbackMechanism).toContain("/issues");
   });
 
+  it("preserves existing languages over GitHub-detected languages", async () => {
+    const deps = createMockDeps();
+    const helpers = createHelpers(deps);
+
+    const existing = {
+      ...validCodeJSON,
+      languages: ["TypeScript", "Markdown"],
+    } as any;
+    const result = await getMetaData(helpers, deps, existing);
+
+    expect(result.languages).toEqual(["TypeScript", "Markdown"]);
+  });
+
+  it("falls back to GitHub-detected languages when none exist", async () => {
+    const deps = createMockDeps();
+    const helpers = createHelpers(deps);
+
+    const result = await getMetaData(helpers, deps, null);
+
+    expect(result.languages).toEqual(["TypeScript", "JavaScript"]);
+  });
+
   it("sets Archival status when isArchived", async () => {
     const deps = createMockDeps({ isArchived: true });
     const helpers = createHelpers(deps);

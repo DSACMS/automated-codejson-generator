@@ -114,6 +114,13 @@ async function getMetaData(
     ? partialCodeJSON.description
     : existingCodeJSON?.description || "";
 
+  // preserve manually curated languages when they already exist in code.json,
+  // and only fall back to GitHub detected languages for new repositories.
+  const languages =
+    existingCodeJSON?.languages && existingCodeJSON.languages.length > 0
+      ? existingCodeJSON.languages
+      : partialCodeJSON.languages;
+
   // preserve existing tags and append repository topics, de-duped
   const tags = helpers.mergeTags(
     partialCodeJSON.tags ?? [],
@@ -156,7 +163,7 @@ async function getMetaData(
     repositoryURL: partialCodeJSON.repositoryURL,
     repositoryVisibility: partialCodeJSON.repositoryVisibility,
     laborHours: partialCodeJSON.laborHours,
-    languages: partialCodeJSON.languages,
+    languages: languages,
     reuseFrequency: {
       forks: partialCodeJSON.reuseFrequency?.forks ?? 0,
       clones: existingCodeJSON?.reuseFrequency?.clones ?? 0,
