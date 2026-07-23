@@ -2,7 +2,9 @@ import {
   normalizePackageName,
   normalizePyPIName,
 } from "../gov-dependencies.js";
+import { FetchFn, USER_AGENT, getJson, getText } from "./http.js";
 
+export type { FetchFn };
 export type Ecosystem = "npm" | "pypi";
 export type Verdict = "PASS" | "FLAG" | "REJECT";
 
@@ -17,10 +19,6 @@ export interface GithubRepoRef {
   repo: string;
 }
 
-export type FetchFn = typeof fetch;
-
-const USER_AGENT =
-  "DSACMS/automated-codejson-generator gov-dependencies updater";
 const PYPI_URL_KEYS = [
   "repository",
   "source",
@@ -271,51 +269,4 @@ async function listTreeManifests(
     .map((entry) => entry.path)
     .filter((p) => MANIFEST_PATH.test(p) && !SKIP_DIRS.test(p))
     .slice(0, MAX_TREE_MANIFESTS);
-}
-
-async function getJson(
-  fetchFn: FetchFn,
-  url: string,
-  headers: Record<string, string> = { "User-Agent": USER_AGENT },
-): Promise<unknown | null> {
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const response = await fetchFn(url, {
-        headers,
-        signal: AbortSignal.timeout(20000),
-      });
-      if (response.status === 429 || response.status >= 500) {
-        await sleep(attempt * 1500);
-        continue;
-      }
-      if (!response.ok) return null;
-      return await response.json();
-    } catch {
-      await sleep(attempt * 1500);
-    }
-  }
-  return null;
-}
-
-async function getText(fetchFn: FetchFn, url: string): Promise<string | null> {
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const response = await fetchFn(url, {
-        headers: { "User-Agent": USER_AGENT },
-        signal: AbortSignal.timeout(15000),
-      });
-      if (response.status === 429 || response.status >= 500) {
-        await sleep(attempt * 1500);
-        continue;
-      }
-      return response.ok ? await response.text() : null;
-    } catch {
-      await sleep(attempt * 1500);
-    }
-  }
-  return null;
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
