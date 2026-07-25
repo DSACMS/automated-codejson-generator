@@ -54,12 +54,13 @@ export function addEntries(source: string, entries: DataFileEntry[]): string {
 }
 
 function uniqueConstName(key: string, used: Set<string>): string {
-  let base = key
-    .replace(/^@[^/]+\//, "")
+  const scope = key.match(/^@([^/]+)\//)?.[1];
+  const slug = key
+    .replace(/^@[^/]+\//, scope ? `${scope}-` : "")
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
-  if (/^\d/.test(base)) base = "PKG_" + base;
+  let base = /^\d/.test(slug) ? "PKG_" + slug : slug;
   let name = base;
   while (used.has(name)) name += "_PKG";
   return name;

@@ -73,7 +73,7 @@ describe("addEntries", () => {
       out.indexOf("GOV_DEPENDENCIES:"),
       out.indexOf("GOV_DEPENDENCIES_PYPI:"),
     );
-    expect(npmBlock).toContain('"@cfpb/analytics": ANALYTICS');
+    expect(npmBlock).toContain('"@cfpb/analytics": CFPB_ANALYTICS');
     expect(npmBlock.indexOf("@cfpb/analytics")).toBeLessThan(
       npmBlock.indexOf("batchee: BATCHEE"),
     );
