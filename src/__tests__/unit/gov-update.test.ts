@@ -27,9 +27,9 @@ describe("parseGithubUrl", () => {
   it.each([
     ["https://github.com/nasa"],
     ["https://gitlab.com/nasa/batchee"],
-    ["https://github.com.evil.io/nasa/batchee"],
-    ["https://evil.io/github.com/nasa/batchee"],
-    ["https://evil.io?x=github.com/nasa/batchee"],
+    ["https://github.com.example.com/nasa/batchee"],
+    ["https://example.com/github.com/nasa/batchee"],
+    ["https://example.com?x=github.com/nasa/batchee"],
     [""],
     [null],
     [undefined],

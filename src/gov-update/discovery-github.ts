@@ -4,13 +4,29 @@ import {
   extractReadmeInstallNames,
 } from "./verify.js";
 import { Candidate, UpdateCache } from "./cache.js";
-import { FetchFn, USER_AGENT, getJson, getText, sleep } from "./http.js";
+import {
+  FetchFn,
+  USER_AGENT,
+  getJsonResult,
+  getTextResult,
+  sleep,
+} from "./http.js";
 
 export interface RepoInfo {
   name: string;
   pushedAt: string;
   fork: boolean;
   archived: boolean;
+}
+
+export interface OrgRepos {
+  repos: RepoInfo[];
+  complete: boolean;
+}
+
+export interface RepoDiscovery {
+  candidates: Candidate[];
+  failed: boolean;
 }
 
 interface GithubRepoResponse {
@@ -24,15 +40,16 @@ export async function listOrgRepos(
   fetchFn: FetchFn,
   org: string,
   githubToken?: string,
-): Promise<RepoInfo[]> {
+): Promise<OrgRepos> {
   const headers: Record<string, string> = { "User-Agent": USER_AGENT };
   if (githubToken) headers.Authorization = `Bearer ${githubToken}`;
   const repos: RepoInfo[] = [];
   for (let page = 1; ; page++) {
     const url = `https://api.github.com/orgs/${org}/repos?type=public&per_page=100&page=${page}`;
-    const batch = (await getJson(fetchFn, url, headers)) as
-      | GithubRepoResponse[]
-      | null;
+    const result = await getJsonResult(fetchFn, url, headers);
+    if (result.status === "error") return { repos, complete: false };
+    const batch =
+      result.status === "ok" ? (result.body as GithubRepoResponse[]) : null;
     if (!Array.isArray(batch)) break;
     for (const repo of batch) {
       repos.push({
@@ -44,16 +61,17 @@ export async function listOrgRepos(
     }
     if (batch.length < 100) break;
   }
-  return repos;
+  return { repos, complete: true };
 }
 
 export async function discoverRepoCandidates(
   fetchFn: FetchFn,
   org: string,
   repo: RepoInfo,
-): Promise<Candidate[]> {
+): Promise<RepoDiscovery> {
   const base = `https://raw.githubusercontent.com/${org}/${repo.name}/HEAD`;
   const found = new Map<string, Candidate>();
+  let failed = false;
   const add = (eco: Ecosystem, name: string, source: Candidate["source"]) => {
     const key = `${eco}|${name.toLowerCase()}`;
     if (!found.has(key)) {
@@ -69,33 +87,37 @@ export async function discoverRepoCandidates(
     }
   };
 
-  const packageJson = await getText(fetchFn, `${base}/package.json`);
-  if (packageJson) {
-    for (const name of extractManifestNames("package.json", packageJson)) {
+  const packageJson = await getTextResult(fetchFn, `${base}/package.json`);
+  if (packageJson.status === "error") failed = true;
+  else if (packageJson.status === "ok") {
+    for (const name of extractManifestNames("package.json", packageJson.body)) {
       add("npm", name, "manifest");
     }
   }
   for (const file of ["pyproject.toml", "setup.py", "setup.cfg"]) {
-    const text = await getText(fetchFn, `${base}/${file}`);
-    if (!text) continue;
-    for (const name of extractManifestNames(file, text)) {
-      add("pypi", name, "manifest");
+    const text = await getTextResult(fetchFn, `${base}/${file}`);
+    if (text.status === "error") failed = true;
+    else if (text.status === "ok") {
+      for (const name of extractManifestNames(file, text.body)) {
+        add("pypi", name, "manifest");
+      }
     }
   }
 
   for (const file of ["README.md", "readme.md", "README.rst"]) {
-    const readme = await getText(fetchFn, `${base}/${file}`);
-    if (!readme) continue;
-    for (const name of extractReadmeInstallNames("npm", readme)) {
+    const readme = await getTextResult(fetchFn, `${base}/${file}`);
+    if (readme.status === "error") failed = true;
+    if (readme.status !== "ok") continue;
+    for (const name of extractReadmeInstallNames("npm", readme.body)) {
       add("npm", name, "readme");
     }
-    for (const name of extractReadmeInstallNames("pypi", readme)) {
+    for (const name of extractReadmeInstallNames("pypi", readme.body)) {
       add("pypi", name, "readme");
     }
     break;
   }
 
-  return [...found.values()];
+  return { candidates: [...found.values()], failed };
 }
 
 export interface GithubDiscoveryOptions {
@@ -116,7 +138,10 @@ export async function discoverFromGithub(
   const candidates: Candidate[] = [];
 
   for (const org of orgs) {
-    const repos = await listOrgRepos(fetchFn, org, githubToken);
+    const { repos, complete } = await listOrgRepos(fetchFn, org, githubToken);
+    if (!complete) {
+      onProgress?.(`${org}: WARNING repo list incomplete, some pages failed`);
+    }
     onProgress?.(`${org}: ${repos.length} repos`);
     let reused = 0;
     for (const repo of repos) {
@@ -127,11 +152,14 @@ export async function discoverFromGithub(
         reused++;
         continue;
       }
-      const repoCandidates = await discoverRepoCandidates(fetchFn, org, repo);
-      cache.repos[key] = {
-        pushedAt: repo.pushedAt,
-        candidates: repoCandidates,
-      };
+      const { candidates: repoCandidates, failed } =
+        await discoverRepoCandidates(fetchFn, org, repo);
+      if (!failed) {
+        cache.repos[key] = {
+          pushedAt: repo.pushedAt,
+          candidates: repoCandidates,
+        };
+      }
       candidates.push(...repoCandidates);
       if (paceMs > 0) await sleep(paceMs);
     }

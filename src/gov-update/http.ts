@@ -3,11 +3,16 @@ export type FetchFn = typeof fetch;
 export const USER_AGENT =
   "DSACMS/automated-codejson-generator gov-dependencies updater";
 
-export async function getJson(
+export type FetchResult<T> =
+  | { status: "ok"; body: T }
+  | { status: "missing" }
+  | { status: "error" };
+
+export async function getJsonResult(
   fetchFn: FetchFn,
   url: string,
   headers: Record<string, string> = { "User-Agent": USER_AGENT },
-): Promise<unknown | null> {
+): Promise<FetchResult<unknown>> {
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const response = await fetchFn(url, {
@@ -18,19 +23,19 @@ export async function getJson(
         await sleep(attempt * 1500);
         continue;
       }
-      if (!response.ok) return null;
-      return await response.json();
+      if (!response.ok) return { status: "missing" };
+      return { status: "ok", body: await response.json() };
     } catch {
       await sleep(attempt * 1500);
     }
   }
-  return null;
+  return { status: "error" };
 }
 
-export async function getText(
+export async function getTextResult(
   fetchFn: FetchFn,
   url: string,
-): Promise<string | null> {
+): Promise<FetchResult<string>> {
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const response = await fetchFn(url, {
@@ -41,12 +46,30 @@ export async function getText(
         await sleep(attempt * 1500);
         continue;
       }
-      return response.ok ? await response.text() : null;
+      if (!response.ok) return { status: "missing" };
+      return { status: "ok", body: await response.text() };
     } catch {
       await sleep(attempt * 1500);
     }
   }
-  return null;
+  return { status: "error" };
+}
+
+export async function getJson(
+  fetchFn: FetchFn,
+  url: string,
+  headers: Record<string, string> = { "User-Agent": USER_AGENT },
+): Promise<unknown | null> {
+  const result = await getJsonResult(fetchFn, url, headers);
+  return result.status === "ok" ? result.body : null;
+}
+
+export async function getText(
+  fetchFn: FetchFn,
+  url: string,
+): Promise<string | null> {
+  const result = await getTextResult(fetchFn, url);
+  return result.status === "ok" ? result.body : null;
 }
 
 export function sleep(ms: number): Promise<void> {

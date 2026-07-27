@@ -76,8 +76,9 @@ describe("listOrgRepos", () => {
       "&page=1": pageOne,
       "&page=2": pageTwo,
     });
-    const repos = await listOrgRepos(fetchFn, "nasa");
+    const { repos, complete } = await listOrgRepos(fetchFn, "nasa");
     expect(repos).toHaveLength(101);
+    expect(complete).toBe(true);
     expect(repos[100]).toEqual({
       name: "last-repo",
       pushedAt: "2026-01-01T00:00:00Z",
@@ -86,9 +87,33 @@ describe("listOrgRepos", () => {
     });
   });
 
-  it("returns empty on API failure", async () => {
-    const repos = await listOrgRepos(fetchFrom({}), "nasa");
+  it("reports incomplete when a page fetch errors mid-pagination", async () => {
+    jest.useFakeTimers();
+    try {
+      const pageOne = Array.from({ length: 100 }, (_, i) =>
+        repoResponse(`repo-${i}`),
+      );
+      const fetchFn = jest.fn<FetchFn>((input) => {
+        const url = String(input);
+        if (url.includes("&page=1")) {
+          return Promise.resolve(new Response(JSON.stringify(pageOne)));
+        }
+        return Promise.resolve(new Response("error", { status: 503 }));
+      }) as unknown as FetchFn;
+      const promise = listOrgRepos(fetchFn, "nasa");
+      await jest.runAllTimersAsync();
+      const { repos, complete } = await promise;
+      expect(repos).toHaveLength(100);
+      expect(complete).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it("reports empty and complete when the org has no repos", async () => {
+    const { repos, complete } = await listOrgRepos(fetchFrom({}), "nasa");
     expect(repos).toEqual([]);
+    expect(complete).toBe(true);
   });
 });
 
@@ -106,7 +131,12 @@ describe("discoverRepoCandidates", () => {
       fork: false,
       archived: false,
     };
-    const candidates = await discoverRepoCandidates(fetchFn, "nasa", repo);
+    const { candidates, failed } = await discoverRepoCandidates(
+      fetchFn,
+      "nasa",
+      repo,
+    );
+    expect(failed).toBe(false);
     const keys = candidates.map((c) => `${c.eco}:${c.name}:${c.source}`);
     expect(keys).toContain("npm:@nasa/tool:manifest");
     expect(keys).toContain("pypi:nasa-tool:manifest");
@@ -121,9 +151,32 @@ describe("discoverRepoCandidates", () => {
       fork: false,
       archived: false,
     };
-    expect(await discoverRepoCandidates(fetchFrom({}), "nasa", repo)).toEqual(
-      [],
-    );
+    expect(await discoverRepoCandidates(fetchFrom({}), "nasa", repo)).toEqual({
+      candidates: [],
+      failed: false,
+    });
+  });
+
+  it("marks failed when a manifest fetch errors", async () => {
+    jest.useFakeTimers();
+    try {
+      const fetchFn = jest.fn<FetchFn>(() =>
+        Promise.resolve(new Response("error", { status: 502 })),
+      ) as unknown as FetchFn;
+      const repo = {
+        name: "flaky",
+        pushedAt: "2026-01-01T00:00:00Z",
+        fork: false,
+        archived: false,
+      };
+      const promise = discoverRepoCandidates(fetchFn, "nasa", repo);
+      await jest.runAllTimersAsync();
+      const { candidates, failed } = await promise;
+      expect(candidates).toEqual([]);
+      expect(failed).toBe(true);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });
 

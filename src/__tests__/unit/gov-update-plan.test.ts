@@ -43,7 +43,11 @@ describe("planUpdate", () => {
 
   it("adds a manifest candidate that verifies PASS", async () => {
     const verify: VerifyFn = () =>
-      Promise.resolve({ verdict: "PASS", reason: "root", repo: "nasa/pkg" });
+      Promise.resolve({
+        verdict: "PASS",
+        reason: "root manifest",
+        repo: "nasa/pkg",
+      });
     const plan = await planUpdate({
       candidates: [candidate({})],
       existing: emptyExisting(),
@@ -65,7 +69,7 @@ describe("planUpdate", () => {
     const verify: VerifyFn = () =>
       Promise.resolve({ verdict: "FLAG", reason: "no manifest declares it" });
     const plan = await planUpdate({
-      candidates: [candidate({ name: "sketchy" })],
+      candidates: [candidate({ name: "unverified-pkg" })],
       existing: emptyExisting(),
       allowlist,
       verify,
@@ -75,7 +79,7 @@ describe("planUpdate", () => {
     expect(plan.flagged).toEqual([
       {
         eco: "npm",
-        name: "sketchy",
+        name: "unverified-pkg",
         org: "nasa",
         repo: "nasa/pkg",
         reason: "no manifest declares it",
@@ -141,7 +145,7 @@ describe("planUpdate", () => {
 
   it("prefers npm-org source over manifest when deduping", async () => {
     const verify = jest.fn<VerifyFn>(() =>
-      Promise.resolve({ verdict: "FLAG", reason: "x" }),
+      Promise.resolve({ verdict: "FLAG", reason: "no manifest declares it" }),
     );
     const plan = await planUpdate({
       candidates: [
@@ -178,9 +182,9 @@ describe("renderReport", () => {
       flagged: [
         {
           eco: "pypi",
-          name: "sketchy",
+          name: "unverified-pkg",
           org: "nasa",
-          repo: "nasa/sketchy",
+          repo: "nasa/unverified-pkg",
           reason: "no manifest declares it",
         },
       ],
@@ -191,6 +195,8 @@ describe("renderReport", () => {
     expect(report).toContain("## Verified additions");
     expect(report).toContain("pkg — https://github.com/nasa/pkg");
     expect(report).toContain("## Flagged for manual review");
-    expect(report).toContain("sketchy (nasa/sketchy): no manifest declares it");
+    expect(report).toContain(
+      "unverified-pkg (nasa/unverified-pkg): no manifest declares it",
+    );
   });
 });

@@ -170,6 +170,7 @@ export async function verifyPackage(
     };
   }
 
+  let flagFallback: VerifyResult | null = null;
   for (const { org, repo } of govClaims) {
     const base = `https://raw.githubusercontent.com/${org}/${repo}/HEAD`;
     const declaredNames: string[] = [];
@@ -226,7 +227,7 @@ export async function verifyPackage(
       const matches = [
         ...new Set(declaredNames.filter((n) => scopeStrippedEqual(n, name))),
       ];
-      return {
+      flagFallback ??= {
         verdict: "FLAG",
         reason: `scope mismatch: repo declares ${matches.join(", ")}, registry has ${name}`,
         repo: `${org}/${repo}`,
@@ -234,10 +235,12 @@ export async function verifyPackage(
     }
   }
 
-  return {
-    verdict: "FLAG",
-    reason: "no gov manifest or README declares this name",
-  };
+  return (
+    flagFallback ?? {
+      verdict: "FLAG",
+      reason: "no gov manifest or README declares this name",
+    }
+  );
 }
 
 async function getReadme(

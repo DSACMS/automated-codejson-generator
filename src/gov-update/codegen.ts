@@ -1,3 +1,7 @@
+import {
+  normalizePackageName,
+  normalizePyPIName,
+} from "../gov-dependencies.js";
 import { Ecosystem } from "./verify.js";
 
 export interface DataFileEntry {
@@ -22,9 +26,10 @@ interface KnownConst {
 
 export function existingKeys(source: string, eco: Ecosystem): Set<string> {
   const body = mapBody(source, eco);
+  const normalize = eco === "npm" ? normalizePackageName : normalizePyPIName;
   const keys = new Set<string>();
   for (const m of body.matchAll(/\n {2}(?:"([^"]+)"|([\w$]+)):/g)) {
-    keys.add((m[1] ?? m[2]).toLowerCase());
+    keys.add(normalize(m[1] ?? m[2]));
   }
   return keys;
 }
@@ -60,7 +65,7 @@ function uniqueConstName(key: string, used: Set<string>): string {
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
-  let base = /^\d/.test(slug) ? "PKG_" + slug : slug;
+  const base = /^\d/.test(slug) ? "PKG_" + slug : slug;
   let name = base;
   while (used.has(name)) name += "_PKG";
   return name;
