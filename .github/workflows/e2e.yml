@@ -26,10 +26,19 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
+      - name: Generate sandbox token
+        id: app_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.E2E_APP_ID }}
+          private-key: ${{ secrets.E2E_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: codejson-action-e2e
+
       - name: Trigger sandbox run
         id: trigger
         env:
-          GH_TOKEN: ${{ secrets.SANDBOX_E2E_TOKEN }}
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
@@ -51,7 +60,7 @@ jobs:
 
       - name: Wait for sandbox verdict
         env:
-          GH_TOKEN: ${{ secrets.SANDBOX_E2E_TOKEN }}
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
           RUN_NAME: ${{ steps.trigger.outputs.run_name }}
         run: |
           set -euo pipefail
