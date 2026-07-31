@@ -347,6 +347,7 @@ export function createHelpers(deps: Dependencies) {
     readJSON,
     sendPR,
     pushDirectlyWithFallback,
+    mergeTags,
   };
 }
 
@@ -401,6 +402,14 @@ export function mergeReusedCode(
   }
 
   return merged;
+}
+
+// combines repository topics with existing manually added tags, de-duped
+export function mergeTags(
+  repositoryTopics: string[] = [],
+  existingTags: string[] = [],
+): string[] {
+  return Array.from(new Set([...repositoryTopics, ...existingTags]));
 }
 
 function bodyOfPR(): string {
