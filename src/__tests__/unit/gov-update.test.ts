@@ -4,6 +4,7 @@ import {
   extractClaimedRepos,
   extractManifestNames,
   extractReadmeInstallNames,
+  isPrivatePackageManifest,
   verifyPackage,
   FetchFn,
 } from "../../gov-update/verify.js";
@@ -112,6 +113,22 @@ describe("extractManifestNames", () => {
     ]);
     const setup = 'setup(\n    name="fipy",\n    version="3.4",\n)';
     expect(extractManifestNames("setup.py", setup)).toEqual(["fipy"]);
+  });
+});
+
+describe("isPrivatePackageManifest", () => {
+  it("flags manifests marked private true", () => {
+    expect(isPrivatePackageManifest('{"name": "x", "private": true}')).toBe(
+      true,
+    );
+  });
+
+  it("treats missing, false, and unparseable as not private", () => {
+    expect(isPrivatePackageManifest('{"name": "x"}')).toBe(false);
+    expect(isPrivatePackageManifest('{"name": "x", "private": false}')).toBe(
+      false,
+    );
+    expect(isPrivatePackageManifest("not json")).toBe(false);
   });
 });
 
@@ -229,6 +246,18 @@ describe("verifyPackage", () => {
     });
     expect(result.verdict).toBe("REJECT");
     expect(result.reason).toBe("no repo in registry metadata");
+  });
+
+  it("rejects a name that is not published to the public registry", async () => {
+    const fetchFn = fetchFrom({});
+    const result = await verifyPackage({
+      eco: "npm",
+      name: "consumerfinance.gov",
+      allowedOrgs,
+      fetchFn,
+    });
+    expect(result.verdict).toBe("REJECT");
+    expect(result.reason).toBe("not published to the public registry");
   });
 
   it("passes via README install command when the manifest name differs", async () => {

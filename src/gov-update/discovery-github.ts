@@ -2,6 +2,7 @@ import {
   Ecosystem,
   extractManifestNames,
   extractReadmeInstallNames,
+  isPrivatePackageManifest,
 } from "./verify.js";
 import { Candidate, UpdateCache } from "./cache.js";
 import {
@@ -89,7 +90,10 @@ export async function discoverRepoCandidates(
 
   const packageJson = await getTextResult(fetchFn, `${base}/package.json`);
   if (packageJson.status === "error") failed = true;
-  else if (packageJson.status === "ok") {
+  else if (
+    packageJson.status === "ok" &&
+    !isPrivatePackageManifest(packageJson.body)
+  ) {
     for (const name of extractManifestNames("package.json", packageJson.body)) {
       add("npm", name, "manifest");
     }

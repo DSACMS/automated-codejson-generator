@@ -2,7 +2,13 @@ import {
   normalizePackageName,
   normalizePyPIName,
 } from "../gov-dependencies.js";
-import { FetchFn, USER_AGENT, getJson, getText } from "./http.js";
+import {
+  FetchFn,
+  USER_AGENT,
+  getJson,
+  getJsonResult,
+  getText,
+} from "./http.js";
 
 export type { FetchFn };
 export type Ecosystem = "npm" | "pypi";
@@ -98,6 +104,15 @@ export function extractManifestNames(filePath: string, text: string): string[] {
   );
 }
 
+export function isPrivatePackageManifest(text: string): boolean {
+  try {
+    const parsed = JSON.parse(text) as { private?: unknown };
+    return parsed.private === true;
+  } catch {
+    return false;
+  }
+}
+
 export function extractReadmeInstallNames(
   eco: Ecosystem,
   text: string,
@@ -152,10 +167,17 @@ export async function verifyPackage(
     eco === "npm"
       ? `https://registry.npmjs.org/${encodeURIComponent(name)}`
       : `https://pypi.org/pypi/${encodeURIComponent(name)}/json`;
-  const doc = await getJson(fetchFn, registryUrl);
-  if (doc === null) {
+  const registry = await getJsonResult(fetchFn, registryUrl);
+  if (registry.status === "missing") {
+    return {
+      verdict: "REJECT",
+      reason: "not published to the public registry",
+    };
+  }
+  if (registry.status === "error") {
     return { verdict: "REJECT", reason: "registry lookup failed" };
   }
+  const doc = registry.body;
 
   const claimed = extractClaimedRepos(eco, doc);
   if (claimed.length === 0) {

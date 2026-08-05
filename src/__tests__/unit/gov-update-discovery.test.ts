@@ -157,6 +157,20 @@ describe("discoverRepoCandidates", () => {
     });
   });
 
+  it("skips a package.json marked private", async () => {
+    const fetchFn = fetchFrom({
+      "/HEAD/package.json": '{"name": "internal-site", "private": true}',
+    });
+    const repo = {
+      name: "website",
+      pushedAt: "2026-01-01T00:00:00Z",
+      fork: false,
+      archived: false,
+    };
+    const { candidates } = await discoverRepoCandidates(fetchFn, "nasa", repo);
+    expect(candidates).toEqual([]);
+  });
+
   it("marks failed when a manifest fetch errors", async () => {
     jest.useFakeTimers();
     try {
