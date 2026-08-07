@@ -54,6 +54,29 @@ describe("getMetaData", () => {
     expect(result.feedbackMechanism).toContain("/issues");
   });
 
+  it("preserves an existing version when the latest release is unavailable", async () => {
+    const releaseOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          getLatestRelease: jest
+            .fn<any>()
+            .mockRejectedValue(new Error("not found")),
+        },
+      },
+    });
+
+    const deps = createMockDeps({ octokit: releaseOctokit });
+    const helpers = createHelpers(deps);
+
+    const existing = {
+      ...validCodeJSON,
+      version: "7.8.9",
+    } as any;
+    const result = await getMetaData(helpers, deps, existing);
+
+    expect(result.version).toBe("7.8.9");
+  });
+
   it("preserves existing languages over GitHub-detected languages", async () => {
     const deps = createMockDeps();
     const helpers = createHelpers(deps);
@@ -130,6 +153,28 @@ describe("getMetaData", () => {
       name: "upstream-owner/upstream-repo",
       URL: "https://github.com/upstream-owner/upstream-repo",
     });
+  });
+
+  it("uses the latest release version when available", async () => {
+    const releaseOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          getLatestRelease: jest.fn<any>().mockResolvedValue({
+            data: {
+              tag_name: "v2.4.6",
+              name: "Release 2.4.6",
+            },
+          }),
+        },
+      },
+    });
+
+    const deps = createMockDeps({ octokit: releaseOctokit });
+    const helpers = createHelpers(deps);
+
+    const result = await getMetaData(helpers, deps, null);
+
+    expect(result.version).toBe("2.4.6");
   });
 
   it("preserves existing tags that are not repository topics", async () => {
@@ -244,6 +289,12 @@ describe("runWithDeps", () => {
           get: jest
             .fn<any>()
             .mockResolvedValue({ data: { default_branch: "main" } }),
+          getLatestRelease: jest.fn<any>().mockResolvedValue({
+            data: {
+              tag_name: "v1.2.1",
+              name: "v1.2.1",
+            },
+          }),
           listLanguages: jest.fn<any>().mockResolvedValue({ data: {} }),
           getContent: jest
             .fn<any>()

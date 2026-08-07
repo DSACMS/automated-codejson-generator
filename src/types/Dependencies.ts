@@ -32,6 +32,10 @@ export interface OctokitClient {
   rest: {
     repos: {
       get: (params: { owner: string; repo: string }) => Promise<RepoResponse>;
+      getLatestRelease: (params: {
+        owner: string;
+        repo: string;
+      }) => Promise<ReleaseResponse>;
       listLanguages: (params: {
         owner: string;
         repo: string;
@@ -89,6 +93,13 @@ export interface RepoResponse {
 
 export interface LanguagesResponse {
   data: Record<string, number>;
+}
+
+export interface ReleaseResponse {
+  data: {
+    tag_name: string;
+    name: string | null;
+  };
 }
 
 export interface ContentResponse {
