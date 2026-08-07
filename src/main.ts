@@ -96,6 +96,7 @@ async function getMetaData(
   existingCodeJSON?: CodeJSON | null,
 ): Promise<Partial<CodeJSON>> {
   const partialCodeJSON = await helpers.calculateMetaData();
+  const version = existingCodeJSON?.version || partialCodeJSON.version;
 
   // preserve existing feedback mechanisms if they exist, otherwise default to GitHub Issues
   const feedbackMechanism =
@@ -158,6 +159,7 @@ async function getMetaData(
 
   return {
     name: partialCodeJSON.name,
+    version: version,
     description: description,
     status: status ?? blankEnumValue,
     repositoryURL: partialCodeJSON.repositoryURL,
