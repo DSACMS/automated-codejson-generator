@@ -11,6 +11,11 @@ export interface DataFileEntry {
   url: string;
 }
 
+// The data file is edited as text rather than regenerated, so hand written
+// entries, comments, and formatting survive an automated run. That means the
+// file's shape is load bearing: these patterns expect one const per entry and
+// two character indented map keys, which is what Prettier produces. Changing
+// the layout of gov-dependencies.data.ts means changing these too.
 const NPM_MAP =
   "export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {";
 const PYPI_MAP =
@@ -24,6 +29,7 @@ interface KnownConst {
   url: string;
 }
 
+/** The keys already in one of the maps, normalized for comparison. */
 export function existingKeys(source: string, eco: Ecosystem): Set<string> {
   const body = mapBody(source, eco);
   const normalize = eco === "npm" ? normalizePackageName : normalizePyPIName;
@@ -34,6 +40,13 @@ export function existingKeys(source: string, eco: Ecosystem): Set<string> {
   return keys;
 }
 
+/**
+ * Adds entries to the data file source and returns the new text.
+ *
+ * Entries that resolve to a repo already in the file reuse its const, so the
+ * npm and PyPI names for one project point at the same object instead of
+ * duplicating it.
+ */
 export function addEntries(source: string, entries: DataFileEntry[]): string {
   let result = source;
   const knownByUrl = new Map<string, KnownConst>();
@@ -58,6 +71,8 @@ export function addEntries(source: string, entries: DataFileEntry[]): string {
   return result;
 }
 
+// Package names are not valid identifiers, so scopes, punctuation, and leading
+// digits all have to be worked around before a name can be a const.
 function uniqueConstName(key: string, used: Set<string>): string {
   const scope = key.match(/^@([^/]+)\//)?.[1];
   const slug = key
@@ -71,6 +86,8 @@ function uniqueConstName(key: string, used: Set<string>): string {
   return name;
 }
 
+// Consts are kept in alphabetical order, so a new one goes after the last const
+// that sorts before it, or ahead of the first if it sorts before everything.
 function insertConst(
   source: string,
   constName: string,
@@ -110,6 +127,8 @@ function mapKeyLiteral(key: string): string {
   return /^[a-z_$][\w$]*$/i.test(key) ? key : `"${key}"`;
 }
 
+// Scoped npm keys are grouped ahead of the unscoped ones, matching how the data
+// file is already laid out, so an update produces a small readable diff.
 function insertMapEntry(
   source: string,
   entry: DataFileEntry,

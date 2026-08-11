@@ -1,3 +1,15 @@
+/**
+ * Decides whether a candidate package is really published by the government
+ * organization it points at.
+ *
+ * The repository field on npm and PyPI is self declared, so anyone can publish
+ * a package that names a CMS repository as its source. Closing that hole takes
+ * two checks in both directions: the package's registry metadata has to point
+ * at an allowlisted organization, and a repository in that organization has to
+ * declare the package name itself. A spoofer can do the first, but cannot
+ * commit to a government repository to do the second.
+ */
+
 import {
   normalizePackageName,
   normalizePyPIName,
@@ -12,6 +24,12 @@ import {
 
 export type { FetchFn };
 export type Ecosystem = "npm" | "pypi";
+
+/**
+ * PASS is safe to add. REJECT is not ours, and is dropped silently. FLAG is
+ * unresolved and goes in the report for a maintainer to judge, since the
+ * interesting attacks land here rather than on an outright REJECT.
+ */
 export type Verdict = "PASS" | "FLAG" | "REJECT";
 
 export interface VerifyResult {
@@ -25,6 +43,9 @@ export interface GithubRepoRef {
   repo: string;
 }
 
+// PyPI lets a project name its own URL keys, so only the ones that mean "this
+// is where the source lives" count. A key like "Documentation" or a lab website
+// says nothing about who publishes the package.
 const PYPI_URL_KEYS = [
   "repository",
   "source",
@@ -33,12 +54,26 @@ const PYPI_URL_KEYS = [
   "github",
   "homepage",
 ];
+
+// Vendored and built copies of other people's manifests sit inside these, and
+// matching against one would let any package name appear to be declared by a
+// government repository.
 const SKIP_DIRS =
   /(^|\/)(node_modules|vendor|vendored|third[-_]party|dist|build|\.git)\//;
 const MANIFEST_PATH =
   /(^|\/)(package\.json|pyproject\.toml|setup\.py|setup\.cfg)$/;
+
+// Caps the work spent on a large monorepo.
 const MAX_TREE_MANIFESTS = 40;
 
+/**
+ * Pulls an org and repo out of the many shapes a repository field can take,
+ * including git+ssh, the git protocol, the github: prefix, and bare org/repo.
+ *
+ * The match is anchored on the host so that lookalikes such as
+ * github.com.example.com or example.com/github.com/cmsgov/x do not read as
+ * GitHub, since every trust decision downstream keys off the org this returns.
+ */
 export function parseGithubUrl(url: unknown): GithubRepoRef | null {
   if (!url || typeof url !== "string") return null;
   let u = url.trim().toLowerCase();
@@ -66,6 +101,7 @@ interface PyPIRegistryDoc {
   };
 }
 
+/** The repositories a registry document claims as its source, unverified. */
 export function extractClaimedRepos(
   eco: Ecosystem,
   doc: unknown,
@@ -113,6 +149,13 @@ export function isPrivatePackageManifest(text: string): boolean {
   }
 }
 
+/**
+ * Reads package names out of install commands in a README.
+ *
+ * Some repositories never declare the published name in a checked in manifest,
+ * because it is written at build time or the package lives in a subdirectory
+ * this crawl misses. Their README almost always spells it out instead.
+ */
 export function extractReadmeInstallNames(
   eco: Ecosystem,
   text: string,
@@ -157,6 +200,16 @@ export interface VerifyOptions {
   fetchFn?: FetchFn;
 }
 
+/**
+ * Runs the full check on one package name.
+ *
+ * The registry comes first: an unpublished name, or one whose metadata points
+ * outside the allowlist, is rejected without any GitHub calls. After that the
+ * claimed repo is searched for the name, in root manifests, then the README,
+ * then nested manifests.
+ *
+ * Anything still unmatched comes back as FLAG rather than a guess either way.
+ */
 export async function verifyPackage(
   options: VerifyOptions,
 ): Promise<VerifyResult> {
@@ -242,6 +295,10 @@ export async function verifyPackage(
       declaredNames.push(...names);
     }
 
+    // A name that only matches once its scope is stripped is what a typosquat
+    // looks like, but it can also be a legitimate republish under a different
+    // scope, so flag it instead of rejecting. Held as a fallback so another
+    // claimed repo can still PASS.
     if (
       eco === "npm" &&
       declaredNames.some((n) => scopeStrippedEqual(n, name))
@@ -280,6 +337,10 @@ interface GitTreeResponse {
   tree?: { path: string }[];
 }
 
+/**
+ * Every manifest in the repo tree, for monorepos that keep their packages in
+ * subdirectories. One API call covers the whole tree.
+ */
 async function listTreeManifests(
   fetchFn: FetchFn,
   org: string,

@@ -1,3 +1,8 @@
+/**
+ * Turns verified candidates into a set of changes for the data file. Nothing is
+ * written here, so a run can produce its report without touching the repo.
+ */
+
 import {
   normalizePackageName,
   normalizePyPIName,
@@ -37,6 +42,10 @@ export interface PlanOptions {
   resolveUrl: ResolveUrlFn;
 }
 
+// The same package usually turns up more than once. Lower rank wins: npm org
+// membership is the strongest signal, a manifest is a direct declaration, and a
+// README install line is the weakest since it may be describing someone else's
+// package.
 const SOURCE_RANK: Record<Candidate["source"], number> = {
   "npm-org": 0,
   manifest: 1,
@@ -62,6 +71,7 @@ function dedupe(candidates: Candidate[]): Candidate[] {
   return [...best.values()];
 }
 
+// Matches the "package (Agency Name)" format already used in the data file.
 function displayName(name: string, agency: string): string {
   return `${name.replace(/^@[^/]+\//, "")} (${agency})`;
 }
@@ -71,6 +81,12 @@ function agencyForRepo(allowlist: Allowlist, repo: string): string | undefined {
   return org ? allowlist.githubOrgs[org] : undefined;
 }
 
+/**
+ * Decides what each candidate becomes: an addition, a flag for review, or a
+ * rejection. Existing entries are skipped, so the plan only ever adds. Removing
+ * a package stays a manual call, since a package can drop off discovery for
+ * reasons that have nothing to do with it going away.
+ */
 export async function planUpdate(options: PlanOptions): Promise<UpdatePlan> {
   const { existing, allowlist, verify, resolveUrl } = options;
   const plan: UpdatePlan = {
@@ -87,6 +103,10 @@ export async function planUpdate(options: PlanOptions): Promise<UpdatePlan> {
       continue;
     }
 
+    // Packages from an allowlisted npm org skip verification. The registry only
+    // lists a package under an org when that org holds write access to it, so
+    // npm has already established the ownership verifyPackage spends several
+    // requests on. This covers unscoped names too, which are most of some orgs.
     if (candidate.source === "npm-org") {
       const agency = allowlist.npmOrgs[candidate.org.toLowerCase()];
       if (!agency) {
@@ -139,6 +159,7 @@ export async function planUpdate(options: PlanOptions): Promise<UpdatePlan> {
   return plan;
 }
 
+/** Markdown for the pull request body and the run log. */
 export function renderReport(plan: UpdatePlan): string {
   const lines: string[] = [];
   lines.push(

@@ -1,3 +1,10 @@
+/**
+ * First stage of a run. Lists every public repository in the allowlisted
+ * organizations and collects the package names those repositories declare or
+ * document. Nothing collected here is trusted yet, verify.ts decides what is
+ * eligible for the data file.
+ */
+
 import {
   Ecosystem,
   extractManifestNames,
@@ -37,6 +44,11 @@ interface GithubRepoResponse {
   archived: boolean;
 }
 
+/**
+ * Lists an organization's public repositories, paging until GitHub returns a
+ * short page. `complete` is false when a page request failed, so callers can
+ * warn rather than treat a partial list as the whole organization.
+ */
 export async function listOrgRepos(
   fetchFn: FetchFn,
   org: string,
@@ -65,6 +77,15 @@ export async function listOrgRepos(
   return { repos, complete: true };
 }
 
+/**
+ * Collects package names from a repository's root manifests and README. Files
+ * are read from raw.githubusercontent.com, which needs no token and does not
+ * count against the API rate limit.
+ *
+ * `failed` means a fetch errored out, and tells the caller not to cache this
+ * repository. Caching it would record a network failure as "no packages here"
+ * until someone pushes to the repository again.
+ */
 export async function discoverRepoCandidates(
   fetchFn: FetchFn,
   org: string,
@@ -108,6 +129,7 @@ export async function discoverRepoCandidates(
     }
   }
 
+  // Only the first README that exists is read, the rest are naming variants.
   for (const file of ["README.md", "readme.md", "README.rst"]) {
     const readme = await getTextResult(fetchFn, `${base}/${file}`);
     if (readme.status === "error") failed = true;
@@ -133,11 +155,16 @@ export interface GithubDiscoveryOptions {
   onProgress?: (message: string) => void;
 }
 
+/**
+ * Discovers candidates across every organization, skipping repositories the
+ * cache shows as unchanged. The cache is updated in place as it goes.
+ */
 export async function discoverFromGithub(
   options: GithubDiscoveryOptions,
 ): Promise<Candidate[]> {
   const { orgs, cache, githubToken, onProgress } = options;
   const fetchFn = options.fetchFn ?? fetch;
+  // A pause between repositories keeps a full sweep under the rate limits.
   const paceMs = options.paceMs ?? 150;
   const candidates: Candidate[] = [];
 

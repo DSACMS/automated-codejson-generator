@@ -1,13 +1,32 @@
+/**
+ * HTTP helpers for the gov dependency updater. Every request goes through here
+ * so retry, timeout, and User-Agent policy stay in one place.
+ */
+
+/** Injectable so tests can serve fixtures instead of hitting the network. */
 export type FetchFn = typeof fetch;
 
 export const USER_AGENT =
   "DSACMS/automated-codejson-generator gov-dependencies updater";
 
+/**
+ * The outcome of a request.
+ *
+ * `missing` means the server answered 404 and the resource is known not to
+ * exist. `error` means no attempt completed, so its state is unknown. Callers
+ * that record results must treat only `missing` as absence: caching an `error`
+ * would remember a network blip as "this repo publishes nothing".
+ */
 export type FetchResult<T> =
   | { status: "ok"; body: T }
   | { status: "missing" }
   | { status: "error" };
 
+/**
+ * Fetches and parses JSON, retrying up to three times on 429 and 5xx responses
+ * with a linear backoff. Any other non-OK status resolves to `missing`
+ * immediately, since a 404 will not change between attempts.
+ */
 export async function getJsonResult(
   fetchFn: FetchFn,
   url: string,
@@ -32,6 +51,10 @@ export async function getJsonResult(
   return { status: "error" };
 }
 
+/**
+ * Fetches a raw file as text under the same retry policy. Used for the
+ * manifests and READMEs served from raw.githubusercontent.com.
+ */
 export async function getTextResult(
   fetchFn: FetchFn,
   url: string,
@@ -55,6 +78,7 @@ export async function getTextResult(
   return { status: "error" };
 }
 
+/** Flattens missing and error to null, for callers that treat both the same. */
 export async function getJson(
   fetchFn: FetchFn,
   url: string,

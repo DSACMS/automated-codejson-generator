@@ -1,6 +1,11 @@
 import { Candidate } from "./cache.js";
 import { FetchFn, getJson } from "./http.js";
 
+/**
+ * Lists the packages published under an npm organization. Returns null when the
+ * registry will not serve the listing, which it does for organizations that
+ * have gone private or been renamed.
+ */
 export async function listNpmOrgPackages(
   fetchFn: FetchFn,
   npmOrg: string,
@@ -17,6 +22,11 @@ export interface NpmOrgDiscoveryOptions {
   onProgress?: (message: string) => void;
 }
 
+/**
+ * Turns the allowlisted npm organizations into candidates. Publishing under an
+ * npm scope requires membership in it, so these skip repository verification
+ * later on and carry no repo of their own.
+ */
 export async function discoverFromNpmOrgs(
   options: NpmOrgDiscoveryOptions,
 ): Promise<Candidate[]> {
