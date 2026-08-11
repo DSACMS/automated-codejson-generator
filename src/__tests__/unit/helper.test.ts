@@ -41,6 +41,7 @@ describe("createHelpers - calculateMetaData", () => {
     const result = await helpers.calculateMetaData();
 
     expect(result.name).toBe("test-repo");
+    expect(result.version).toBe("1.2.1");
     expect(result.description).toBe("A test repository");
     expect(result.repositoryURL).toBe(
       "https://github.com/test-owner/test-repo",
@@ -50,6 +51,27 @@ describe("createHelpers - calculateMetaData", () => {
     expect(result.laborHours).toBeGreaterThan(0);
     expect(result.reuseFrequency?.forks).toBe(5);
     expect(result.tags).toEqual(["test", "automation"]);
+  });
+
+  it("returns an empty version when the release lookup fails", async () => {
+    const mockOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          getLatestRelease: jest
+            .fn<any>()
+            .mockRejectedValue(new Error("rate limited")),
+        },
+      },
+    });
+
+    deps = createMockDeps({ octokit: mockOctokit });
+    const helpers = createHelpers(deps);
+    const result = await helpers.calculateMetaData();
+
+    expect(result.version).toBe("");
+    expect(deps.log.warning).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to fetch latest release version"),
+    );
   });
 
   it("reports private visibility for private repos", async () => {

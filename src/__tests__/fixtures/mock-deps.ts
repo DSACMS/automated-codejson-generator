@@ -41,6 +41,15 @@ export function createMockOctokit(
               parent: null,
             },
           }),
+        getLatestRelease:
+          (overrides.rest?.repos
+            ?.getLatestRelease as OctokitClient["rest"]["repos"]["getLatestRelease"]) ??
+          jest.fn<any>().mockResolvedValue({
+            data: {
+              tag_name: "v1.2.1",
+              name: "v1.2.1",
+            },
+          }),
         listLanguages:
           (overrides.rest?.repos
             ?.listLanguages as OctokitClient["rest"]["repos"]["listLanguages"]) ??
