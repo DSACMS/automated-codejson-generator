@@ -10,9 +10,9 @@ const FIXTURE = `export interface ReusedCodeEntry {
   URL: string;
 }
 
-const BATCHEE: ReusedCodeEntry = {
-  name: "batchee (NASA)",
-  URL: "https://github.com/nasa/batchee",
+const DESIGN_SYSTEM: ReusedCodeEntry = {
+  name: "design-system (CMS)",
+  URL: "https://github.com/cmsgov/design-system",
 };
 
 const NGX_TOOL: ReusedCodeEntry = {
@@ -22,11 +22,11 @@ const NGX_TOOL: ReusedCodeEntry = {
 
 export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {
   "@gsa/ngx-tool": NGX_TOOL,
-  batchee: BATCHEE,
+  "design-system": DESIGN_SYSTEM,
 };
 
 export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
-  batchee: BATCHEE,
+  "design-system": DESIGN_SYSTEM,
 };
 `;
 
@@ -34,9 +34,9 @@ describe("existingKeys", () => {
   it("reads keys from both maps", () => {
     expect([...existingKeys(FIXTURE, "npm")].sort()).toEqual([
       "@gsa/ngx-tool",
-      "batchee",
+      "design-system",
     ]);
-    expect([...existingKeys(FIXTURE, "pypi")]).toEqual(["batchee"]);
+    expect([...existingKeys(FIXTURE, "pypi")]).toEqual(["design-system"]);
   });
 });
 
@@ -55,7 +55,7 @@ describe("addEntries", () => {
     expect(out).toContain('  name: "amortize (CFPB)",');
     const npmBlock = out.slice(out.indexOf("GOV_DEPENDENCIES:"));
     expect(npmBlock.indexOf("amortize: AMORTIZE")).toBeLessThan(
-      npmBlock.indexOf("batchee: BATCHEE"),
+      npmBlock.indexOf('"design-system": DESIGN_SYSTEM'),
     );
   });
 
@@ -75,22 +75,22 @@ describe("addEntries", () => {
     );
     expect(npmBlock).toContain('"@cfpb/analytics": CFPB_ANALYTICS');
     expect(npmBlock.indexOf("@cfpb/analytics")).toBeLessThan(
-      npmBlock.indexOf("batchee: BATCHEE"),
+      npmBlock.indexOf('"design-system": DESIGN_SYSTEM'),
     );
   });
 
   it("reuses an existing const when the repo URL already appears", () => {
     const entries: DataFileEntry[] = [
       {
-        eco: "pypi",
-        key: "batchee-mirror",
-        displayName: "batchee-mirror (NASA)",
-        url: "https://github.com/nasa/batchee",
+        eco: "npm",
+        key: "@cmsgov/design-system",
+        displayName: "design-system (CMS)",
+        url: "https://github.com/cmsgov/design-system",
       },
     ];
     const out = addEntries(FIXTURE, entries);
-    expect(out).toContain('"batchee-mirror": BATCHEE');
-    expect(out.match(/const BATCHEE:/g)).toHaveLength(1);
+    expect(out).toContain('"@cmsgov/design-system": DESIGN_SYSTEM');
+    expect(out.match(/const DESIGN_SYSTEM:/g)).toHaveLength(1);
   });
 
   it("quotes keys that are not valid identifiers", () => {
@@ -111,8 +111,8 @@ describe("addEntries", () => {
       {
         eco: "pypi",
         key: "3d-viz",
-        displayName: "3d-viz (NASA)",
-        url: "https://github.com/nasa/3d-viz",
+        displayName: "3d-viz (CMS)",
+        url: "https://github.com/cmsgov/3d-viz",
       },
     ];
     const out = addEntries(FIXTURE, entries);

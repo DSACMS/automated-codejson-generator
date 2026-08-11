@@ -10,27 +10,45 @@ import {
 } from "../../gov-update/verify.js";
 import { loadAllowlist } from "../../gov-update/allowlist.js";
 
+const ALLOWLIST_FILE = "src/gov-update/allowlist.json";
+
 describe("parseGithubUrl", () => {
   it.each([
-    ["git+https://github.com/nasa/batchee.git", "nasa", "batchee"],
-    ["git+ssh://git@github.com/nasa/batchee.git", "nasa", "batchee"],
-    ["git@github.com:nasa/batchee.git", "nasa", "batchee"],
-    ["git://github.com/nasa/batchee", "nasa", "batchee"],
-    ["github:nasa/batchee", "nasa", "batchee"],
-    ["nasa/batchee", "nasa", "batchee"],
-    ["https://GITHUB.com/NASA/Batchee/", "nasa", "batchee"],
-    ["https://www.github.com/nasa/batchee#readme", "nasa", "batchee"],
-    ["https://github.com/nasa/batchee/tree/main/packages/x", "nasa", "batchee"],
+    [
+      "git+https://github.com/cmsgov/design-system.git",
+      "cmsgov",
+      "design-system",
+    ],
+    [
+      "git+ssh://git@github.com/cmsgov/design-system.git",
+      "cmsgov",
+      "design-system",
+    ],
+    ["git@github.com:cmsgov/design-system.git", "cmsgov", "design-system"],
+    ["git://github.com/cmsgov/design-system", "cmsgov", "design-system"],
+    ["github:cmsgov/design-system", "cmsgov", "design-system"],
+    ["cmsgov/design-system", "cmsgov", "design-system"],
+    ["https://GITHUB.com/CMSGOV/Design-System/", "cmsgov", "design-system"],
+    [
+      "https://www.github.com/cmsgov/design-system#readme",
+      "cmsgov",
+      "design-system",
+    ],
+    [
+      "https://github.com/cmsgov/design-system/tree/main/packages/x",
+      "cmsgov",
+      "design-system",
+    ],
   ])("parses %s", (url, org, repo) => {
     expect(parseGithubUrl(url)).toEqual({ org, repo });
   });
 
   it.each([
-    ["https://github.com/nasa"],
-    ["https://gitlab.com/nasa/batchee"],
-    ["https://github.com.example.com/nasa/batchee"],
-    ["https://example.com/github.com/nasa/batchee"],
-    ["https://example.com?x=github.com/nasa/batchee"],
+    ["https://github.com/cmsgov"],
+    ["https://gitlab.com/cmsgov/design-system"],
+    ["https://github.com.example.com/cmsgov/design-system"],
+    ["https://example.com/github.com/cmsgov/design-system"],
+    ["https://example.com?x=github.com/cmsgov/design-system"],
     [""],
     [null],
     [undefined],
@@ -62,13 +80,13 @@ describe("extractClaimedRepos", () => {
   it("reads recognized PyPI project_urls keys and home_page", () => {
     const doc = {
       info: {
-        home_page: "https://github.com/nasa/batchee",
-        project_urls: { Repository: "https://github.com/nasa/batchee" },
+        home_page: "https://github.com/cmsgov/design-system",
+        project_urls: { Repository: "https://github.com/cmsgov/design-system" },
       },
     };
     expect(extractClaimedRepos("pypi", doc)).toEqual([
-      { org: "nasa", repo: "batchee" },
-      { org: "nasa", repo: "batchee" },
+      { org: "cmsgov", repo: "design-system" },
+      { org: "cmsgov", repo: "design-system" },
     ]);
   });
 
@@ -107,9 +125,9 @@ describe("extractManifestNames", () => {
   });
 
   it("reads pyproject and setup names", () => {
-    const pyproject = '[project]\nname = "batchee"\nversion = "1.0"';
+    const pyproject = '[project]\nname = "design-system"\nversion = "1.0"';
     expect(extractManifestNames("pyproject.toml", pyproject)).toEqual([
-      "batchee",
+      "design-system",
     ]);
     const setup = 'setup(\n    name="fipy",\n    version="3.4",\n)';
     expect(extractManifestNames("setup.py", setup)).toEqual(["fipy"]);
@@ -139,8 +157,10 @@ describe("extractReadmeInstallNames", () => {
   });
 
   it("extracts pip install commands and strips extras", () => {
-    const readme = "Run `pip install batchee[harmony]` to get started";
-    expect(extractReadmeInstallNames("pypi", readme)).toEqual(["batchee"]);
+    const readme = "Run `pip install design-system[harmony]` to get started";
+    expect(extractReadmeInstallNames("pypi", readme)).toEqual([
+      "design-system",
+    ]);
   });
 
   it("skips flags, files, and bare installs", () => {
@@ -157,7 +177,7 @@ describe("extractReadmeInstallNames", () => {
 
 describe("loadAllowlist", () => {
   it("loads and lowercases org keys", () => {
-    const allowlist = loadAllowlist();
+    const allowlist = loadAllowlist(ALLOWLIST_FILE);
     expect(allowlist.githubOrgs["cdcgov"]).toBe(
       "Centers for Disease Control and Prevention",
     );
@@ -168,6 +188,8 @@ describe("loadAllowlist", () => {
   });
 });
 
+// Serves a body when the request URL contains a route substring, 404 otherwise.
+// A route left out is a file that does not exist in the repo being verified.
 function fetchFrom(routes: Record<string, unknown>): FetchFn {
   return jest.fn<FetchFn>((input) => {
     const url = String(input);
@@ -182,14 +204,14 @@ function fetchFrom(routes: Record<string, unknown>): FetchFn {
 }
 
 describe("verifyPackage", () => {
-  const allowedOrgs = new Set(["nasa", "usnistgov"]);
+  const allowedOrgs = new Set(["cmsgov", "usnistgov"]);
 
   it("passes a package whose claimed repo declares its name", async () => {
     const fetchFn = fetchFrom({
       "registry.npmjs.org/good-pkg": {
-        repository: { url: "https://github.com/nasa/good-pkg" },
+        repository: { url: "https://github.com/cmsgov/good-pkg" },
       },
-      "raw.githubusercontent.com/nasa/good-pkg/HEAD/package.json":
+      "raw.githubusercontent.com/cmsgov/good-pkg/HEAD/package.json":
         '{"name": "good-pkg"}',
     });
     const result = await verifyPackage({
@@ -199,7 +221,7 @@ describe("verifyPackage", () => {
       fetchFn,
     });
     expect(result.verdict).toBe("PASS");
-    expect(result.repo).toBe("nasa/good-pkg");
+    expect(result.repo).toBe("cmsgov/good-pkg");
   });
 
   it("flags a spoof whose claimed gov repo declares a different name", async () => {

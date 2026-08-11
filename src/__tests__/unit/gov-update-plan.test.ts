@@ -10,15 +10,15 @@ import { Candidate } from "../../gov-update/cache.js";
 import { Allowlist } from "../../gov-update/allowlist.js";
 
 const allowlist: Allowlist = {
-  githubOrgs: { nasa: "NASA", usnistgov: "NIST" },
+  githubOrgs: { cmsgov: "CMS", usnistgov: "NIST" },
   npmOrgs: { cmsgov: "Centers for Medicare & Medicaid Services" },
 };
 
 const candidate = (over: Partial<Candidate>): Candidate => ({
   eco: "npm",
   name: "pkg",
-  org: "nasa",
-  repo: "nasa/pkg",
+  org: "cmsgov",
+  repo: "cmsgov/pkg",
   source: "manifest",
   fork: false,
   archived: false,
@@ -46,7 +46,7 @@ describe("planUpdate", () => {
       Promise.resolve({
         verdict: "PASS",
         reason: "root manifest",
-        repo: "nasa/pkg",
+        repo: "cmsgov/pkg",
       });
     const plan = await planUpdate({
       candidates: [candidate({})],
@@ -59,8 +59,8 @@ describe("planUpdate", () => {
       {
         eco: "npm",
         key: "pkg",
-        displayName: "pkg (NASA)",
-        url: "https://github.com/nasa/pkg",
+        displayName: "pkg (CMS)",
+        url: "https://github.com/cmsgov/pkg",
       },
     ]);
   });
@@ -80,8 +80,8 @@ describe("planUpdate", () => {
       {
         eco: "npm",
         name: "unverified-pkg",
-        org: "nasa",
-        repo: "nasa/pkg",
+        org: "cmsgov",
+        repo: "cmsgov/pkg",
         reason: "no manifest declares it",
       },
     ]);
@@ -149,7 +149,7 @@ describe("planUpdate", () => {
     );
     const plan = await planUpdate({
       candidates: [
-        candidate({ name: "qpp-style", org: "nasa", source: "manifest" }),
+        candidate({ name: "qpp-style", org: "cmsgov", source: "manifest" }),
         candidate({
           name: "qpp-style",
           org: "cmsgov",
@@ -175,16 +175,16 @@ describe("renderReport", () => {
         {
           eco: "npm",
           key: "pkg",
-          displayName: "pkg (NASA)",
-          url: "https://github.com/nasa/pkg",
+          displayName: "pkg (CMS)",
+          url: "https://github.com/cmsgov/pkg",
         },
       ],
       flagged: [
         {
           eco: "pypi",
           name: "unverified-pkg",
-          org: "nasa",
-          repo: "nasa/unverified-pkg",
+          org: "cmsgov",
+          repo: "cmsgov/unverified-pkg",
           reason: "no manifest declares it",
         },
       ],
@@ -193,10 +193,10 @@ describe("renderReport", () => {
     });
     expect(report).toContain("1 new verified package");
     expect(report).toContain("## Verified additions");
-    expect(report).toContain("pkg — https://github.com/nasa/pkg");
+    expect(report).toContain("pkg — https://github.com/cmsgov/pkg");
     expect(report).toContain("## Flagged for manual review");
     expect(report).toContain(
-      "unverified-pkg (nasa/unverified-pkg): no manifest declares it",
+      "unverified-pkg (cmsgov/unverified-pkg): no manifest declares it",
     );
   });
 });

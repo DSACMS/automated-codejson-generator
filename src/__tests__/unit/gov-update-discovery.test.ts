@@ -19,6 +19,7 @@ import {
 } from "../../gov-update/discovery-npm-org.js";
 import { FetchFn } from "../../gov-update/http.js";
 
+// Serves a body when the request URL contains a route substring, 404 otherwise.
 function fetchFrom(routes: Record<string, unknown>): FetchFn {
   return jest.fn<FetchFn>((input) => {
     const url = String(input);
@@ -47,7 +48,10 @@ describe("cache", () => {
     expect(loadCache(file)).toEqual(emptyCache());
     const cache: UpdateCache = {
       repos: {
-        "nasa/batchee": { pushedAt: "2026-01-01T00:00:00Z", candidates: [] },
+        "cmsgov/design-system": {
+          pushedAt: "2026-01-01T00:00:00Z",
+          candidates: [],
+        },
       },
     };
     saveCache(file, cache);
@@ -76,7 +80,7 @@ describe("listOrgRepos", () => {
       "&page=1": pageOne,
       "&page=2": pageTwo,
     });
-    const { repos, complete } = await listOrgRepos(fetchFn, "nasa");
+    const { repos, complete } = await listOrgRepos(fetchFn, "cmsgov");
     expect(repos).toHaveLength(101);
     expect(complete).toBe(true);
     expect(repos[100]).toEqual({
@@ -87,6 +91,7 @@ describe("listOrgRepos", () => {
     });
   });
 
+  // Fake timers here so the retry backoff in http.ts resolves instantly.
   it("reports incomplete when a page fetch errors mid-pagination", async () => {
     jest.useFakeTimers();
     try {
@@ -100,7 +105,7 @@ describe("listOrgRepos", () => {
         }
         return Promise.resolve(new Response("error", { status: 503 }));
       }) as unknown as FetchFn;
-      const promise = listOrgRepos(fetchFn, "nasa");
+      const promise = listOrgRepos(fetchFn, "cmsgov");
       await jest.runAllTimersAsync();
       const { repos, complete } = await promise;
       expect(repos).toHaveLength(100);
@@ -111,7 +116,7 @@ describe("listOrgRepos", () => {
   });
 
   it("reports empty and complete when the org has no repos", async () => {
-    const { repos, complete } = await listOrgRepos(fetchFrom({}), "nasa");
+    const { repos, complete } = await listOrgRepos(fetchFrom({}), "cmsgov");
     expect(repos).toEqual([]);
     expect(complete).toBe(true);
   });
@@ -120,10 +125,10 @@ describe("listOrgRepos", () => {
 describe("discoverRepoCandidates", () => {
   it("collects manifest and readme names across ecosystems", async () => {
     const fetchFn = fetchFrom({
-      "/HEAD/package.json": '{"name": "@nasa/tool"}',
-      "/HEAD/pyproject.toml": '[project]\nname = "nasa-tool"',
+      "/HEAD/package.json": '{"name": "@cmsgov/tool"}',
+      "/HEAD/pyproject.toml": '[project]\nname = "cmsgov-tool"',
       "/HEAD/README.md":
-        "Install:\n`npm install @nasa/tool`\n`pip install nasa-tool-extras`",
+        "Install:\n`npm install @cmsgov/tool`\n`pip install cmsgov-tool-extras`",
     });
     const repo = {
       name: "tool",
@@ -133,15 +138,15 @@ describe("discoverRepoCandidates", () => {
     };
     const { candidates, failed } = await discoverRepoCandidates(
       fetchFn,
-      "nasa",
+      "cmsgov",
       repo,
     );
     expect(failed).toBe(false);
     const keys = candidates.map((c) => `${c.eco}:${c.name}:${c.source}`);
-    expect(keys).toContain("npm:@nasa/tool:manifest");
-    expect(keys).toContain("pypi:nasa-tool:manifest");
-    expect(keys).toContain("pypi:nasa-tool-extras:readme");
-    expect(keys).not.toContain("npm:@nasa/tool:readme");
+    expect(keys).toContain("npm:@cmsgov/tool:manifest");
+    expect(keys).toContain("pypi:cmsgov-tool:manifest");
+    expect(keys).toContain("pypi:cmsgov-tool-extras:readme");
+    expect(keys).not.toContain("npm:@cmsgov/tool:readme");
   });
 
   it("returns empty for a repo with no manifests", async () => {
@@ -151,10 +156,12 @@ describe("discoverRepoCandidates", () => {
       fork: false,
       archived: false,
     };
-    expect(await discoverRepoCandidates(fetchFrom({}), "nasa", repo)).toEqual({
-      candidates: [],
-      failed: false,
-    });
+    expect(await discoverRepoCandidates(fetchFrom({}), "cmsgov", repo)).toEqual(
+      {
+        candidates: [],
+        failed: false,
+      },
+    );
   });
 
   it("skips a package.json marked private", async () => {
@@ -167,7 +174,11 @@ describe("discoverRepoCandidates", () => {
       fork: false,
       archived: false,
     };
-    const { candidates } = await discoverRepoCandidates(fetchFn, "nasa", repo);
+    const { candidates } = await discoverRepoCandidates(
+      fetchFn,
+      "cmsgov",
+      repo,
+    );
     expect(candidates).toEqual([]);
   });
 
@@ -183,7 +194,7 @@ describe("discoverRepoCandidates", () => {
         fork: false,
         archived: false,
       };
-      const promise = discoverRepoCandidates(fetchFn, "nasa", repo);
+      const promise = discoverRepoCandidates(fetchFn, "cmsgov", repo);
       await jest.runAllTimersAsync();
       const { candidates, failed } = await promise;
       expect(candidates).toEqual([]);
@@ -197,24 +208,24 @@ describe("discoverRepoCandidates", () => {
 describe("discoverFromGithub", () => {
   it("skips unchanged repos via cache and refetches changed ones", async () => {
     const fetchFn = fetchFrom({
-      "api.github.com/orgs/nasa/repos": [
+      "api.github.com/orgs/cmsgov/repos": [
         repoResponse("unchanged"),
         repoResponse("changed", { pushed_at: "2026-02-01T00:00:00Z" }),
       ],
-      "raw.githubusercontent.com/nasa/changed/HEAD/package.json":
+      "raw.githubusercontent.com/cmsgov/changed/HEAD/package.json":
         '{"name": "fresh-pkg"}',
-      "raw.githubusercontent.com/nasa/unchanged/HEAD/package.json":
+      "raw.githubusercontent.com/cmsgov/unchanged/HEAD/package.json":
         '{"name": "should-not-be-fetched"}',
     });
     const cache: UpdateCache = {
       repos: {
-        "nasa/unchanged": {
+        "cmsgov/unchanged": {
           pushedAt: "2026-01-01T00:00:00Z",
           candidates: [
             {
               eco: "npm",
               name: "cached-pkg",
-              org: "nasa",
+              org: "cmsgov",
               repo: "unchanged",
               source: "manifest",
               fork: false,
@@ -222,11 +233,11 @@ describe("discoverFromGithub", () => {
             },
           ],
         },
-        "nasa/changed": { pushedAt: "2026-01-01T00:00:00Z", candidates: [] },
+        "cmsgov/changed": { pushedAt: "2026-01-01T00:00:00Z", candidates: [] },
       },
     };
     const candidates = await discoverFromGithub({
-      orgs: ["nasa"],
+      orgs: ["cmsgov"],
       cache,
       fetchFn,
       paceMs: 0,
@@ -235,10 +246,10 @@ describe("discoverFromGithub", () => {
     expect(names).toContain("cached-pkg");
     expect(names).toContain("fresh-pkg");
     expect(names).not.toContain("should-not-be-fetched");
-    expect(cache.repos["nasa/changed"].pushedAt).toBe("2026-02-01T00:00:00Z");
-    expect(cache.repos["nasa/changed"].candidates.map((c) => c.name)).toEqual([
-      "fresh-pkg",
-    ]);
+    expect(cache.repos["cmsgov/changed"].pushedAt).toBe("2026-02-01T00:00:00Z");
+    expect(cache.repos["cmsgov/changed"].candidates.map((c) => c.name)).toEqual(
+      ["fresh-pkg"],
+    );
   });
 });
 

@@ -1,3 +1,12 @@
+/**
+ * Entry point for the updater. Discovery finds candidate package names,
+ * verification decides which are genuinely government published, and codegen
+ * writes the survivors into the data file.
+ *
+ * The scheduled workflow runs this and opens a pull request with whatever
+ * changed, so every addition still gets a maintainer's review.
+ */
+
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,9 +25,11 @@ import {
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = path.join(dirname, "..", "gov-dependencies.data.ts");
+const ALLOWLIST_FILE = path.join(dirname, "allowlist.json");
 
 export interface RunOptions {
   dataFile?: string;
+  allowlistFile?: string;
   cacheFile?: string;
   reportFile?: string;
   orgs?: string[];
@@ -28,10 +39,14 @@ export interface RunOptions {
   write?: boolean;
 }
 
+/**
+ * Runs one update and returns the report. Every option has a default so tests
+ * can point it at fixtures, and passing `write: false` gives a dry run.
+ */
 export async function run(options: RunOptions = {}): Promise<string> {
   const dataFile = options.dataFile ?? DATA_FILE;
   const githubToken = options.githubToken ?? process.env.GITHUB_TOKEN;
-  const allowlist = loadAllowlist();
+  const allowlist = loadAllowlist(options.allowlistFile ?? ALLOWLIST_FILE);
   const source = readFileSync(dataFile, "utf8");
 
   const orgs = options.orgs ?? Object.keys(allowlist.githubOrgs);
@@ -86,6 +101,9 @@ interface NpmDoc {
   repository?: string | { url?: string };
 }
 
+// Candidates from an npm org listing have no repo attached, so the repo URL has
+// to come from the registry. Packages that name no repo at all fall back to
+// their npm page, which is still somewhere a reader can go.
 async function resolveNpmRepoUrl(name: string): Promise<string> {
   const doc = (await getJson(
     fetch,
@@ -103,6 +121,8 @@ async function resolveNpmRepoUrl(name: string): Promise<string> {
   return `https://www.npmjs.com/package/${name}`;
 }
 
+// Imported by the tests and executed by the workflow, so the CLI half only runs
+// when this file is the process entry point.
 const invokedDirectly =
   process.argv[1] &&
   fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
