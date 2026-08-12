@@ -6,6 +6,11 @@ import { ReusedCodeEntry, lookupGovDependency } from "./gov-dependencies.js";
 
 const HOURS_PER_MONTH = 730.001;
 
+// both write paths go through here so the committed file is byte-identical either way
+function serializeCodeJSON(codeJSON: CodeJSON): string {
+  return JSON.stringify(codeJSON, null, 2) + "\n";
+}
+
 export function createHelpers(deps: Dependencies) {
   const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } =
     deps;
@@ -242,7 +247,7 @@ export function createHelpers(deps: Dependencies) {
 
   async function sendPR(updatedCodeJSON: CodeJSON, baseBranchName: string) {
     try {
-      const formattedContent = JSON.stringify(updatedCodeJSON, null, 2) + "\n";
+      const formattedContent = serializeCodeJSON(updatedCodeJSON);
       const headBranchName = `code-json-${new Date().getTime()}`;
 
       const PR = await octokit.createPullRequest({
@@ -290,7 +295,7 @@ export function createHelpers(deps: Dependencies) {
     }
 
     try {
-      const formattedContent = JSON.stringify(updatedCodeJSON, null, 2);
+      const formattedContent = serializeCodeJSON(updatedCodeJSON);
 
       let currentFileSha: string | undefined;
       try {
