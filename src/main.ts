@@ -1,119 +1,24 @@
-import { CodeJSON } from "./types/CodeJSONSchema.js";
+import {
+  CodeJSON,
+  assembleDraft,
+  droppedFields,
+  validateCodeJSON,
+} from "./codejson.js";
 import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
 
-const blankEnumValue = "" as never;
-
-const baselineCodeJSON: Partial<CodeJSON> = {
-  name: "",
-  version: "",
-  description: "",
-  longDescription: "",
-  status: blankEnumValue,
-  permissions: {
-    licenses: [
-      {
-        name: "CC0-1.0",
-        URL: "",
-      },
-    ],
-    usageType: [],
-    exemptionText: "",
-  },
-  organization: "Centers for Medicare & Medicaid Services",
-  repositoryURL: "",
-  repositoryHost: blankEnumValue,
-  repositoryVisibility: blankEnumValue,
-  homepageURL: "",
-  downloadURL: "",
-  disclaimerURL: "",
-  disclaimerText: "",
-  vcs: "git",
-  laborHours: 0,
-  reuseFrequency: {
-    forks: 0,
-    clones: 0,
-  },
-  platforms: [],
-  categories: [],
-  softwareType: blankEnumValue,
-  languages: [],
-  maintenance: blankEnumValue,
-  contractNumber: [],
-  SBOM: "",
-  relatedCode: [],
-  reusedCode: [],
-  partners: [],
-  date: {
-    created: "",
-    lastModified: "",
-    metadataLastUpdated: "",
-  },
-  tags: [],
-  contact: {
-    email: "",
-    name: "",
-  },
-  feedbackMechanism: "",
-  AIUseCaseID: "0",
-  localisation: false,
-  repositoryType: blankEnumValue,
-  userInput: false,
-  fismaLevel: blankEnumValue,
-  group: "",
-  projects: [],
-  systems: [],
-  subsetInHealthcare: [],
-  userType: [],
-  maturityModelTier: 0,
-};
-
-export { baselineCodeJSON };
-
-function filterValidFields(
-  existingCodeJSON: Record<string, unknown>,
-): Partial<CodeJSON> {
-  const validKeys = new Set(Object.keys(baselineCodeJSON));
-  const filtered: Record<string, unknown> = {};
-
-  for (const key of Object.keys(existingCodeJSON)) {
-    if (validKeys.has(key)) {
-      filtered[key] = existingCodeJSON[key];
-    } else {
-      console.log(`Removing outdated field from current code.json: ${key}`);
-    }
-  }
-
-  return filtered as Partial<CodeJSON>;
-}
-
-export { filterValidFields };
-
+// gathers what can be observed about the repository right now. anything that is a
+// merge rule rather than an observation (feedbackMechanism, SBOM, dates, archival
+// status, legacy field shapes) belongs to codejson-core and is left out on purpose.
 async function getMetaData(
   helpers: Helpers,
-  deps: Dependencies,
   existingCodeJSON?: CodeJSON | null,
 ): Promise<Partial<CodeJSON>> {
   const partialCodeJSON = await helpers.calculateMetaData();
+
+  // preserve a manually set version, only fall back to the latest release
   const version = existingCodeJSON?.version || partialCodeJSON.version;
-
-  // preserve existing feedback mechanisms if they exist, otherwise default to GitHub Issues
-  const feedbackMechanism =
-    existingCodeJSON?.feedbackMechanism ||
-    `${partialCodeJSON.repositoryURL}/issues`;
-
-  // preserve existing SBOM link if they exist, otherwise default to GitHub SBOM link
-  const SBOM =
-    existingCodeJSON?.SBOM ||
-    `${partialCodeJSON.repositoryURL}/network/dependencies`;
-
-  // only use the calculated description if its not empty, otherwise keep existing
-  const shouldUpdateDescription =
-    partialCodeJSON.description && partialCodeJSON.description.trim() !== "";
-  const description = shouldUpdateDescription
-    ? partialCodeJSON.description
-    : existingCodeJSON?.description || "";
 
   // preserve manually curated languages when they already exist in code.json,
   // and only fall back to GitHub detected languages for new repositories.
@@ -128,25 +33,6 @@ async function getMetaData(
     existingCodeJSON?.tags ?? [],
   );
 
-  // handling legacy contractNumber that turned from string to array which caused validation errors
-  let contractNumber: string[] = [];
-  const existingContract: unknown = existingCodeJSON?.contractNumber;
-  if (existingContract) {
-    if (typeof existingContract === "string") {
-      contractNumber = existingContract.trim() ? [existingContract.trim()] : [];
-    } else if (Array.isArray(existingContract)) {
-      contractNumber = existingContract;
-    }
-  }
-
-  // handling archive option
-  let status = existingCodeJSON?.status || undefined;
-
-  if (deps.isArchived) {
-    status = "Archival";
-    tags.push("archived");
-  }
-
   // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode
   const [forkParent, detectedDeps] = await Promise.all([
     helpers.detectForkParent(),
@@ -160,26 +46,19 @@ async function getMetaData(
   return {
     name: partialCodeJSON.name,
     version: version,
-    description: description,
-    status: status ?? blankEnumValue,
+    description: partialCodeJSON.description,
     repositoryURL: partialCodeJSON.repositoryURL,
     repositoryVisibility: partialCodeJSON.repositoryVisibility,
     laborHours: partialCodeJSON.laborHours,
     languages: languages,
     reuseFrequency: {
       forks: partialCodeJSON.reuseFrequency?.forks ?? 0,
-      clones: existingCodeJSON?.reuseFrequency?.clones ?? 0,
     },
     tags: tags,
     date: {
       created: partialCodeJSON.date?.created ?? "",
       lastModified: partialCodeJSON.date?.lastModified ?? "",
-      metadataLastUpdated:
-        partialCodeJSON.date?.metadataLastUpdated ?? new Date().toISOString(),
     },
-    feedbackMechanism,
-    SBOM,
-    contractNumber,
     reusedCode,
   };
 }
@@ -201,26 +80,28 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
     const currentCodeJSON = await helpers.readJSON(
       "/github/workspace/code.json",
     );
-    const metaData = await getMetaData(helpers, deps, currentCodeJSON);
-    let finalCodeJSON = {} as CodeJSON;
 
-    if (currentCodeJSON) {
-      // filter out outdated fields before merging
-      const filteredExisting = filterValidFields(currentCodeJSON);
-
-      finalCodeJSON = {
-        ...baselineCodeJSON,
-        ...filteredExisting,
-        ...metaData,
-      } as CodeJSON;
-    } else {
-      finalCodeJSON = {
-        ...baselineCodeJSON,
-        ...metaData,
-      } as CodeJSON;
+    for (const field of droppedFields(currentCodeJSON)) {
+      deps.log.info(`Removing outdated field from current code.json: ${field}`);
     }
 
-    deps.log.info("Generated code.json successfully!");
+    const metaData = await getMetaData(helpers, currentCodeJSON);
+    const finalCodeJSON = assembleDraft(metaData, currentCodeJSON, {
+      isArchived: deps.isArchived,
+    });
+
+    // a generated code.json is a draft: fields we can't observe are left blank for a
+    // human to complete on the pull request, so report what's missing without failing
+    const validationErrors = validateCodeJSON(finalCodeJSON);
+
+    if (validationErrors.length > 0) {
+      deps.log.warning(
+        "Generated code.json still needs manual input before it will validate:",
+      );
+      validationErrors.forEach((error) => deps.log.warning(error));
+    } else {
+      deps.log.info("Generated code.json successfully!");
+    }
 
     const baseBranchName = await helpers.getBaseBranch();
 

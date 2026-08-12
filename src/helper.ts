@@ -1,6 +1,5 @@
-import { CodeJSON } from "./types/CodeJSONSchema.js";
+import { CodeJSON, validateCodeJSON } from "./codejson.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
-import { validateCodeJSON } from "./zod-validation.js";
 import { Dependencies } from "./types/Dependencies.js";
 import { ReusedCodeEntry, lookupGovDependency } from "./gov-dependencies.js";
 
@@ -42,7 +41,6 @@ export function createHelpers(deps: Dependencies) {
         date: {
           created: basicInfo.date.created,
           lastModified: basicInfo.date.lastModified,
-          metadataLastUpdated: basicInfo.date.metadataLastUpdated,
         },
       };
     } catch (error) {
@@ -111,7 +109,6 @@ export function createHelpers(deps: Dependencies) {
         date: {
           created: repoData.data.created_at,
           lastModified: repoData.data.updated_at,
-          metadataLastUpdated: new Date().toISOString(),
         },
       };
     } catch (error) {
