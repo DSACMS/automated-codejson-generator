@@ -38,17 +38,27 @@ npm run bundle
 npm test
 ```
 
-## Validation
+## Schema and Validation
 
-The action uses [Zod](https://zod.dev/) for schema validation, automatically validating code.json in two scenarios:
+The code.json schema, its validation rules, and the logic that merges freshly observed metadata into an existing file are owned by [codejson-core](https://github.com/DSACMS/codejson-core). This repository binds to that library's CMS profile in a single module, `src/codejson.ts`, and owns nothing else about the schema.
 
-### 1. Before Generation
+That means there is no schema to regenerate here. When `gov-codejson` publishes a new schema version, `codejson-core` cuts a release and Dependabot opens the bump.
 
-Every time the action generates or updates code.json (via schedule or workflow_dispatch), it validates the output before creating a PR or pushing. If validation fails, no changes are made.
+`src/codejson.ts` exposes three things to the rest of the action:
+
+- `assembleDraft` — merges observed metadata over the existing file. It runs against a permissive schema so it never rejects an incomplete file (see below).
+- `validateCodeJSON` — strict validation against the full CMS schema. An empty array means valid.
+- `draftBaseline` — the skeleton written for a repository that has no code.json yet.
+
+Validation runs in two scenarios:
+
+### 1. After Generation
+
+Every time the action generates or updates code.json (via schedule or workflow_dispatch), it validates the result and logs anything still missing as a warning. It **does not** fail the run: a newly generated file is a draft, with unobservable fields such as `status` and `longDescription` left blank on purpose for a human to complete from the pull request diff. Failing here would mean no repository could ever be bootstrapped.
 
 ### 2. On PR Edits
 
-When the `pull_request` trigger is configured, the action validates code.json whenever it's edited in a PR. This ensures users cannot accidentally merge invalid JSON.
+When the `pull_request` trigger is configured, the action validates code.json whenever it's edited in a PR and **fails the check** if it is invalid. This is the gate that keeps invalid files off your main branch.
 
 ### Workflow and Branching
 

@@ -13,6 +13,7 @@ This project provides a GitHub Action that helps federal agencies maintain their
 **Automatic Generation**
 
 - The action calculates metadata and creates a PR or pushes directly
+- Fields that cannot be observed are left blank and reported in the action log
 - Users can then fill in manual fields by editing the PR
 
 **PR Validation**
@@ -229,6 +230,12 @@ The automated code.json generator calculates specific fields by analyzing your r
 
 **feedbackMechanism**: The repository's issues URL in the format of {repositoryURL}/issues. If you already have a code.json file with existing feedback mechanisms, the generator preserves those values. No configuration needed.
 
+## Schema and Validation
+
+The code.json schema, its validation rules, and the logic that merges newly observed metadata into an existing file all live in [codejson-core](https://github.com/DSACMS/codejson-core), a standalone library shared by every tool that produces or validates code.json. This action binds to its CMS variant (`cmsProfile`) and owns only the parts core deliberately leaves out: reading your repository through GitHub's API, running SCC, scanning dependency manifests, and opening the pull request.
+
+The schema is version-pinned by the `codejson-core` release, so schema updates reach this action as a dependency bump rather than a code change. Dependabot opens those automatically.
+
 ## Project Vision
 
 To streamline federal agencies' compliance with open source requirements by automating the maintenance of code.json files, reducing manual effort and improving accuracy of repository metadata.
@@ -264,14 +271,16 @@ An up-to-date list of core team members can be found in [MAINTAINERS.md](MAINTAI
 ```
 .
 ├── src/
-│   ├── model.ts          # TypeScript interfaces for code.json schema
-│   ├── validation.ts     # Zod schema definitions and validation logic
-│   ├── main.ts           # Main action logic
-│   ├── helper.ts         # Helper functions for GitHub API interactions
-│   └── index.ts          # Action entrypoint
+│   ├── index.ts             # Action entrypoint
+│   ├── main.ts              # Main action logic
+│   ├── codejson.ts          # codejson-core bindings: schema, validation, assembly
+│   ├── helper.ts            # GitHub API, SCC, manifest reads, PR and push
+│   ├── create-deps.ts       # Wires the production dependencies
+│   ├── gov-dependencies.ts  # Lookup table of government-made dependencies
+│   └── types/               # Shared interfaces
 ├── .github/
-│   └── workflows/        # GitHub Actions workflow definitions
-└── action.yml            # Action metadata file
+│   └── workflows/           # GitHub Actions workflow definitions
+└── action.yml               # Action metadata file
 ```
 
 ## Development and Software Delivery Lifecycle
