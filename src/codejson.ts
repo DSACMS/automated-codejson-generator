@@ -45,11 +45,7 @@ const draftProfile = createCodeJSONProfile(
   CMS_SCHEMA_VERSION,
 );
 
-// merges a freshly observed repository state over the existing file: drops unknown
-// fields, migrates legacy shapes, and derives feedbackMechanism, SBOM, description,
-// tags, reuseFrequency, dates and archival status.
-// the options shape is spelled out because codejson-core does not export its
-// AssembleOptions type, leaving the inferred signature unnameable.
+// after the refactor, all we need is cmsProfile.assemble but for now we need to wrap it so that we can pass in the draft baseline and not have to worry about the strict CMS schema.
 export const assembleDraft: (
   observed: Partial<CodeJSON>,
   existing: CodeJSON | null,

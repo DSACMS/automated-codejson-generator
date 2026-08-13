@@ -8,9 +8,7 @@ import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
 
-// gathers what can be observed about the repository right now. anything that is a
-// merge rule rather than an observation (feedbackMechanism, SBOM, dates, archival
-// status, legacy field shapes) belongs to codejson-core and is left out on purpose.
+// gathers what can be observed about the repository right now so anything not an observation belongs to codejson-core 
 async function getMetaData(
   helpers: Helpers,
   existingCodeJSON?: CodeJSON | null,
@@ -90,8 +88,7 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
       isArchived: deps.isArchived,
     });
 
-    // a generated code.json is a draft: fields we can't observe are left blank for a
-    // human to complete on the pull request, so report what's missing without failing
+    // a generated code.json is a draft so we must report what fields are missing
     const validationErrors = validateCodeJSON(finalCodeJSON);
 
     if (validationErrors.length > 0) {
