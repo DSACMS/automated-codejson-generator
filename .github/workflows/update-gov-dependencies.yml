@@ -1,0 +1,86 @@
+name: Update Gov Dependencies
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  update-gov-dependencies:
+    runs-on: ubuntu-latest
+    # The first run has no cache and sweeps every allowlisted org, so it takes a
+    # while. Later runs only revisit repos that changed and finish much faster.
+    timeout-minutes: 360
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      # Discovery results record each repo's last push time, so a restored cache
+      # lets the run skip every repo that has not changed. The run id in the key
+      # means each run saves a fresh copy for the next one.
+      - name: Restore discovery cache
+        uses: actions/cache@v4
+        with:
+          path: .gov-update-cache
+          key: gov-update-cache-${{ github.run_id }}
+          restore-keys: gov-update-cache-
+
+      - name: Discover and verify packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GOV_UPDATE_CACHE: .gov-update-cache/repos.json
+          GOV_UPDATE_REPORT: gov-update-report.md
+        run: npm run update-gov-dependencies
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet -- src/gov-dependencies.data.ts; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read report
+        if: steps.changes.outputs.changed == 'true'
+        id: report
+        run: |
+          {
+            echo "text<<GOV_UPDATE_REPORT_EOF"
+            cat gov-update-report.md
+            echo "GOV_UPDATE_REPORT_EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: update federal dependency list"
+          title: "chore: update federal dependency list"
+          body: |
+            ${{ steps.report.outputs.text }}
+
+            Each package above passed verification: its registry metadata points
+            at a repository in an allowlisted federal organization, and that
+            repository declares the package name itself.
+
+            Anything listed as flagged was **not** added and needs a maintainer
+            to decide. Entries are only ever added, never removed automatically.
+          branch: automated/update-gov-dependencies
+          delete-branch: true
+          # The report and cache are build artifacts, so only the data file is
+          # allowed into the commit.
+          add-paths: src/gov-dependencies.data.ts

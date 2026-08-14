@@ -34,7 +34,8 @@
     "package:watch": "npm run package -- --watch",
     "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package",
-    "generate-schema": "npx tsx src/scripts/generate-schema.ts"
+    "generate-schema": "npx tsx src/scripts/generate-schema.ts",
+    "update-gov-dependencies": "npx tsx src/gov-update/run.ts"
   },
   "license": "MIT",
   "dependencies": {

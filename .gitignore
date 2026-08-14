@@ -103,3 +103,7 @@ __tests__/runner/*
 # IDE files
 .idea
 *.code-workspace
+
+# Gov dependency updater artifacts
+.gov-update-cache/
+gov-update-report.md
