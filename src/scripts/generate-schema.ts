@@ -45,7 +45,7 @@ function addAdditionalRefinements(): string {
         );
     `;
 
-    let refinements = permissionRefinement
+    const refinements = permissionRefinement
     return refinements
 }
 
