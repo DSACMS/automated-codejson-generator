@@ -3,12 +3,14 @@ import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
 
+const blankEnumValue = "" as never;
+
 const baselineCodeJSON: Partial<CodeJSON> = {
   name: "",
   version: "",
   description: "",
   longDescription: "",
-  status: undefined,
+  status: blankEnumValue,
   permissions: {
     licenses: [
       {
@@ -21,8 +23,8 @@ const baselineCodeJSON: Partial<CodeJSON> = {
   },
   organization: "Centers for Medicare & Medicaid Services",
   repositoryURL: "",
-  repositoryHost: undefined,
-  repositoryVisibility: undefined,
+  repositoryHost: blankEnumValue,
+  repositoryVisibility: blankEnumValue,
   homepageURL: "",
   downloadURL: "",
   disclaimerURL: "",
@@ -35,9 +37,9 @@ const baselineCodeJSON: Partial<CodeJSON> = {
   },
   platforms: [],
   categories: [],
-  softwareType: undefined,
+  softwareType: blankEnumValue,
   languages: [],
-  maintenance: undefined,
+  maintenance: blankEnumValue,
   contractNumber: [],
   SBOM: "",
   relatedCode: [],
@@ -56,9 +58,9 @@ const baselineCodeJSON: Partial<CodeJSON> = {
   feedbackMechanism: "",
   AIUseCaseID: "0",
   localisation: false,
-  repositoryType: undefined,
+  repositoryType: blankEnumValue,
   userInput: false,
-  fismaLevel: undefined,
+  fismaLevel: blankEnumValue,
   group: "",
   projects: [],
   systems: [],
@@ -69,7 +71,9 @@ const baselineCodeJSON: Partial<CodeJSON> = {
 
 export { baselineCodeJSON };
 
-function filterValidFields(existingCodeJSON: Record<string, unknown>): Partial<CodeJSON> {
+function filterValidFields(
+  existingCodeJSON: Record<string, unknown>,
+): Partial<CodeJSON> {
   const validKeys = new Set(Object.keys(baselineCodeJSON));
   const filtered: Record<string, unknown> = {};
 
@@ -92,6 +96,7 @@ async function getMetaData(
   existingCodeJSON?: CodeJSON | null,
 ): Promise<Partial<CodeJSON>> {
   const partialCodeJSON = await helpers.calculateMetaData();
+  const version = existingCodeJSON?.version || partialCodeJSON.version;
 
   // preserve existing feedback mechanisms if they exist, otherwise default to GitHub Issues
   const feedbackMechanism =
@@ -110,12 +115,18 @@ async function getMetaData(
     ? partialCodeJSON.description
     : existingCodeJSON?.description || "";
 
-  // only update tags if we have new ones from GitHub Topics, otherwise keep existing
-  const shouldUpdateTags =
-    partialCodeJSON.tags && partialCodeJSON.tags.length > 0;
-  const tags = shouldUpdateTags
-    ? partialCodeJSON.tags
-    : existingCodeJSON?.tags || [];
+  // preserve manually curated languages when they already exist in code.json,
+  // and only fall back to GitHub detected languages for new repositories.
+  const languages =
+    existingCodeJSON?.languages && existingCodeJSON.languages.length > 0
+      ? existingCodeJSON.languages
+      : partialCodeJSON.languages;
+
+  // preserve existing tags and append repository topics, de-duped
+  const tags = helpers.mergeTags(
+    partialCodeJSON.tags ?? [],
+    existingCodeJSON?.tags ?? [],
+  );
 
   // handling legacy contractNumber that turned from string to array which caused validation errors
   let contractNumber: string[] = [];
@@ -133,17 +144,28 @@ async function getMetaData(
 
   if (deps.isArchived) {
     status = "Archival";
-    tags?.push("archived");
+    tags.push("archived");
   }
+
+  // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode
+  const [forkParent, detectedDeps] = await Promise.all([
+    helpers.detectForkParent(),
+    helpers.detectReusedCode(),
+  ]);
+  const reusedCode = helpers.mergeReusedCode(
+    existingCodeJSON?.reusedCode ?? [],
+    [...(forkParent ? [forkParent] : []), ...detectedDeps],
+  );
 
   return {
     name: partialCodeJSON.name,
+    version: version,
     description: description,
-    status: status,
+    status: status ?? blankEnumValue,
     repositoryURL: partialCodeJSON.repositoryURL,
     repositoryVisibility: partialCodeJSON.repositoryVisibility,
     laborHours: partialCodeJSON.laborHours,
-    languages: partialCodeJSON.languages,
+    languages: languages,
     reuseFrequency: {
       forks: partialCodeJSON.reuseFrequency?.forks ?? 0,
       clones: existingCodeJSON?.reuseFrequency?.clones ?? 0,
@@ -158,6 +180,7 @@ async function getMetaData(
     feedbackMechanism,
     SBOM,
     contractNumber,
+    reusedCode,
   };
 }
 

@@ -1,0 +1,99 @@
+name: End-to-End
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  SANDBOX_REPO: DSACMS/codejson-action-e2e
+  SANDBOX_WORKFLOW: e2e.yml
+
+jobs:
+  e2e:
+    name: End-to-End
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Fork PRs get no secrets, so they can't reach the sandbox. Skip rather than fail
+    # the check, and run the e2e by hand for those.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Generate sandbox token
+        id: app_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.E2E_APP_ID }}
+          private-key: ${{ secrets.E2E_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: codejson-action-e2e
+
+      - name: Trigger sandbox run
+        id: trigger
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          # workflow_dispatch doesn't return the run it created, so tag the run with an
+          # id only this job could produce and find it by name below.
+          RUN_NAME="e2e ${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "run_name=${RUN_NAME}" >> "$GITHUB_OUTPUT"
+
+          gh workflow run "$SANDBOX_WORKFLOW" \
+            --repo "$SANDBOX_REPO" \
+            --ref main \
+            -f action_sha="$HEAD_SHA" \
+            -f pr_number="$PR_NUMBER" \
+            -f correlation_id="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+
+          echo "Dispatched ${SANDBOX_REPO} for ${HEAD_SHA} (PR #${PR_NUMBER})"
+
+      - name: Wait for sandbox verdict
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          RUN_NAME: ${{ steps.trigger.outputs.run_name }}
+        run: |
+          set -euo pipefail
+
+          RUN_ID=""
+          for _ in $(seq 1 24); do
+            RUN_ID=$(gh api "repos/${SANDBOX_REPO}/actions/workflows/${SANDBOX_WORKFLOW}/runs?per_page=100" \
+              --jq "[.workflow_runs[] | select(.name == \"${RUN_NAME}\" or .display_title == \"${RUN_NAME}\")] | .[0].id // empty")
+            [ -n "$RUN_ID" ] && break
+            sleep 5
+          done
+
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::Sandbox run '${RUN_NAME}' never appeared in ${SANDBOX_REPO}."
+            exit 1
+          fi
+
+          RUN_URL="https://github.com/${SANDBOX_REPO}/actions/runs/${RUN_ID}"
+          echo "Sandbox run: ${RUN_URL}"
+          echo "Sandbox run: ${RUN_URL}" >> "$GITHUB_STEP_SUMMARY"
+
+          # The sandbox serializes its runs, so this can sit queued behind another PR.
+          while true; do
+            STATUS=$(gh api "repos/${SANDBOX_REPO}/actions/runs/${RUN_ID}" --jq '.status')
+            [ "$STATUS" = "completed" ] && break
+            echo "  ${STATUS}..."
+            sleep 15
+          done
+
+          CONCLUSION=$(gh api "repos/${SANDBOX_REPO}/actions/runs/${RUN_ID}" --jq '.conclusion')
+
+          if [ "$CONCLUSION" != "success" ]; then
+            echo "::error::Sandbox e2e ${CONCLUSION}. See ${RUN_URL}"
+            exit 1
+          fi
+          echo "Sandbox e2e passed."

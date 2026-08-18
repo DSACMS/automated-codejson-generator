@@ -2,24 +2,28 @@ import { CodeJSON } from "./types/CodeJSONSchema.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
 import { validateCodeJSON } from "./zod-validation.js";
 import { Dependencies } from "./types/Dependencies.js";
+import { ReusedCodeEntry, lookupGovDependency } from "./gov-dependencies.js";
 
 const HOURS_PER_MONTH = 730.001;
 
 export function createHelpers(deps: Dependencies) {
-  const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } = deps;
+  const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } =
+    deps;
 
   //===============================================
   // Meta Data
   //===============================================
   async function calculateMetaData(): Promise<Partial<CodeJSON>> {
     try {
-      const [laborHours, basicInfo] = await Promise.all([
+      const [laborHours, basicInfo, version] = await Promise.all([
         getLaborHours(),
         getBasicInfo(),
+        getVersion(),
       ]);
 
       return {
         name: basicInfo.title,
+        version: version,
         description: basicInfo.description,
         repositoryURL: basicInfo.url,
         repositoryVisibility: basicInfo.repositoryVisibility,
@@ -40,6 +44,42 @@ export function createHelpers(deps: Dependencies) {
       log.error(`Failed to calculate meta data: ${error}`);
       throw error;
     }
+  }
+
+  async function getVersion(): Promise<string> {
+    try {
+      const release = await octokit.rest.repos.getLatestRelease({ owner, repo });
+      const versionFromRelease = normalizeVersionString(release.data.tag_name);
+
+      if (versionFromRelease !== "") {
+        return versionFromRelease;
+      }
+
+      const releaseName = release.data.name;
+      if (typeof releaseName === "string") {
+        const versionFromName = normalizeVersionString(releaseName);
+
+        if (versionFromName !== "") {
+          return versionFromName;
+        }
+      }
+
+      log.warning("Latest release did not include a usable version string.");
+    } catch (error) {
+      log.warning(`Failed to fetch latest release version: ${error}`);
+    }
+
+    return "";
+  }
+
+  function normalizeVersionString(value: string): string {
+    const trimmedValue = value.trim();
+
+    if (trimmedValue.length > 1 && /^v\d/i.test(trimmedValue)) {
+      return trimmedValue.replace(/^v/i, "");
+    }
+
+    return trimmedValue;
   }
 
   async function getBasicInfo(): Promise<BasicRepoInfo> {
@@ -77,7 +117,9 @@ export function createHelpers(deps: Dependencies) {
 
   async function getLaborHours(): Promise<number> {
     try {
-      const { stdout } = await deps.exec(`scc /github/workspace --format json2`);
+      const { stdout } = await deps.exec(
+        `scc /github/workspace --format json2`,
+      );
       const sccData = JSON.parse(stdout);
 
       const laborHours = Math.ceil(
@@ -87,6 +129,59 @@ export function createHelpers(deps: Dependencies) {
     } catch (error) {
       log.error(`Failed to get labor hours: ${error}`);
       throw error;
+    }
+  }
+
+  //===============================================
+  // Reused Code
+  //===============================================
+  async function detectReusedCode(): Promise<ReusedCodeEntry[]> {
+    const [packageJSON, requirements] = await Promise.all([
+      readManifest("/github/workspace/package.json"),
+      readManifest("/github/workspace/requirements.txt"),
+    ]);
+
+    const names: string[] = [];
+    if (packageJSON) names.push(...parsePackageJSON(packageJSON));
+    if (requirements) names.push(...parseRequirementsTxt(requirements));
+
+    const entries: ReusedCodeEntry[] = [];
+    const seen = new Set<string>();
+    for (const name of names) {
+      const entry = lookupGovDependency(name);
+      if (entry && !seen.has(entry.URL)) {
+        seen.add(entry.URL);
+        entries.push(entry);
+      }
+    }
+    return entries;
+  }
+
+  async function readManifest(filepath: string): Promise<string | null> {
+    try {
+      return await deps.readFile(filepath);
+    } catch {
+      return null;
+    }
+  }
+
+  //===============================================
+  // Fork Upstream
+  //===============================================
+  async function detectForkParent(): Promise<ReusedCodeEntry | null> {
+    try {
+      const repoData = await octokit.rest.repos.get({ owner, repo });
+      const { fork, parent } = repoData.data;
+
+      if (!fork || !parent) return null;
+
+      return {
+        name: parent.full_name,
+        URL: parent.html_url,
+      };
+    } catch (error) {
+      log.error(`Failed to detect fork parent: ${error}`);
+      return null;
     }
   }
 
@@ -145,10 +240,7 @@ export function createHelpers(deps: Dependencies) {
     }
   }
 
-  async function sendPR(
-    updatedCodeJSON: CodeJSON,
-    baseBranchName: string,
-  ) {
+  async function sendPR(updatedCodeJSON: CodeJSON, baseBranchName: string) {
     try {
       const formattedContent = JSON.stringify(updatedCodeJSON, null, 2) + "\n";
       const headBranchName = `code-json-${new Date().getTime()}`;
@@ -156,7 +248,9 @@ export function createHelpers(deps: Dependencies) {
       const PR = await octokit.createPullRequest({
         owner,
         repo,
-        title: isArchived ? "Update code.json for archival" : "Update code.json",
+        title: isArchived
+          ? "Update code.json for archival"
+          : "Update code.json",
         body: isArchived ? bodyOfArchivalPR() : bodyOfPR(),
         base: baseBranchName,
         head: headBranchName,
@@ -224,7 +318,9 @@ export function createHelpers(deps: Dependencies) {
         sha: currentFileSha,
       });
 
-      log.info(`Successfully pushed commit with PAT: ${result.data.commit.sha}`);
+      log.info(
+        `Successfully pushed commit with PAT: ${result.data.commit.sha}`,
+      );
 
       setOutput("updated", true);
       setOutput("commit_sha", result.data.commit.sha);
@@ -267,17 +363,79 @@ export function createHelpers(deps: Dependencies) {
 
   return {
     calculateMetaData,
+    detectReusedCode,
+    detectForkParent,
+    mergeReusedCode,
     getBaseBranch,
     validateOnly,
     validateCodeJSON,
     readJSON,
     sendPR,
     pushDirectlyWithFallback,
+    mergeTags,
   };
 }
 
 // export the type for convenience
 export type Helpers = ReturnType<typeof createHelpers>;
+
+export function parsePackageJSON(content: string): string[] {
+  try {
+    const pkg = JSON.parse(content);
+    return [
+      ...Object.keys(pkg.dependencies ?? {}),
+      ...Object.keys(pkg.devDependencies ?? {}),
+    ];
+  } catch {
+    return [];
+  }
+}
+
+// strips version specifiers, extras, markers and comments, leaving the bare package name
+export function parseRequirementsTxt(content: string): string[] {
+  const names: string[] = [];
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.split("#")[0].trim();
+    if (!line || line.startsWith("-")) continue;
+    const match = line.match(/^[A-Za-z0-9._-]+/);
+    if (match) names.push(match[0]);
+  }
+  return names;
+}
+
+// keeps existing entries (manual edits) and appends detected ones, de-duped by name and URL
+export function mergeReusedCode(
+  existing: Array<{ name?: string; URL?: string }>,
+  detected: ReusedCodeEntry[],
+): Array<{ name?: string; URL?: string }> {
+  const base = Array.isArray(existing) ? existing : [];
+  const merged = [...base];
+  const seenURLs = new Set(
+    base.map((e) => e.URL?.toLowerCase()).filter(Boolean),
+  );
+  const seenNames = new Set(
+    base.map((e) => e.name?.toLowerCase()).filter(Boolean),
+  );
+
+  for (const entry of detected) {
+    const url = entry.URL.toLowerCase();
+    const name = entry.name.toLowerCase();
+    if (seenURLs.has(url) || seenNames.has(name)) continue;
+    merged.push(entry);
+    seenURLs.add(url);
+    seenNames.add(name);
+  }
+
+  return merged;
+}
+
+// combines repository topics with existing manually added tags, de-duped
+export function mergeTags(
+  repositoryTopics: string[] = [],
+  existingTags: string[] = [],
+): string[] {
+  return Array.from(new Set([...repositoryTopics, ...existingTags]));
+}
 
 function bodyOfPR(): string {
   return `

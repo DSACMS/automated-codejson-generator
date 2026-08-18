@@ -57,12 +57,35 @@ Total number of contributors: <!--CONTRIBUTOR COUNT START--> 4 <!--CONTRIBUTOR C
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/haseebmalik18">
+                    <img src="https://avatars.githubusercontent.com/u/118837269?v=4" width="100;" alt="haseebmalik18"/>
+                    <br />
+                    <sub><b>Haseeb Malik</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/jjijon7000">
+                    <img src="https://avatars.githubusercontent.com/u/179192896?v=4" width="100;" alt="jjijon7000"/>
+                    <br />
+                    <sub><b>julio jijon</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/isaac-rtc">
+                    <img src="https://avatars.githubusercontent.com/u/194465296?v=4" width="100;" alt="isaac-rtc"/>
+                    <br />
+                    <sub><b>Isaac Guzman</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/IsaacMilarky">
                     <img src="https://avatars.githubusercontent.com/u/24639268?v=4" width="100;" alt="IsaacMilarky"/>
                     <br />
                     <sub><b>Isaac Milarsky</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/mjburling">
                     <img src="https://avatars.githubusercontent.com/u/905175?v=4" width="100;" alt="mjburling"/>
