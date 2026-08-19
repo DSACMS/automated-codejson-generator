@@ -17,7 +17,7 @@ columns (You can use `fmt -n -p -w 80` to accomplish this).
 Explain the context and why you're making that change. What is the problem
 you're trying to solve? In some cases there is not a problem and this can be
 thought of being the motivation for your change.
-
+ 
 ## Solution
 
 Describe the modifications you've done.
@@ -27,25 +27,24 @@ Describe the modifications you've done.
 
 If checked, please provide an explanation on how AI was used in the development of this pull request:
 
-- Description: _Include a high level description of Gen AI utilization_
-- Type of assistance:
+- **Description:** 
+  - _Include a high level description of Gen AI utilization_
+- **Type of Assistance:**
   - [ ] Code generation
   - [ ] Documentation
   - [ ] Debugging
   - [ ] Testing
   - [ ] Refactoring
   - [ ] Other: 
-- Scope of usage: _Which files, functions, or sections were AI-assisted_
-- AI System used: 
+- **AI System Used:** 
   - [ ] ChatGPT
   - [ ] Claude
   - [ ] Gemini
   - [ ] GitHub Copilot
-- Level of modification: 
+- **Level of Modification:**
   - [ ] As-is
   - [ ] Modified
   - [ ] Used as inspiration
-- Prompts used: _Please list or explain prompts that were used to develop this contribution_
 
 ## Result
 
