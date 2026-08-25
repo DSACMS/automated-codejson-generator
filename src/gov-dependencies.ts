@@ -1,3 +1,9 @@
+/**
+ * Lookup for the federal dependency list. The list itself sits in
+ * gov-dependencies.data.ts so the updater can rewrite it without touching any
+ * logic, and callers keep importing from here.
+ */
+
 import {
   ReusedCodeEntry,
   GOV_DEPENDENCIES,

@@ -1,11 +1,18 @@
+/**
+ * The federal packages that reusedCode is matched against. Every entry points
+ * at the repository its source is hosted in, and is only listed once its
+ * registry metadata resolves to a repo under a verified government org.
+ *
+ * This file is kept current by the updater in src/gov-update, which edits it as
+ * text rather than regenerating it. Editing by hand is fine, but keep the shape
+ * the updater expects: one const per entry in alphabetical order, referenced
+ * from the maps below. src/gov-update/codegen.ts has the details.
+ */
+
 export interface ReusedCodeEntry {
   name: string;
   URL: string;
 }
-
-// Every entry maps 1:1 to the repository where its source code is hosted.
-// Packages are only listed when their registry metadata resolves to a repo
-// under a verified US government organization.
 
 const ABCMRT16: ReusedCodeEntry = {
   name: "abcmrt16 (National Institute of Standards and Technology)",
@@ -105,11 +112,6 @@ const ATOMMAN: ReusedCodeEntry = {
 const ATOMVISION: ReusedCodeEntry = {
   name: "atomvision (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/atomvision",
-};
-
-const AWSM: ReusedCodeEntry = {
-  name: "awsm (USDA ARS Northwest Watershed Research Center)",
-  URL: "https://github.com/USDA-ARS-NWRC/awsm",
 };
 
 const BART_SURVIVAL: ReusedCodeEntry = {
@@ -927,16 +929,6 @@ const CUMULUS_MESSAGE_ADAPTER: ReusedCodeEntry = {
   URL: "https://github.com/nasa/cumulus-message-adapter",
 };
 
-const CWMS_CLI: ReusedCodeEntry = {
-  name: "cwms-cli (U.S. Army Corps of Engineers Hydrologic Engineering Center)",
-  URL: "https://github.com/HydrologicEngineeringCenter/cwms-cli",
-};
-
-const CWMS_PYTHON: ReusedCodeEntry = {
-  name: "cwms-python (U.S. Army Corps of Engineers Hydrologic Engineering Center)",
-  URL: "https://github.com/HydrologicEngineeringCenter/cwms-python",
-};
-
 const DATA_UPLOAD_MANAGER: ReusedCodeEntry = {
   name: "data-upload-manager (NASA Planetary Data System)",
   URL: "https://github.com/NASA-PDS/data-upload-manager",
@@ -1027,11 +1019,6 @@ const ENDPOINT_JS: ReusedCodeEntry = {
   URL: "https://github.com/ngageoint/endpoint.js",
 };
 
-const EPIINFO: ReusedCodeEntry = {
-  name: "epiinfo (CDC Epi Info)",
-  URL: "https://github.com/Epi-Info/epiinfo",
-};
-
 const EPITOME: ReusedCodeEntry = {
   name: "epitome (NASA Planetary Data System)",
   URL: "https://github.com/nasa-pds-engineering-node/epitome",
@@ -1075,11 +1062,6 @@ const FDNS_JS_SDK: ReusedCodeEntry = {
 const FDNS_UI_REACT: ReusedCodeEntry = {
   name: "fdns-ui-react (Centers for Disease Control and Prevention)",
   URL: "https://github.com/CDCgov/fdns-ui-react",
-};
-
-const FDS_STYLE: ReusedCodeEntry = {
-  name: "fds-style (USDA Farm Production and Conservation)",
-  URL: "https://github.com/USDA-FPAC/fds-style",
 };
 
 const FEC_STYLE: ReusedCodeEntry = {
@@ -1315,11 +1297,6 @@ const IDENTITY_DESIGN_SYSTEM: ReusedCodeEntry = {
 const IMPPY3D: ReusedCodeEntry = {
   name: "imppy3d (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/imppy3d",
-};
-
-const INICHECK: ReusedCodeEntry = {
-  name: "inicheck (USDA ARS Northwest Watershed Research Center)",
-  URL: "https://github.com/USDA-ARS-NWRC/inicheck",
 };
 
 const INTELLIGIBILITY: ReusedCodeEntry = {
@@ -1922,16 +1899,6 @@ const SMCPY: ReusedCodeEntry = {
   URL: "https://github.com/nasa/SMCPy",
 };
 
-const SMRF: ReusedCodeEntry = {
-  name: "smrf (USDA ARS Northwest Watershed Research Center)",
-  URL: "https://github.com/USDA-ARS-NWRC/smrf",
-};
-
-const SNOWAV: ReusedCodeEntry = {
-  name: "snowav (USDA ARS Northwest Watershed Research Center)",
-  URL: "https://github.com/USDA-ARS-NWRC/snowav",
-};
-
 const SNP_MUTATOR: ReusedCodeEntry = {
   name: "snp-mutator (FDA Center for Food Safety and Applied Nutrition)",
   URL: "https://github.com/CFSAN-Biostatistics/snp-mutator",
@@ -1940,11 +1907,6 @@ const SNP_MUTATOR: ReusedCodeEntry = {
 const SNP_PIPELINE: ReusedCodeEntry = {
   name: "snp-pipeline (FDA Center for Food Safety and Applied Nutrition)",
   URL: "https://github.com/CFSAN-Biostatistics/snp-pipeline",
-};
-
-const SPATIALNC: ReusedCodeEntry = {
-  name: "spatialnc (USDA ARS Northwest Watershed Research Center)",
-  URL: "https://github.com/USDA-ARS-NWRC/spatialnc",
 };
 
 const SQL_INSERT_WRITER: ReusedCodeEntry = {
@@ -2017,11 +1979,6 @@ const THERMOEXTRAP: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/thermoextrap",
 };
 
-const THYME: ReusedCodeEntry = {
-  name: "thyme (NOAA Office of Coast Survey)",
-  URL: "https://github.com/noaa-ocs-modeling/thyme",
-};
-
 const TIDYTREE: ReusedCodeEntry = {
   name: "TidyTree (Centers for Disease Control and Prevention)",
   URL: "https://github.com/CDCgov/TidyTree",
@@ -2055,11 +2012,6 @@ const TN93: ReusedCodeEntry = {
 const TN93_JS: ReusedCodeEntry = {
   name: "tn93.js (Centers for Disease Control and Prevention)",
   URL: "https://github.com/CDCgov/tn93.js",
-};
-
-const TOPOCALC: ReusedCodeEntry = {
-  name: "topocalc (USDA ARS Northwest Watershed Research Center)",
-  URL: "https://github.com/USDA-ARS-NWRC/topocalc",
 };
 
 const TRUSTYMAIL: ReusedCodeEntry = {
@@ -2147,11 +2099,6 @@ const WAGTAIL_TREEMODELADMIN: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/wagtail-treemodeladmin",
 };
 
-const WEATHER_FORECAST_RETRIEVAL: ReusedCodeEntry = {
-  name: "weather_forecast_retrieval (USDA ARS Northwest Watershed Research Center)",
-  URL: "https://github.com/USDA-ARS-NWRC/weather_forecast_retrieval",
-};
-
 const WEBWORLDWIND: ReusedCodeEntry = {
   name: "WebWorldWind (NASA WorldWind)",
   URL: "https://github.com/NASAWorldWind/WebWorldWind",
@@ -2177,11 +2124,6 @@ const ZYRA: ReusedCodeEntry = {
   URL: "https://github.com/NOAA-GSL/zyra",
 };
 
-const COUPLEDMODELDRIVER: ReusedCodeEntry = {
-  name: "coupledmodeldriver (NOAA Office of Coast Survey)",
-  URL: "https://github.com/noaa-ocs-modeling/coupledmodeldriver",
-};
-
 const CTOS_MEVAL: ReusedCodeEntry = {
   name: "ctos-meval (NCI Center for Biomedical Informatics and IT)",
   URL: "https://github.com/cbiit/meval",
@@ -2190,11 +2132,6 @@ const CTOS_MEVAL: ReusedCodeEntry = {
 const CUMULUS_CUMULUS_MESSAGE_ADAPTER_JS: ReusedCodeEntry = {
   name: "cumulus-message-adapter-js (NASA)",
   URL: "https://github.com/nasa/cumulus-message-adapter-js",
-};
-
-const CWMSJS: ReusedCodeEntry = {
-  name: "cwmsjs (U.S. Army Corps of Engineers Hydrologic Engineering Center)",
-  URL: "https://github.com/hydrologicengineeringcenter/cwms-data-api-client-javascript",
 };
 
 const DATAMODELDICT: ReusedCodeEntry = {
@@ -2285,11 +2222,6 @@ const EDSC_TIMELINE: ReusedCodeEntry = {
 const ELINKAPI: ReusedCodeEntry = {
   name: "elinkapi (DOE CODE)",
   URL: "https://github.com/doecode/elinkapi",
-};
-
-const ENSEMBLEPERTURBATION: ReusedCodeEntry = {
-  name: "ensembleperturbation (NOAA Office of Coast Survey)",
-  URL: "https://github.com/noaa-ocs-modeling/ensembleperturbation",
 };
 
 const ENTERPRISE_CMCS_MACPRO_SERVERLESS_RUNNING_STAGES: ReusedCodeEntry = {
@@ -2632,11 +2564,6 @@ const NEMO_SENSORS: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/nemo-sensors",
 };
 
-const NEMSPY: ReusedCodeEntry = {
-  name: "nemspy (NOAA Office of Coast Survey)",
-  URL: "https://github.com/noaa-ocs-modeling/nemspy",
-};
-
 const NGAGEOINT_CLOSURE_WEBPACK_PLUGIN: ReusedCodeEntry = {
   name: "closure-webpack-plugin (National Geospatial-Intelligence Agency)",
   URL: "https://github.com/ngageoint/closure-webpack-plugin",
@@ -2765,16 +2692,6 @@ const NUWCDIVNPT_STIG_MANAGER_CLIENT_MODULES: ReusedCodeEntry = {
 const OAUTH2_PROXY_AUTHENTICATION: ReusedCodeEntry = {
   name: "oauth2-proxy-authentication (18F (GSA))",
   URL: "https://github.com/18f/oauth2-proxy-authentication",
-};
-
-const OCSMESH: ReusedCodeEntry = {
-  name: "ocsmesh (NOAA Office of Coast Survey)",
-  URL: "https://github.com/noaa-ocs-modeling/ocsmesh",
-};
-
-const OCSTRACK: ReusedCodeEntry = {
-  name: "ocstrack (NOAA Office of Coast Survey)",
-  URL: "https://github.com/noaa-ocs-modeling/ocstrack",
 };
 
 const ODVC: ReusedCodeEntry = {
@@ -2972,11 +2889,6 @@ const SENTOP: ReusedCodeEntry = {
   URL: "https://github.com/dhs-gov/sentop",
 };
 
-const SHEF_PARSER: ReusedCodeEntry = {
-  name: "shef-parser (U.S. Army Corps of Engineers Hydrologic Engineering Center)",
-  URL: "https://github.com/hydrologicengineeringcenter/shef_processing",
-};
-
 const STICKYFILL_WEB_MODULE: ReusedCodeEntry = {
   name: "stickyfill-web-module (18F (GSA))",
   URL: "https://github.com/18f/stickyfill",
@@ -3130,7 +3042,6 @@ export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {
   "continua11y-reports": NODE_CONTINUA11Y_REPORTS,
   "contracting-cookbook": CONTRACTING_COOKBOOK_CLIENT,
   "ctrl-f": CTRL_F,
-  cwmsjs: CWMSJS,
   "data-api": QU,
   dtdanalyzer: DTDANALYZER,
   "earthquake-cpt": EARTHQUAKE_CPT,
@@ -3147,7 +3058,6 @@ export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {
   "fast-shared-client": FAST_SHARED_CLIENT,
   "fdns-js-sdk": FDNS_JS_SDK,
   "fdns-ui-react": FDNS_UI_REACT,
-  "fds-style": FDS_STYLE,
   "fdsh-client": NODE_FDSH_CLIENT,
   "fec-style": FEC_STYLE,
   "file-locked-operation": FILE_LOCKED_OPERATION,
@@ -3448,7 +3358,6 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   atomgpt: ATOMGPT,
   atomman: ATOMMAN,
   atomvision: ATOMVISION,
-  awsm: AWSM,
   "bart-survival": BART_SURVIVAL,
   batchee: BATCHEE,
   beaapi: BEAAPI,
@@ -3536,15 +3445,12 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "core-visualization-insitu-app": CORE_VISUALIZATION_INSITU_APP,
   "core-website-app": CORE_WEBSITE_APP,
   corl: CORL,
-  coupledmodeldriver: COUPLEDMODELDRIVER,
   "cpc-geofiles": CPC_GEOFILES,
   "cpc-geogrids": CPC_GEOGRIDS,
   "cpc-geoplot": CPC_GEOPLOT,
   "ctos-meval": CTOS_MEVAL,
   "ctx-python": CTX_PYTHON,
   "cumulus-message-adapter": CUMULUS_MESSAGE_ADAPTER,
-  "cwms-cli": CWMS_CLI,
-  "cwms-python": CWMS_PYTHON,
   datamodeldict: DATAMODELDICT,
   dataretrieval: DATARETRIEVAL_PYTHON,
   dicaugment: DICAUGMENT,
@@ -3563,8 +3469,6 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "egi-pynetstation": EGI_PYNETSTATION,
   eispac: EISPAC,
   elinkapi: ELINKAPI,
-  ensembleperturbation: ENSEMBLEPERTURBATION,
-  epiinfo: EPIINFO,
   erddapy: ERDDAPY,
   etspy: ETSPY,
   exoscene: EXOSCENE,
@@ -3599,7 +3503,6 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   hydrotools: HYDROTOOLS,
   "hydrotools-waterdata-client": HYDROTOOLS,
   imppy3d: IMPPY3D,
-  inicheck: INICHECK,
   intermat: INTERMAT,
   "io-model-builder": IO_MODEL_BUILDER,
   "ioos-metrics": IOOS_METRICS,
@@ -3643,13 +3546,10 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "nemo-custom-forms": NEMO_CUSTOM_FORMS,
   "nemo-online-training": NEMO_ONLINE_TRAINING,
   "nemo-sensors": NEMO_SENSORS,
-  nemspy: NEMSPY,
   "nestor-qt": NESTOR_QT,
   nfflr: NFFLR,
   noaabathymetry: NOAABATHYMETRY,
   nrss: NRSS,
-  ocsmesh: OCSMESH,
-  ocstrack: OCSTRACK,
   odvc: ODVC,
   oneargopy: ONEARGOPY,
   "open-notebook": OPEN_NOTEBOOK,
@@ -3711,16 +3611,12 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   serotools: SEROTOOLS,
   sfrmaker: SFRMAKER,
   "shakecast-aebm": SHAKECAST_AEBM,
-  "shef-parser": SHEF_PARSER,
   "signals-utils": SIGNALS_UTILS,
   simprocesd: SIMPROCESD,
   "slack-emoji-search": EMOJI_SEARCH,
   smcpy: SMCPY,
-  "smrf-dev": SMRF,
-  snowav: SNOWAV,
   "snp-mutator": SNP_MUTATOR,
   "snp-pipeline": SNP_PIPELINE,
-  spatialnc: SPATIALNC,
   "sql-insert-writer": SQL_INSERT_WRITER,
   "sqlite-dissect": SQLITE_DISSECT,
   srompy: SROMPY,
@@ -3733,11 +3629,9 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "termseq-peaks": TERMSEQ_PEAKS,
   thermoextrap: THERMOEXTRAP,
   "thredds-crawler": THREDDS_CRAWLER,
-  thyme: THYME,
   "tk-builder": TK_BUILDER,
   "tmmc-lnpy": TMMC_LNPY,
   tn93: TN93,
-  topocalc: TOPOCALC,
   trustymail: TRUSTYMAIL,
   "usgs-shakecast": SHAKECAST,
   "uv-workon": UV_WORKON,
@@ -3751,7 +3645,6 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "wagtail-inventory": WAGTAIL_INVENTORY,
   "wagtail-sharing": WAGTAIL_SHARING,
   "wagtail-treemodeladmin": WAGTAIL_TREEMODELADMIN,
-  "weather-forecast-retrieval": WEATHER_FORECAST_RETRIEVAL,
   wicken: WICKEN,
   wimlib: WIMLIB,
   wntr: WNTR,

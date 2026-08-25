@@ -229,6 +229,46 @@ The automated code.json generator calculates specific fields by analyzing your r
 
 **feedbackMechanism**: The repository's issues URL in the format of {repositoryURL}/issues. If you already have a code.json file with existing feedback mechanisms, the generator preserves those values. No configuration needed.
 
+**reusedCode**: The generator scans your `package.json` and `requirements.txt` for dependencies published by federal agencies and lists them here, each linked to the agency repository it comes from. It matches against a curated list of federal packages (see below). Entries already in your code.json are preserved. No configuration needed.
+
+## Federal Dependency List
+
+The `reusedCode` field is matched against a curated list of federal npm and PyPI packages in `src/gov-dependencies.data.ts`, each mapped to the agency and repository it comes from.
+
+That list is kept current by an automated job under `src/gov-update/`. It crawls federal GitHub and npm organizations and verifies every package before adding it: the package's registry metadata must point at a repository in a known federal organization, and that repository must itself declare the package. Each addition goes through a pull request for a maintainer to review.
+
+### Running the job
+
+The job runs every Monday through [`update-gov-dependencies.yml`](.github/workflows/update-gov-dependencies.yml), and can also be started by hand from the Actions tab with **Run workflow**. When it finds something new it opens a pull request against `src/gov-dependencies.data.ts` with the verification report as the description. If nothing new turns up, it opens nothing.
+
+To run it locally:
+
+```bash
+npm install
+npm run update-gov-dependencies
+```
+
+That rewrites `src/gov-dependencies.data.ts` in place, so check `git diff` afterwards. Three optional environment variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `GITHUB_TOKEN` | Raises the GitHub API rate limit from 60 to 5,000 requests an hour. A full run needs it. |
+| `GOV_UPDATE_CACHE` | Path to a cache file. Repos that have not been pushed to since the last run are skipped, which is the difference between a long run and a short one. |
+| `GOV_UPDATE_REPORT` | Path to write the markdown report of what was added and what was flagged. |
+
+```bash
+GITHUB_TOKEN=<your token> \
+GOV_UPDATE_CACHE=.gov-update-cache/repos.json \
+GOV_UPDATE_REPORT=gov-update-report.md \
+npm run update-gov-dependencies
+```
+
+The first run has nothing cached and visits every repository in every allowlisted organization, so expect it to take a while. Later runs reuse the cache and are much quicker.
+
+The organizations it trusts live in `src/gov-update/allowlist.json`, mapping each GitHub organization name to its agency. Most are confirmed federal against CISA's official `.gov` domain registry ([cisagov/dotgov-data](https://github.com/cisagov/dotgov-data)). The registry only covers `.gov`, so military organizations and a handful of others are manually verified instead.
+
+To add an organization, add its GitHub organization name and agency name to `allowlist.json` and open a pull request. New organizations should always be reviewed, never added automatically. GitHub does not verify organization ownership, so this stays human-vetted rather than cryptographic proof.
+
 ## Project Vision
 
 To streamline federal agencies' compliance with open source requirements by automating the maintenance of code.json files, reducing manual effort and improving accuracy of repository metadata.
