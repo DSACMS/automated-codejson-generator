@@ -6,54 +6,20 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { runWithDeps, filterValidFields, getMetaData } from "../../main.js";
+import { runWithDeps, getMetaData } from "../../main.js";
 import { createHelpers } from "../../helper.js";
+import { Dependencies } from "../../types/Dependencies.js";
 import { createMockDeps, createMockOctokit } from "../fixtures/mock-deps.js";
 import validCodeJSON from "../fixtures/test-code.json";
 
-describe("filterValidFields", () => {
-  it("keeps known fields", () => {
-    const result = filterValidFields({
-      name: "test",
-      version: "1.0",
-      description: "hi",
-    });
-    expect(result).toHaveProperty("name", "test");
-    expect(result).toHaveProperty("version", "1.0");
-  });
-
-  it("strips unknown fields", () => {
-    const result = filterValidFields({ name: "test", unknownField: "bad" });
-    expect(result).toHaveProperty("name");
-    expect(result).not.toHaveProperty("unknownField");
-  });
-});
+// reads back the code.json this action actually shipped in its pull request
+function generatedCodeJSON(deps: Dependencies): any {
+  const createPullRequestMock = deps.octokit.createPullRequest as jest.Mock;
+  const pullRequestArgs = createPullRequestMock.mock.calls[0][0] as any;
+  return JSON.parse(pullRequestArgs.changes[0].files["code.json"]);
+}
 
 describe("getMetaData", () => {
-  it("preserves existing feedbackMechanism", async () => {
-    const deps = createMockDeps();
-    const helpers = createHelpers(deps);
-
-    const existing = {
-      ...validCodeJSON,
-      feedbackMechanism: "https://custom.example.com/feedback",
-    } as any;
-    const result = await getMetaData(helpers, deps, existing);
-
-    expect(result.feedbackMechanism).toBe(
-      "https://custom.example.com/feedback",
-    );
-  });
-
-  it("defaults feedbackMechanism to issues URL", async () => {
-    const deps = createMockDeps();
-    const helpers = createHelpers(deps);
-
-    const result = await getMetaData(helpers, deps, null);
-
-    expect(result.feedbackMechanism).toContain("/issues");
-  });
-
   it("preserves an existing version when the latest release is unavailable", async () => {
     const releaseOctokit = createMockOctokit({
       rest: {
@@ -72,9 +38,31 @@ describe("getMetaData", () => {
       ...validCodeJSON,
       version: "7.8.9",
     } as any;
-    const result = await getMetaData(helpers, deps, existing);
+    const result = await getMetaData(helpers, existing);
 
     expect(result.version).toBe("7.8.9");
+  });
+
+  it("uses the latest release version when available", async () => {
+    const releaseOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          getLatestRelease: jest.fn<any>().mockResolvedValue({
+            data: {
+              tag_name: "v2.4.6",
+              name: "Release 2.4.6",
+            },
+          }),
+        },
+      },
+    });
+
+    const deps = createMockDeps({ octokit: releaseOctokit });
+    const helpers = createHelpers(deps);
+
+    const result = await getMetaData(helpers, null);
+
+    expect(result.version).toBe("2.4.6");
   });
 
   it("preserves existing languages over GitHub-detected languages", async () => {
@@ -85,7 +73,7 @@ describe("getMetaData", () => {
       ...validCodeJSON,
       languages: ["TypeScript", "Markdown"],
     } as any;
-    const result = await getMetaData(helpers, deps, existing);
+    const result = await getMetaData(helpers, existing);
 
     expect(result.languages).toEqual(["TypeScript", "Markdown"]);
   });
@@ -94,29 +82,9 @@ describe("getMetaData", () => {
     const deps = createMockDeps();
     const helpers = createHelpers(deps);
 
-    const result = await getMetaData(helpers, deps, null);
+    const result = await getMetaData(helpers, null);
 
     expect(result.languages).toEqual(["TypeScript", "JavaScript"]);
-  });
-
-  it("sets Archival status when isArchived", async () => {
-    const deps = createMockDeps({ isArchived: true });
-    const helpers = createHelpers(deps);
-
-    const result = await getMetaData(helpers, deps, validCodeJSON as any);
-
-    expect(result.status).toBe("Archival");
-    expect(result.tags).toContain("archived");
-  });
-
-  it("converts legacy string contractNumber to array", async () => {
-    const deps = createMockDeps();
-    const helpers = createHelpers(deps);
-
-    const existing = { ...validCodeJSON, contractNumber: "LEGACY-001" } as any;
-    const result = await getMetaData(helpers, deps, existing);
-
-    expect(result.contractNumber).toEqual(["LEGACY-001"]);
   });
 
   it("adds the fork upstream to reusedCode", async () => {
@@ -147,34 +115,12 @@ describe("getMetaData", () => {
     const deps = createMockDeps({ octokit: forkOctokit });
     const helpers = createHelpers(deps);
 
-    const result = await getMetaData(helpers, deps, null);
+    const result = await getMetaData(helpers, null);
 
     expect(result.reusedCode).toContainEqual({
       name: "upstream-owner/upstream-repo",
       URL: "https://github.com/upstream-owner/upstream-repo",
     });
-  });
-
-  it("uses the latest release version when available", async () => {
-    const releaseOctokit = createMockOctokit({
-      rest: {
-        repos: {
-          getLatestRelease: jest.fn<any>().mockResolvedValue({
-            data: {
-              tag_name: "v2.4.6",
-              name: "Release 2.4.6",
-            },
-          }),
-        },
-      },
-    });
-
-    const deps = createMockDeps({ octokit: releaseOctokit });
-    const helpers = createHelpers(deps);
-
-    const result = await getMetaData(helpers, deps, null);
-
-    expect(result.version).toBe("2.4.6");
   });
 
   it("preserves existing tags that are not repository topics", async () => {
@@ -186,7 +132,7 @@ describe("getMetaData", () => {
       tags: ["featured"],
     } as any;
 
-    const result = await getMetaData(helpers, deps, existing);
+    const result = await getMetaData(helpers, existing);
 
     expect(result.tags).toEqual(["test", "automation", "featured"]);
   });
@@ -200,7 +146,7 @@ describe("getMetaData", () => {
       tags: ["test", "featured"],
     } as any;
 
-    const result = await getMetaData(helpers, deps, existing);
+    const result = await getMetaData(helpers, existing);
 
     expect(result.tags).toEqual(["test", "automation", "featured"]);
   });
@@ -209,7 +155,7 @@ describe("getMetaData", () => {
     const deps = createMockDeps();
     const helpers = createHelpers(deps);
 
-    const result = await getMetaData(helpers, deps, null);
+    const result = await getMetaData(helpers, null);
 
     expect(result.tags).toEqual(["test", "automation"]);
   });
@@ -266,18 +212,113 @@ describe("runWithDeps", () => {
 
     await runWithDeps(deps);
 
-    const createPullRequestMock = deps.octokit.createPullRequest as jest.Mock;
-    const pullRequestArgs = createPullRequestMock.mock.calls[0][0] as any;
-    const codeJSONContent = pullRequestArgs.changes[0].files["code.json"];
-    const generatedCodeJSON = JSON.parse(codeJSONContent);
+    const generated = generatedCodeJSON(deps);
 
-    expect(generatedCodeJSON).toHaveProperty("status");
-    expect(generatedCodeJSON).toHaveProperty("repositoryHost");
-    expect(generatedCodeJSON).toHaveProperty("repositoryVisibility");
-    expect(generatedCodeJSON).toHaveProperty("softwareType");
-    expect(generatedCodeJSON).toHaveProperty("maintenance");
-    expect(generatedCodeJSON).toHaveProperty("repositoryType");
-    expect(generatedCodeJSON).toHaveProperty("fismaLevel");
+    expect(generated).toHaveProperty("status");
+    expect(generated).toHaveProperty("repositoryHost");
+    expect(generated).toHaveProperty("repositoryVisibility");
+    expect(generated).toHaveProperty("softwareType");
+    expect(generated).toHaveProperty("maintenance");
+    expect(generated).toHaveProperty("repositoryType");
+    expect(generated).toHaveProperty("fismaLevel");
+  });
+
+  it("reports what is still missing but ships the draft anyway", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockRejectedValue(new Error("no file")),
+    });
+
+    await runWithDeps(deps);
+
+    expect(deps.log.warning).toHaveBeenCalledWith(
+      expect.stringContaining("still needs manual input"),
+    );
+    expect(deps.setFailed).not.toHaveBeenCalled();
+    expect(deps.octokit.createPullRequest).toHaveBeenCalled();
+  });
+
+  it("defaults feedbackMechanism and SBOM to the repository URL", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockRejectedValue(new Error("no file")),
+    });
+
+    await runWithDeps(deps);
+
+    const generated = generatedCodeJSON(deps);
+
+    expect(generated.feedbackMechanism).toBe(
+      "https://github.com/test-owner/test-repo/issues",
+    );
+    expect(generated.SBOM).toBe(
+      "https://github.com/test-owner/test-repo/network/dependencies",
+    );
+  });
+
+  it("preserves an existing feedbackMechanism", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const existing = {
+      ...validCodeJSON,
+      feedbackMechanism: "https://custom.example.com/feedback",
+    };
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockResolvedValue(JSON.stringify(existing)),
+    });
+
+    await runWithDeps(deps);
+
+    expect(generatedCodeJSON(deps).feedbackMechanism).toBe(
+      "https://custom.example.com/feedback",
+    );
+  });
+
+  it("converts a legacy string contractNumber to an array", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const existing = { ...validCodeJSON, contractNumber: "LEGACY-001" };
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockResolvedValue(JSON.stringify(existing)),
+    });
+
+    await runWithDeps(deps);
+
+    expect(generatedCodeJSON(deps).contractNumber).toEqual(["LEGACY-001"]);
+  });
+
+  it("drops and reports fields that are no longer part of the schema", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const existing = { ...validCodeJSON, retiredField: "stale" };
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockResolvedValue(JSON.stringify(existing)),
+    });
+
+    await runWithDeps(deps);
+
+    expect(deps.log.info).toHaveBeenCalledWith(
+      expect.stringContaining("Removing outdated field"),
+    );
+    expect(generatedCodeJSON(deps)).not.toHaveProperty("retiredField");
+  });
+
+  it("sets Archival status and tags the repository when archived", async () => {
+    process.env.GITHUB_EVENT_NAME = "workflow_dispatch";
+
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockResolvedValue(JSON.stringify(validCodeJSON)),
+      isArchived: true,
+    });
+
+    await runWithDeps(deps);
+
+    const generated = generatedCodeJSON(deps);
+
+    expect(generated.status).toBe("Archival");
+    expect(generated.tags).toContain("archived");
   });
 
   it("attempts direct push when skipPR is true with admin token", async () => {

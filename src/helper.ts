@@ -1,6 +1,5 @@
-import { CodeJSON } from "./types/CodeJSONSchema.js";
+import { CodeJSON, validateCodeJSON } from "./codejson.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
-import { validateCodeJSON } from "./zod-validation.js";
 import { Dependencies } from "./types/Dependencies.js";
 import {
   ReusedCodeEntry,
@@ -9,6 +8,11 @@ import {
 } from "./gov-dependencies.js";
 
 const HOURS_PER_MONTH = 730.001;
+
+// both write paths go through here so the committed file is byte-identical either way
+function serializeCodeJSON(codeJSON: CodeJSON): string {
+  return JSON.stringify(codeJSON, null, 2) + "\n";
+}
 
 export function createHelpers(deps: Dependencies) {
   const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } =
@@ -41,7 +45,6 @@ export function createHelpers(deps: Dependencies) {
         date: {
           created: basicInfo.date.created,
           lastModified: basicInfo.date.lastModified,
-          metadataLastUpdated: basicInfo.date.metadataLastUpdated,
         },
       };
     } catch (error) {
@@ -110,7 +113,6 @@ export function createHelpers(deps: Dependencies) {
         date: {
           created: repoData.data.created_at,
           lastModified: repoData.data.updated_at,
-          metadataLastUpdated: new Date().toISOString(),
         },
       };
     } catch (error) {
@@ -255,7 +257,7 @@ export function createHelpers(deps: Dependencies) {
 
   async function sendPR(updatedCodeJSON: CodeJSON, baseBranchName: string) {
     try {
-      const formattedContent = JSON.stringify(updatedCodeJSON, null, 2) + "\n";
+      const formattedContent = serializeCodeJSON(updatedCodeJSON);
       const headBranchName = `code-json-${new Date().getTime()}`;
 
       const PR = await octokit.createPullRequest({
@@ -303,7 +305,7 @@ export function createHelpers(deps: Dependencies) {
     }
 
     try {
-      const formattedContent = JSON.stringify(updatedCodeJSON, null, 2);
+      const formattedContent = serializeCodeJSON(updatedCodeJSON);
 
       let currentFileSha: string | undefined;
       try {

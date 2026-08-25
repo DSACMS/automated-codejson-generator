@@ -34,17 +34,15 @@
     "package:watch": "npm run package -- --watch",
     "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package",
-    "generate-schema": "npx tsx src/scripts/generate-schema.ts",
     "update-gov-dependencies": "npx tsx src/gov-update/run.ts"
   },
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^3.0.0",
     "@octokit/action": "^7.0.0",
-    "json-schema-to-zod": "^2.7.0",
+    "codejson-core": "^0.1.1",
     "octokit-plugin-create-pull-request": "^6.0.1",
-    "zod": "^4.2.1",
-    "zod-validation-error": "^5.0.0"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@github/local-action": "^7.0.0",
