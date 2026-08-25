@@ -47,7 +47,7 @@
   "devDependencies": {
     "@github/local-action": "^7.0.0",
     "@jest/globals": "^30.2.0",
-    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/jest": "^29.5.14",
