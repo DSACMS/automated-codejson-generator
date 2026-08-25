@@ -7,6 +7,8 @@ import {
 } from "../../helper.js";
 import {
   GOV_DEPENDENCIES,
+  GOV_DEPENDENCIES_PYPI,
+  normalizePyPIName,
   USWDS,
   USWDS_COMPILE,
   CMS_DESIGN_SYSTEM,
@@ -509,4 +511,17 @@ describe("GOV_DEPENDENCIES integrity", () => {
     expect(entry.name.trim()).not.toBe("");
     expect(entry.URL).toMatch(/^https:\/\//);
   });
+});
+
+describe("GOV_DEPENDENCIES_PYPI integrity", () => {
+  const entries = Object.entries(GOV_DEPENDENCIES_PYPI);
+
+  it.each(entries)(
+    "%s has a normalized key and a valid entry",
+    (key, entry) => {
+      expect(key).toBe(normalizePyPIName(key));
+      expect(entry.name.trim()).not.toBe("");
+      expect(entry.URL).toMatch(/^https:\/\//);
+    },
+  );
 });

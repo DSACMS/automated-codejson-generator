@@ -34,6 +34,36 @@ const ACCORDION: ReusedCodeEntry = {
   URL: "https://github.com/18F/accordion",
 };
 
+const ADL_XAPIWRAPPER: ReusedCodeEntry = {
+  name: "adl-xapiwrapper (Advanced Distributed Learning Initiative (DoD))",
+  URL: "https://github.com/adlnet/xapiwrapper-node",
+};
+
+const AERIE_CLI: ReusedCodeEntry = {
+  name: "aerie-cli (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/aerie-cli",
+};
+
+const AFFINIS: ReusedCodeEntry = {
+  name: "affinis (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/affinis",
+};
+
+const AIT_CORE: ReusedCodeEntry = {
+  name: "ait-core (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/ait-core",
+};
+
+const AIT_DSN: ReusedCodeEntry = {
+  name: "ait-dsn (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/ait-dsn",
+};
+
+const AIT_GUI: ReusedCodeEntry = {
+  name: "ait-gui (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/ait-gui",
+};
+
 const ALIGNMENTVIEWER: ReusedCodeEntry = {
   name: "AlignmentViewer (Centers for Disease Control and Prevention)",
   URL: "https://github.com/CDCgov/AlignmentViewer",
@@ -54,9 +84,19 @@ const ANALYTICS_REPORTER: ReusedCodeEntry = {
   URL: "https://github.com/18F/analytics-reporter",
 };
 
-const ASTROTIME: ReusedCodeEntry = {
-  name: "astrotime (NASA Center for Climate Simulation)",
-  URL: "https://github.com/nasa-nccs-hpda/astrotime",
+const ANMS_ACE: ReusedCodeEntry = {
+  name: "anms-ace (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/anms-ace",
+};
+
+const ANMS_CAMP: ReusedCodeEntry = {
+  name: "anms-CAmp (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/anms-camp",
+};
+
+const ATOMGPT: ReusedCodeEntry = {
+  name: "atomgpt (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/atomgpt",
 };
 
 const ATOMICCOMPONENT: ReusedCodeEntry = {
@@ -84,9 +124,19 @@ const BATCHEE: ReusedCodeEntry = {
   URL: "https://github.com/nasa/batchee",
 };
 
+const BEAAPI: ReusedCodeEntry = {
+  name: "beaapi (U.S. Bureau of Economic Analysis)",
+  URL: "https://github.com/us-bea/beaapi",
+};
+
 const BEMS_THEME_REACT_STARTER: ReusedCodeEntry = {
   name: "bems-theme-react-starter (U.S. Customs and Border Protection)",
   URL: "https://github.com/US-CBP/bems-theme-react-starter",
+};
+
+const BENTO_MDF: ReusedCodeEntry = {
+  name: "bento-mdf (NCI Center for Biomedical Informatics and IT)",
+  URL: "https://github.com/cbiit/bento-mdf",
 };
 
 const BENTO_STS: ReusedCodeEntry = {
@@ -97,6 +147,11 @@ const BENTO_STS: ReusedCodeEntry = {
 const BINGO: ReusedCodeEntry = {
   name: "bingo (NASA)",
   URL: "https://github.com/nasa/bingo",
+};
+
+const BIOSEQ: ReusedCodeEntry = {
+  name: "bioseq (Centers for Disease Control and Prevention)",
+  URL: "https://github.com/cdcgov/bioseq-js",
 };
 
 const BLOB_UTILS: ReusedCodeEntry = {
@@ -114,24 +169,19 @@ const BMDS_UI: ReusedCodeEntry = {
   URL: "https://github.com/USEPA/bmds-ui",
 };
 
+const BOTO3_MISSING: ReusedCodeEntry = {
+  name: "boto3-missing (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/boto3-missing",
+};
+
 const BRITECHARTS: ReusedCodeEntry = {
   name: "britecharts (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/britecharts",
 };
 
-const CAPITAL_FRAMEWORK: ReusedCodeEntry = {
-  name: "capital-framework (Consumer Financial Protection Bureau)",
-  URL: "https://github.com/cfpb/capital-framework",
-};
-
-const CASE_IMPLEMENTATION_PROV_O: ReusedCodeEntry = {
-  name: "CASE-Implementation-PROV-O (CASE Ontology (NIST / DC3))",
-  URL: "https://github.com/usnistgov/CASE-Implementation-PROV-O",
-};
-
-const CASE_UTILITIES_PYTHON: ReusedCodeEntry = {
-  name: "CASE-Utilities-Python (CASE Ontology (NIST / DC3))",
-  URL: "https://github.com/usnistgov/CASE-Utilities-Python",
+const CBIITSS_REACT_COMPONENTS: ReusedCodeEntry = {
+  name: "react-components (NCI Center for Biomedical Informatics and IT)",
+  URL: "https://github.com/cbiit/cbiitss-react-components",
 };
 
 const CBP_THEME: ReusedCodeEntry = {
@@ -139,14 +189,49 @@ const CBP_THEME: ReusedCodeEntry = {
   URL: "https://github.com/US-CBP/cbp-theme",
 };
 
+const CC_PLUGIN_GLIDER: ReusedCodeEntry = {
+  name: "cc-plugin-glider (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/cc-plugin-glider",
+};
+
+const CC_PLUGIN_NCEI: ReusedCodeEntry = {
+  name: "cc-plugin-ncei (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/cc-plugin-ncei",
+};
+
+const CC_PLUGIN_OG: ReusedCodeEntry = {
+  name: "cc-plugin-og (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/cc-plugin-og",
+};
+
+const CC_PLUGIN_SGRID: ReusedCodeEntry = {
+  name: "cc-plugin-sgrid (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/cc-plugin-sgrid",
+};
+
+const CC_PLUGIN_UGRID: ReusedCodeEntry = {
+  name: "cc-plugin-ugrid (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/cc-plugin-ugrid",
+};
+
 const CCDB5_UI: ReusedCodeEntry = {
   name: "ccdb5-ui (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/ccdb5-ui",
 };
 
-const CF_BLUE_GREEN: ReusedCodeEntry = {
-  name: "cf-blue-green (cloud.gov (GSA))",
-  URL: "https://github.com/cloud-gov/cf-blue-green",
+const CDC_MAP: ReusedCodeEntry = {
+  name: "map (Centers for Disease Control and Prevention)",
+  URL: "https://github.com/cdcgov/cdc-open-viz",
+};
+
+const CERTBOT_PKCS12: ReusedCodeEntry = {
+  name: "certbot-pkcs12 (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/certbot-pkcs12",
+};
+
+const CF_BLUE_GREEN_PKG: ReusedCodeEntry = {
+  name: "cf-blue-green (18F (GSA))",
+  URL: "https://github.com/18f/cf-blue-green",
 };
 
 const CF_COMPONENT_DEMO: ReusedCodeEntry = {
@@ -189,9 +274,84 @@ const CFPB_ANALYTICS: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/cfpb-analytics",
 };
 
+const CFPB_ATOMIC_COMPONENT: ReusedCodeEntry = {
+  name: "atomic-component (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/atomic-component",
+};
+
+const CFPB_BUTTONS: ReusedCodeEntry = {
+  name: "buttons (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/buttons",
+};
+
+const CFPB_CFPB_ATOMIC_COMPONENT: ReusedCodeEntry = {
+  name: "cfpb-atomic-component (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-atomic-component",
+};
+
+const CFPB_CFPB_BUTTONS: ReusedCodeEntry = {
+  name: "cfpb-buttons (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-buttons",
+};
+
+const CFPB_CFPB_CORE: ReusedCodeEntry = {
+  name: "cfpb-core (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-core",
+};
+
+const CFPB_CFPB_EXPANDABLES: ReusedCodeEntry = {
+  name: "cfpb-expandables (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-expandables",
+};
+
+const CFPB_CFPB_FORMS: ReusedCodeEntry = {
+  name: "cfpb-forms (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-forms",
+};
+
+const CFPB_CFPB_GRID: ReusedCodeEntry = {
+  name: "cfpb-grid (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-grid",
+};
+
+const CFPB_CFPB_ICONS: ReusedCodeEntry = {
+  name: "cfpb-icons (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-icons",
+};
+
+const CFPB_CFPB_LAYOUT: ReusedCodeEntry = {
+  name: "cfpb-layout (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-layout",
+};
+
+const CFPB_CFPB_NOTIFICATIONS: ReusedCodeEntry = {
+  name: "cfpb-notifications (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-notifications",
+};
+
+const CFPB_CFPB_PAGINATION: ReusedCodeEntry = {
+  name: "cfpb-pagination (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-pagination",
+};
+
+const CFPB_CFPB_TABLES: ReusedCodeEntry = {
+  name: "cfpb-tables (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-tables",
+};
+
+const CFPB_CFPB_TYPOGRAPHY: ReusedCodeEntry = {
+  name: "cfpb-typography (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/cfpb-typography",
+};
+
 const CFPB_CHART_BUILDER: ReusedCodeEntry = {
   name: "cfpb-chart-builder (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/cfpb-chart-builder",
+};
+
+const CFPB_CORE: ReusedCodeEntry = {
+  name: "core (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/core",
 };
 
 const CFPB_DESIGN_SYSTEM: ReusedCodeEntry = {
@@ -199,14 +359,79 @@ const CFPB_DESIGN_SYSTEM: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/design-system",
 };
 
-const CG_STYLE: ReusedCodeEntry = {
-  name: "cg-style (cloud.gov (GSA))",
-  URL: "https://github.com/cloud-gov/cg-style",
+const CFPB_EXPANDABLES: ReusedCodeEntry = {
+  name: "expandables (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/expandables",
+};
+
+const CFPB_FORMS: ReusedCodeEntry = {
+  name: "forms (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/forms",
+};
+
+const CFPB_FRONT_END: ReusedCodeEntry = {
+  name: "cfpb-front-end (Consumer Financial Protection Bureau)",
+  URL: "https://github.com/cfpb/front-end",
+};
+
+const CFPB_GRID: ReusedCodeEntry = {
+  name: "grid (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/grid",
+};
+
+const CFPB_ICONS: ReusedCodeEntry = {
+  name: "icons (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/icons",
+};
+
+const CFPB_LAYOUT: ReusedCodeEntry = {
+  name: "layout (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/layout",
+};
+
+const CFPB_NETLIFY_CMS: ReusedCodeEntry = {
+  name: "netlify-cms (Consumer Financial Protection Bureau)",
+  URL: "https://github.com/netlify/netlify-cms",
+};
+
+const CFPB_NOTIFICATIONS: ReusedCodeEntry = {
+  name: "notifications (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/notifications",
+};
+
+const CFPB_PAGINATION: ReusedCodeEntry = {
+  name: "pagination (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/pagination",
+};
+
+const CFPB_TABLES: ReusedCodeEntry = {
+  name: "tables (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/tables",
+};
+
+const CFPB_TYPOGRAPHY: ReusedCodeEntry = {
+  name: "typography (Consumer Financial Protection Bureau)",
+  URL: "https://www.npmjs.com/package/@cfpb/typography",
+};
+
+const CHEMNLP: ReusedCodeEntry = {
+  name: "chemnlp (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/chemnlp",
+};
+
+const CHILTEPIN: ReusedCodeEntry = {
+  name: "chiltepin (NOAA Global Systems Laboratory)",
+  URL: "https://github.com/noaa-gsl/chiltepin",
 };
 
 const CHIPSFF: ReusedCodeEntry = {
   name: "chipsff (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/chipsff",
+};
+
+const CISO: ReusedCodeEntry = {
+  name: "ciso (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/ciso",
 };
 
 const CITYSDK: ReusedCodeEntry = {
@@ -224,14 +449,9 @@ const CKANEXT_DATAGOVTHEME: ReusedCodeEntry = {
   URL: "https://github.com/GSA/ckanext-datagovtheme",
 };
 
-const CKANEXT_DATAJSON: ReusedCodeEntry = {
-  name: "ckanext-datajson (U.S. Department of Health and Human Services)",
-  URL: "https://github.com/HHS/ckanext-datajson",
-};
-
-const CKANEXT_DCAT_USMETADATA: ReusedCodeEntry = {
-  name: "ckanext-dcat_usmetadata (U.S. General Services Administration)",
-  URL: "https://github.com/GSA/ckanext-dcat_usmetadata",
+const CKANEXT_DATAJSON_PKG: ReusedCodeEntry = {
+  name: "ckanext-datajson (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/ckanext-datajson",
 };
 
 const CKANEXT_GEODATAGOV: ReusedCodeEntry = {
@@ -254,14 +474,49 @@ const CKANEXT_USMETADATA: ReusedCodeEntry = {
   URL: "https://github.com/GSA/ckanext-usmetadata",
 };
 
-const CMAPI_KOTLIN: ReusedCodeEntry = {
-  name: "cmapi-kotlin (U.S. Army Mission Command)",
-  URL: "https://github.com/missioncommand/cmapi-kotlin",
-};
-
 const CMOMY: ReusedCodeEntry = {
   name: "cmomy (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/cmomy",
+};
+
+const CMS_COMMON: ReusedCodeEntry = {
+  name: "cms-common (Centers for Medicare & Medicaid Services)",
+  URL: "https://www.npmjs.com/package/cms-common",
+};
+
+const CMSGOV_HPT_VALIDATOR: ReusedCodeEntry = {
+  name: "hpt-validator (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/cmsgov/hpt-validator",
+};
+
+const CMSGOV_HPT_VALIDATOR_CLI: ReusedCodeEntry = {
+  name: "hpt-validator-cli (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/cmsgov/hpt-validator-cli",
+};
+
+const CMSGOV_MEDICARE_SITE_PACKAGE: ReusedCodeEntry = {
+  name: "medicare-site-package (Centers for Medicare & Medicaid Services)",
+  URL: "https://www.npmjs.com/package/@cmsgov/medicare-site-package",
+};
+
+const CMSGOV_QPP_DESIGN_SYSTEM_CORE: ReusedCodeEntry = {
+  name: "qpp-design-system-core (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/cmsgov/qpp-design-system",
+};
+
+const CMSGOV_QPP_SHARED_API_VERSIONING_NODE: ReusedCodeEntry = {
+  name: "qpp-shared-api-versioning-node (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/cmsgov/qpp-shared-api-versioning-node",
+};
+
+const CMSGOV_QPP_STYLE_ANGULAR: ReusedCodeEntry = {
+  name: "qpp-style-angular (Centers for Medicare & Medicaid Services)",
+  URL: "https://www.npmjs.com/package/@cmsgov/qpp-style-angular",
+};
+
+const CMSGOV_REQUEST_VERSION: ReusedCodeEntry = {
+  name: "request-version (Centers for Medicare & Medicaid Services)",
+  URL: "https://www.npmjs.com/package/@cmsgov/request-version",
 };
 
 export const CMS_DESIGN_SYSTEM: ReusedCodeEntry = {
@@ -289,9 +544,74 @@ const CODE_CLERK: ReusedCodeEntry = {
   URL: "https://github.com/GSA/code-clerk",
 };
 
-const CODE_GOV_FRONT_END: ReusedCodeEntry = {
-  name: "code-gov-front-end (U.S. General Services Administration)",
-  URL: "https://github.com/GSA/code-gov-front-end",
+const CODE_GOV_ABOUT_PAGE: ReusedCodeEntry = {
+  name: "about-page (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-about-page",
+};
+
+const CODE_GOV_API_CLIENT: ReusedCodeEntry = {
+  name: "api-client (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-api-client",
+};
+
+const CODE_GOV_CAUTIOUS: ReusedCodeEntry = {
+  name: "cautious (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/cautious",
+};
+
+const CODE_GOV_CODE_GOV_ADAPTER: ReusedCodeEntry = {
+  name: "code-gov-adapter (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-adapters",
+};
+
+const CODE_GOV_CODE_GOV_FONT: ReusedCodeEntry = {
+  name: "code-gov-font (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-font",
+};
+
+const CODE_GOV_CODE_GOV_STYLE: ReusedCodeEntry = {
+  name: "code-gov-style (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-style",
+};
+
+const CODE_GOV_CODE_GOV_VALIDATOR: ReusedCodeEntry = {
+  name: "code-gov-validator (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-validator",
+};
+
+const CODE_GOV_CODING_LANGUAGES: ReusedCodeEntry = {
+  name: "coding-languages (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-coding-languages",
+};
+
+const CODE_GOV_COMPLIANCE_DASHBOARD_WEB_COMPONENT: ReusedCodeEntry = {
+  name: "compliance-dashboard-web-component (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/compliance-dashboard-web-component",
+};
+
+const CODE_GOV_FSCP_REACT_COMPONENT: ReusedCodeEntry = {
+  name: "fscp-react-component (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-fscp-react-component",
+};
+
+const CODE_GOV_JSON_SCHEMA_VALIDATOR_WEB_COMPONENT: ReusedCodeEntry = {
+  name: "json-schema-validator-web-component (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/json-schema-validator-web-component",
+};
+
+const CODE_GOV_JSON_SCHEMA_WEB_COMPONENT: ReusedCodeEntry = {
+  name: "json-schema-web-component (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/json-schema-web-component",
+};
+
+const CODE_GOV_SITE_MAP_GENERATOR: ReusedCodeEntry = {
+  name: "site-map-generator (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/code-gov-site-map-generator",
+};
+
+const CODEJSON_CORE: ReusedCodeEntry = {
+  name: "codejson-core (CMS Digital Service)",
+  URL: "https://github.com/dsacms/codejson-core",
 };
 
 const CODEJSON_CROSSWALK: ReusedCodeEntry = {
@@ -299,14 +619,19 @@ const CODEJSON_CROSSWALK: ReusedCodeEntry = {
   URL: "https://github.com/DSACMS/codejson-crosswalk",
 };
 
+const CODEJSON_INDEX_GENERATOR: ReusedCodeEntry = {
+  name: "codejson-index-generator (CMS Digital Service)",
+  URL: "https://github.com/dsacms/codejson-index-generator",
+};
+
 const COMPASS_ROSE_UI: ReusedCodeEntry = {
   name: "compass-rose-ui (NOAA Office of Response and Restoration)",
   URL: "https://github.com/NOAA-ORR-ERD/compass-rose-ui",
 };
 
-const CON_PCA_CICD: ReusedCodeEntry = {
-  name: "con-pca-cicd (Cybersecurity and Infrastructure Security Agency)",
-  URL: "https://github.com/cisagov/con-pca-cicd",
+const COMPLIANCE_CHECKER: ReusedCodeEntry = {
+  name: "compliance-checker (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/compliance-checker",
 };
 
 const CONDOR: ReusedCodeEntry = {
@@ -317,6 +642,11 @@ const CONDOR: ReusedCodeEntry = {
 const CONSUL_ANNOUNCER: ReusedCodeEntry = {
   name: "consul-announcer (NCBI (NLM / NIH))",
   URL: "https://github.com/ncbi/consul-announcer",
+};
+
+const CONTINGENCY_TOOLS: ReusedCodeEntry = {
+  name: "contingency-tools (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/contingency",
 };
 
 const CONTRACTING_COOKBOOK_CLIENT: ReusedCodeEntry = {
@@ -594,11 +924,6 @@ const CTX_PYTHON: ReusedCodeEntry = {
   URL: "https://github.com/USEPA/ctx-python",
 };
 
-const CUMULUS: ReusedCodeEntry = {
-  name: "cumulus (NASA)",
-  URL: "https://github.com/nasa/cumulus",
-};
-
 const CUMULUS_MESSAGE_ADAPTER: ReusedCodeEntry = {
   name: "cumulus-message-adapter (NASA)",
   URL: "https://github.com/nasa/cumulus-message-adapter",
@@ -612,21 +937,6 @@ const DATA_UPLOAD_MANAGER: ReusedCodeEntry = {
 const DATARETRIEVAL_PYTHON: ReusedCodeEntry = {
   name: "dataretrieval-python (U.S. Geological Survey)",
   URL: "https://github.com/DOI-USGS/dataretrieval-python",
-};
-
-const DEEP_ARCHIVE: ReusedCodeEntry = {
-  name: "deep-archive (NASA Planetary Data System)",
-  URL: "https://github.com/NASA-PDS/deep-archive",
-};
-
-const DETECTION_LIMITS: ReusedCodeEntry = {
-  name: "detection_limits (National Institute of Standards and Technology)",
-  URL: "https://github.com/usnistgov/detection_limits",
-};
-
-const DEVELOPMENT: ReusedCodeEntry = {
-  name: "development (Consumer Financial Protection Bureau)",
-  URL: "https://github.com/cfpb/development",
 };
 
 const DIOPTRA: ReusedCodeEntry = {
@@ -654,16 +964,6 @@ const DJANGO_TABULAR_EXPORT: ReusedCodeEntry = {
   URL: "https://github.com/LibraryOfCongress/django-tabular-export",
 };
 
-const DJANGO_USWDS_FORMS: ReusedCodeEntry = {
-  name: "django-uswds-forms (18F (GSA))",
-  URL: "https://github.com/18F/django-uswds-forms",
-};
-
-const DMARC_IMPORT: ReusedCodeEntry = {
-  name: "dmarc-import (Cybersecurity and Infrastructure Security Agency)",
-  URL: "https://github.com/cisagov/dmarc-import",
-};
-
 const DOCKER_CONTROL_CENTER: ReusedCodeEntry = {
   name: "docker-control-center (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/docker-control-center",
@@ -674,24 +974,9 @@ const DODCERTS: ReusedCodeEntry = {
   URL: "https://github.com/erdc/dodcerts",
 };
 
-const DOI_SERVICE: ReusedCodeEntry = {
-  name: "doi-service (NASA Planetary Data System)",
-  URL: "https://github.com/NASA-PDS/doi-service",
-};
-
-const DOMAIN_SCAN: ReusedCodeEntry = {
-  name: "domain-scan (18F (GSA))",
-  URL: "https://github.com/18F/domain-scan",
-};
-
 const DORADO_SENSITIVITY: ReusedCodeEntry = {
   name: "dorado-sensitivity (NASA)",
   URL: "https://github.com/nasa/dorado-sensitivity",
-};
-
-const E_MANIFEST: ReusedCodeEntry = {
-  name: "e-Manifest (U.S. Environmental Protection Agency)",
-  URL: "https://github.com/USEPA/e-Manifest",
 };
 
 const EARTHDATA_HASHDIFF: ReusedCodeEntry = {
@@ -702,11 +987,6 @@ const EARTHDATA_HASHDIFF: ReusedCodeEntry = {
 const EARTHDATA_VARINFO: ReusedCodeEntry = {
   name: "earthdata-varinfo (NASA)",
   URL: "https://github.com/nasa/earthdata-varinfo",
-};
-
-const EARTHQUAKE_EVENTPAGES: ReusedCodeEntry = {
-  name: "earthquake-eventpages (U.S. Geological Survey)",
-  URL: "https://github.com/usgs/earthquake-eventpages",
 };
 
 const EARTHQUAKE_LATEST_EARTHQUAKES: ReusedCodeEntry = {
@@ -729,11 +1009,6 @@ const EISPAC: ReusedCodeEntry = {
   URL: "https://github.com/USNavalResearchLaboratory/eispac",
 };
 
-const ELASTIC_BLAST: ReusedCodeEntry = {
-  name: "elastic-blast (NCBI (NLM / NIH))",
-  URL: "https://github.com/ncbi/elastic-blast",
-};
-
 const EMOJI_SEARCH: ReusedCodeEntry = {
   name: "emoji_search (18F (GSA))",
   URL: "https://github.com/18F/emoji_search",
@@ -744,19 +1019,9 @@ const ENDPOINT_JS: ReusedCodeEntry = {
   URL: "https://github.com/ngageoint/endpoint.js",
 };
 
-const EO_VALIDATION: ReusedCodeEntry = {
-  name: "eo-validation (NASA Center for Climate Simulation)",
-  URL: "https://github.com/nasa-nccs-hpda/eo-validation",
-};
-
 const EPITOME: ReusedCodeEntry = {
   name: "epitome (NASA Planetary Data System)",
   URL: "https://github.com/nasa-pds-engineering-node/epitome",
-};
-
-const ESI_UTILS_TIME: ReusedCodeEntry = {
-  name: "esi-utils-time (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/ghsc/esi/esi-utils-time",
 };
 
 const ESLINT_CONFIG_OPENSPHERE: ReusedCodeEntry = {
@@ -784,19 +1049,9 @@ const EXOSCENE: ReusedCodeEntry = {
   URL: "https://github.com/nasa/exoscene",
 };
 
-const FAM_IM_EIS3_UIX: ReusedCodeEntry = {
-  name: "FAM-IM-EIS3--UIX (USDA Forest Service)",
-  URL: "https://code.fs.usda.gov/forest-service/FAM-IM-EIS3--UIX",
-};
-
 const FASTATOOLS: ReusedCodeEntry = {
   name: "fastatools (FDA Center for Food Safety and Applied Nutrition)",
   URL: "https://github.com/CFSAN-Biostatistics/fastatools",
-};
-
-const FCPGTOOLS: ReusedCodeEntry = {
-  name: "FCPGtools (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/StreamStats/data-preparation/cpg/FCPGtools",
 };
 
 const FDNS_JS_SDK: ReusedCodeEntry = {
@@ -809,11 +1064,6 @@ const FDNS_UI_REACT: ReusedCodeEntry = {
   URL: "https://github.com/CDCgov/fdns-ui-react",
 };
 
-const FDTOOL: ReusedCodeEntry = {
-  name: "FDTool (U.S. Environmental Protection Agency)",
-  URL: "https://github.com/USEPA/FDTool",
-};
-
 const FEC_STYLE: ReusedCodeEntry = {
   name: "fec-style (18F (GSA))",
   URL: "https://github.com/18F/fec-style",
@@ -824,24 +1074,9 @@ const FILE_LOCKED_OPERATION: ReusedCodeEntry = {
   URL: "https://github.com/18F/file-locked-operation",
 };
 
-const FLUTILE: ReusedCodeEntry = {
-  name: "flutile (USDA National Animal Disease Center)",
-  URL: "https://github.com/flu-crew/flutile",
-};
-
-const FLUVPARTICLE: ReusedCodeEntry = {
-  name: "fluvparticle (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/wma/nhgf/fluvparticle",
-};
-
 const FLUXPART: ReusedCodeEntry = {
   name: "fluxpart (USDA ARS U.S. Salinity Laboratory)",
   URL: "https://github.com/usda-ars-ussl/fluxpart",
-};
-
-const FMDTOOLS: ReusedCodeEntry = {
-  name: "fmdtools (NASA)",
-  URL: "https://github.com/nasa/fmdtools",
 };
 
 const FORMAT_USD: ReusedCodeEntry = {
@@ -859,26 +1094,6 @@ const FPP: ReusedCodeEntry = {
   URL: "https://github.com/nasa/fpp",
 };
 
-const FPRIME: ReusedCodeEntry = {
-  name: "fprime (NASA)",
-  URL: "https://github.com/nasa/fprime",
-};
-
-const FPRIME_GDS: ReusedCodeEntry = {
-  name: "fprime-gds (NASA)",
-  URL: "https://github.com/nasa/fprime-gds",
-};
-
-const FPRIME_TOOLS: ReusedCodeEntry = {
-  name: "fprime-tools (NASA)",
-  URL: "https://github.com/nasa/fprime-tools",
-};
-
-const FSA_STYLE: ReusedCodeEntry = {
-  name: "fsa-style (USDA Farm Production and Conservation)",
-  URL: "https://github.com/usda-fsa/fsa-style",
-};
-
 const FUZZY_STATE_SEARCH: ReusedCodeEntry = {
   name: "fuzzy-state-search (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/fuzzy-state-search",
@@ -892,16 +1107,6 @@ const FV3GRID: ReusedCodeEntry = {
 const GCN_KAFKA_JS: ReusedCodeEntry = {
   name: "gcn-kafka-js (NASA General Coordinates Network)",
   URL: "https://github.com/nasa-gcn/gcn-kafka-js",
-};
-
-const GDPTOOLS: ReusedCodeEntry = {
-  name: "gdptools (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/wma/nhgf/toolsteam/gdptools",
-};
-
-const GDPTOOLS_PYGEOAPI_PLUGIN: ReusedCodeEntry = {
-  name: "gdptools-pygeoapi-plugin (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/wma/nhgf/toolsteam/gdptools-pygeoapi-plugin",
 };
 
 const GENEFLOW2: ReusedCodeEntry = {
@@ -934,26 +1139,6 @@ const GEO_PREPPER: ReusedCodeEntry = {
   URL: "https://github.com/NICHD-BSPC/geo_prepper",
 };
 
-const GEOCAMUTILWEB: ReusedCodeEntry = {
-  name: "geocamUtilWeb (NASA Ames GeoCam)",
-  URL: "https://github.com/geocam/geocamUtilWeb",
-};
-
-const GEOCOLOR: ReusedCodeEntry = {
-  name: "geocolor (Naval Research Laboratory GeoIPS)",
-  URL: "https://github.com/NRLMMD-GEOIPS/geocolor",
-};
-
-const GEOIPS: ReusedCodeEntry = {
-  name: "geoips (Naval Research Laboratory GeoIPS)",
-  URL: "https://github.com/NRLMMD-GEOIPS/geoips",
-};
-
-const GEOIPS_CLAVRX: ReusedCodeEntry = {
-  name: "geoips_clavrx (Naval Research Laboratory GeoIPS)",
-  URL: "https://github.com/NRLMMD-GEOIPS/geoips_clavrx",
-};
-
 const GFF3TOOLKIT: ReusedCodeEntry = {
   name: "GFF3toolkit (USDA National Agricultural Library)",
   URL: "https://github.com/NAL-i5K/GFF3toolkit",
@@ -962,11 +1147,6 @@ const GFF3TOOLKIT: ReusedCodeEntry = {
 const GHAD: ReusedCodeEntry = {
   name: "ghad (18F (GSA))",
   URL: "https://github.com/18F/ghad",
-};
-
-const GIST_ANGULAR_POPOVERS: ReusedCodeEntry = {
-  name: "gist-angular-popovers (Oak Ridge National Laboratory)",
-  URL: "https://code.ornl.gov/idt/gist-angular-popovers",
 };
 
 const GITHUB_CHANGELOG: ReusedCodeEntry = {
@@ -979,19 +1159,9 @@ const GLOSSARY: ReusedCodeEntry = {
   URL: "https://github.com/18F/glossary",
 };
 
-const GME: ReusedCodeEntry = {
-  name: "GME (U.S. International Trade Commission)",
-  URL: "https://github.com/USITC-Gravity-Group/GME",
-};
-
 const GOVDELIVERY: ReusedCodeEntry = {
   name: "govdelivery (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/govdelivery",
-};
-
-const GTAX: ReusedCodeEntry = {
-  name: "gtax (NLM Division of Intramural Research (NIH))",
-  URL: "https://github.com/NLM-DIR/gtax",
 };
 
 const H5WASM: ReusedCodeEntry = {
@@ -1059,16 +1229,6 @@ const HMDA_EXPLORER: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/hmda-explorer",
 };
 
-const HMDA_PLATFORM: ReusedCodeEntry = {
-  name: "hmda-platform (Consumer Financial Protection Bureau)",
-  URL: "https://github.com/cfpb/hmda-platform",
-};
-
-const HMDA_TOOLS: ReusedCodeEntry = {
-  name: "hmda-tools (Consumer Financial Protection Bureau)",
-  URL: "https://github.com/cfpb/hmda-tools",
-};
-
 const HMDA_UI_MODULES: ReusedCodeEntry = {
   name: "hmda-ui-modules (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/hmda-ui-modules",
@@ -1087,11 +1247,6 @@ const HUBOT_ACROGOV: ReusedCodeEntry = {
 const HUBOT_AWS_CFPB: ReusedCodeEntry = {
   name: "hubot-aws-cfpb (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/hubot-aws-cfpb",
-};
-
-const HUBOT_CF_NOTIFICATIONS: ReusedCodeEntry = {
-  name: "hubot-cf-notifications (cloud.gov (GSA))",
-  URL: "https://github.com/cloud-gov/hubot-cf-notifications",
 };
 
 const HUBOT_CFPB_INDEXER: ReusedCodeEntry = {
@@ -1159,11 +1314,6 @@ const IO_MODEL_BUILDER: ReusedCodeEntry = {
   URL: "https://github.com/USEPA/IO-Model-Builder",
 };
 
-const IPV6_PYTHON: ReusedCodeEntry = {
-  name: "ipv6_python (NASA)",
-  URL: "https://github.com/nasa/ipv6_python",
-};
-
 const IPYMESH: ReusedCodeEntry = {
   name: "ipymesh (U.S. Army Engineer Research and Development Center)",
   URL: "https://github.com/erdc/ipymesh",
@@ -1179,11 +1329,6 @@ const JSFIVE: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/jsfive",
 };
 
-const JSNUCOS: ReusedCodeEntry = {
-  name: "jsNUCOS (NOAA Office of Response and Restoration)",
-  URL: "https://github.com/NOAA-ORR-ERD/jsNUCOS",
-};
-
 const JUDI: ReusedCodeEntry = {
   name: "JUDI (NCBI (NLM / NIH))",
   URL: "https://github.com/ncbi/JUDI",
@@ -1194,11 +1339,6 @@ const JUMBO_MORTGAGE: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/jumbo-mortgage",
 };
 
-const JUSTICE40_TOOL: ReusedCodeEntry = {
-  name: "justice40-tool (U.S. Digital Service)",
-  URL: "https://github.com/usds/justice40-tool",
-};
-
 const KAMODO: ReusedCodeEntry = {
   name: "Kamodo (NASA)",
   URL: "https://github.com/nasa/Kamodo",
@@ -1207,11 +1347,6 @@ const KAMODO: ReusedCodeEntry = {
 const LABBENCH: ReusedCodeEntry = {
   name: "labbench (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/labbench",
-};
-
-const LASERTRAM: ReusedCodeEntry = {
-  name: "lasertram (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/vsc/petro/tools/lasertram",
 };
 
 const LASSO_ISSUES: ReusedCodeEntry = {
@@ -1237,16 +1372,6 @@ const LASSO_REQUIREMENTS: ReusedCodeEntry = {
 const LDD_MANAGER: ReusedCodeEntry = {
   name: "ldd-manager (NASA Planetary Data System)",
   URL: "https://github.com/NASA-PDS/ldd-manager",
-};
-
-const LFMF: ReusedCodeEntry = {
-  name: "LFMF (National Telecommunications and Information Administration)",
-  URL: "https://github.com/NTIA/LFMF-python",
-};
-
-const LIBHDF5_WASM: ReusedCodeEntry = {
-  name: "libhdf5-wasm (National Institute of Standards and Technology)",
-  URL: "https://github.com/usnistgov/libhdf5-wasm",
 };
 
 const LIGHTHOUSE_OAS_TESTS: ReusedCodeEntry = {
@@ -1314,19 +1439,9 @@ const MICROPURCHASEDATA: ReusedCodeEntry = {
   URL: "https://github.com/18F/micropurchasedata",
 };
 
-const MICROSECRETS: ReusedCodeEntry = {
-  name: "microsecrets (U.S. Department of Homeland Security)",
-  URL: "https://github.com/dhs-gov/microsecrets",
-};
-
 const MIKA: ReusedCodeEntry = {
   name: "mika (NASA)",
   URL: "https://github.com/nasa/mika",
-};
-
-const MISR_TOOLKIT: ReusedCodeEntry = {
-  name: "Misr-Toolkit (NASA)",
-  URL: "https://github.com/nasa/Misr-Toolkit",
 };
 
 const MLMCPY: ReusedCodeEntry = {
@@ -1339,29 +1454,14 @@ const MODFLOW_SETUP: ReusedCodeEntry = {
   URL: "https://github.com/DOI-USGS/modflow-setup",
 };
 
-const MODISCONVERTER: ReusedCodeEntry = {
-  name: "modisconverter (NASA)",
-  URL: "https://github.com/nasa/modisconverter",
-};
-
 const MODULE_UTILITIES: ReusedCodeEntry = {
   name: "module-utilities (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/module-utilities",
 };
 
-const MOSAIC: ReusedCodeEntry = {
-  name: "mosaic (National Institute of Standards and Technology)",
-  URL: "https://github.com/usnistgov/mosaic",
-};
-
 const MOUTH2EAR: ReusedCodeEntry = {
   name: "mouth2ear (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/mouth2ear",
-};
-
-const MRGEO: ReusedCodeEntry = {
-  name: "mrgeo (National Geospatial-Intelligence Agency)",
-  URL: "https://github.com/ngageoint/mrgeo",
 };
 
 const MXMCPY: ReusedCodeEntry = {
@@ -1397,26 +1497,6 @@ const NFFLR: ReusedCodeEntry = {
 const NGX_CBP_THEME: ReusedCodeEntry = {
   name: "ngx-cbp-theme (U.S. Customs and Border Protection)",
   URL: "https://github.com/US-CBP/ngx-cbp-theme",
-};
-
-const NGX_USWDS: ReusedCodeEntry = {
-  name: "ngx-uswds (U.S. General Services Administration)",
-  URL: "https://github.com/GSA/ngx-uswds",
-};
-
-const NIMBUS: ReusedCodeEntry = {
-  name: "nimbus (U.S. Department of Homeland Security)",
-  URL: "https://github.com/dhs-gov/nimbus",
-};
-
-const NLDI_FLOWTOOLS: ReusedCodeEntry = {
-  name: "nldi-flowtools (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/wma/nhgf/toolsteam/nldi-flowtools",
-};
-
-const NLDI_XSTOOL: ReusedCodeEntry = {
-  name: "nldi-xstool (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/wma/nhgf/toolsteam/nldi-xstool",
 };
 
 const NOAABATHYMETRY: ReusedCodeEntry = {
@@ -1457,11 +1537,6 @@ const NODE_WCAG_CLI: ReusedCodeEntry = {
 const OBJECTIFIED: ReusedCodeEntry = {
   name: "objectified (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/objectified",
-};
-
-const OCTOFLUDB: ReusedCodeEntry = {
-  name: "octofludb (USDA National Animal Disease Center)",
-  URL: "https://github.com/flu-crew/octofludb",
 };
 
 const ONBOARDING_SCHEDULER: ReusedCodeEntry = {
@@ -1529,11 +1604,6 @@ const OWNING_A_HOME: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/owning-a-home",
 };
 
-const P2108: ReusedCodeEntry = {
-  name: "p2108 (National Telecommunications and Information Administration)",
-  URL: "https://github.com/NTIA/p2108",
-};
-
 const PA11Y_REPORTER_CI: ReusedCodeEntry = {
   name: "pa11y-reporter-ci (18F (GSA))",
   URL: "https://github.com/18F/pa11y-reporter-ci",
@@ -1549,44 +1619,14 @@ const PATRISTIC: ReusedCodeEntry = {
   URL: "https://github.com/CDCgov/patristic",
 };
 
-const PDS_API: ReusedCodeEntry = {
-  name: "pds-api (NASA Planetary Data System)",
-  URL: "https://github.com/NASA-PDS/pds-api",
-};
-
 const PDS_GITHUB_UTIL: ReusedCodeEntry = {
   name: "pds-github-util (NASA Planetary Data System)",
   URL: "https://github.com/NASA-PDS/pds-github-util",
 };
 
-const PEPPI: ReusedCodeEntry = {
-  name: "peppi (NASA Planetary Data System)",
-  URL: "https://github.com/NASA-PDS/peppi",
-};
-
-const PKG_18F_SCAFFOLDING: ReusedCodeEntry = {
-  name: "18f-scaffolding (18F (GSA))",
-  URL: "https://github.com/18F/18f-scaffolding",
-};
-
 const PKG_3DTILESRENDERERJS: ReusedCodeEntry = {
   name: "3DTilesRendererJS (NASA AMMOS)",
   URL: "https://github.com/NASA-AMMOS/3DTilesRendererJS",
-};
-
-const PLAG: ReusedCodeEntry = {
-  name: "plag (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/vsc/petro/tools/plag",
-};
-
-const PM4NGS: ReusedCodeEntry = {
-  name: "pm4ngs (NLM Division of Intramural Research (NIH))",
-  URL: "https://github.com/NLM-DIR/pm4ngs",
-};
-
-const PMPS_UI: ReusedCodeEntry = {
-  name: "pmps-ui (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/pmps/pmps-ui",
 };
 
 const PODAACPY_2: ReusedCodeEntry = {
@@ -1604,24 +1644,9 @@ const POTENTIALS: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/potentials",
 };
 
-const PRESENT_VALUE: ReusedCodeEntry = {
-  name: "present-value (Consumer Financial Protection Bureau)",
-  URL: "https://github.com/cfpb/present-value",
-};
-
 const PRICE_TRANSPARENCY_GUIDE_VALIDATOR: ReusedCodeEntry = {
   name: "price-transparency-guide-validator (Centers for Medicare & Medicaid Services)",
   URL: "https://github.com/CMSgov/price-transparency-guide-validator",
-};
-
-const PROG_ALGS: ReusedCodeEntry = {
-  name: "prog_algs (NASA)",
-  URL: "https://github.com/nasa/prog_algs",
-};
-
-const PROG_MODELS: ReusedCodeEntry = {
-  name: "prog_models (NASA)",
-  URL: "https://github.com/nasa/prog_models",
 };
 
 const PROG_SERVER: ReusedCodeEntry = {
@@ -1644,11 +1669,6 @@ const PSUD: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/psud",
 };
 
-const PUBLIC_SANS: ReusedCodeEntry = {
-  name: "public-sans (U.S. Web Design System)",
-  URL: "https://github.com/uswds/public-sans",
-};
-
 const PYAQSAPI: ReusedCodeEntry = {
   name: "pyaqsapi (U.S. Environmental Protection Agency)",
   URL: "https://github.com/USEPA/pyaqsapi",
@@ -1664,16 +1684,6 @@ const PYCAP_DSS: ReusedCodeEntry = {
   URL: "https://github.com/DOI-USGS/pycap-dss",
 };
 
-const PYCAX: ReusedCodeEntry = {
-  name: "pycax (NOAA Northwest Fisheries Science Center)",
-  URL: "https://github.com/noaa-nwfsc/pycax",
-};
-
-const PYCCD: ReusedCodeEntry = {
-  name: "pyccd (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/lcmap/pyccd",
-};
-
 const PYCDCS: ReusedCodeEntry = {
   name: "pycdcs (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/pycdcs",
@@ -1684,29 +1694,14 @@ const PYHAPPYORNOT: ReusedCodeEntry = {
   URL: "https://github.com/18F/pyHappyOrNot",
 };
 
-const PYHIDRA: ReusedCodeEntry = {
-  name: "pyhidra (DoD Cyber Crime Center (DC3))",
-  URL: "https://github.com/dod-cyber-crime-center/pyhidra",
-};
-
 const PYHYPERSCATTERING: ReusedCodeEntry = {
   name: "pyhyperscattering (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/pyhyperscattering",
 };
 
-const PYMAXSPOTS: ReusedCodeEntry = {
-  name: "pymaxspots (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/gmegsc/pymaxspots",
-};
-
 const PYMCR: ReusedCodeEntry = {
   name: "pyMCR (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/pyMCR",
-};
-
-const PYNIMS: ReusedCodeEntry = {
-  name: "pynims (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/WiM/usgs-imagery/sdk/pynims",
 };
 
 const PYNSSP: ReusedCodeEntry = {
@@ -1734,11 +1729,6 @@ const PYPROJECT2CONDA: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/pyproject2conda",
 };
 
-const PYSATSI: ReusedCodeEntry = {
-  name: "pySATSI (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/esc/pySATSI",
-};
-
 const PYSIPS: ReusedCodeEntry = {
   name: "pysips (NASA)",
   URL: "https://github.com/nasa/pysips",
@@ -1747,11 +1737,6 @@ const PYSIPS: ReusedCodeEntry = {
 const PYTHON_CMR: ReusedCodeEntry = {
   name: "python_cmr (NASA)",
   URL: "https://github.com/nasa/python_cmr",
-};
-
-const PYTORCH_CANEY: ReusedCodeEntry = {
-  name: "pytorch-caney (NASA Center for Climate Simulation)",
-  URL: "https://github.com/nasa-nccs-hpda/pytorch-caney",
 };
 
 const QARRAYRUN: ReusedCodeEntry = {
@@ -1789,11 +1774,6 @@ const QU: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/qu",
 };
 
-const QUEST: ReusedCodeEntry = {
-  name: "quest (U.S. Army Engineer Research and Development Center)",
-  URL: "https://github.com/erdc/quest",
-};
-
 const RADBELT: ReusedCodeEntry = {
   name: "radbelt (NASA)",
   URL: "https://github.com/nasa/radbelt",
@@ -1824,24 +1804,9 @@ const REGISTRY: ReusedCodeEntry = {
   URL: "https://github.com/NASA-PDS/registry",
 };
 
-const REGISTRY_CLIENT: ReusedCodeEntry = {
-  name: "registry-client (NASA Planetary Data System)",
-  URL: "https://github.com/NASA-PDS/registry-client",
-};
-
-const REGISTRY_SWEEPERS: ReusedCodeEntry = {
-  name: "registry-sweepers (NASA Planetary Data System)",
-  URL: "https://github.com/NASA-PDS/registry-sweepers",
-};
-
 const SARPY: ReusedCodeEntry = {
   name: "sarpy (National Geospatial-Intelligence Agency)",
   URL: "https://github.com/ngageoint/sarpy",
-};
-
-const SARPY_APPS: ReusedCodeEntry = {
-  name: "sarpy_apps (National Geospatial-Intelligence Agency)",
-  URL: "https://github.com/ngageoint/sarpy_apps",
 };
 
 const SAS2DB: ReusedCodeEntry = {
@@ -1849,19 +1814,9 @@ const SAS2DB: ReusedCodeEntry = {
   URL: "https://github.com/XDgov/sas2db",
 };
 
-const SCIENCEBASEPY: ReusedCodeEntry = {
-  name: "sciencebasepy (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/sas/sdm/sciencebasepy",
-};
-
 const SCPOPCORN: ReusedCodeEntry = {
   name: "scPopCorn (NCBI (NLM / NIH))",
   URL: "https://github.com/ncbi/scPopCorn",
-};
-
-const SCRUB: ReusedCodeEntry = {
-  name: "scrub (NASA)",
-  URL: "https://github.com/nasa/scrub",
 };
 
 const SDNIST: ReusedCodeEntry = {
@@ -1887,11 +1842,6 @@ const SENDAK_USAGE: ReusedCodeEntry = {
 const SENSOFF: ReusedCodeEntry = {
   name: "sensoff (USDA ARS U.S. Salinity Laboratory)",
   URL: "https://github.com/usda-ars-ussl/sensoff",
-};
-
-const SENSORTOOLKIT: ReusedCodeEntry = {
-  name: "sensortoolkit (U.S. Environmental Protection Agency)",
-  URL: "https://github.com/USEPA/sensortoolkit",
 };
 
 const SEQ_JSON_SCHEMA: ReusedCodeEntry = {
@@ -1934,11 +1884,6 @@ const SIMPLE_FEATURES_WKB_JS: ReusedCodeEntry = {
   URL: "https://github.com/ngageoint/simple-features-wkb-js",
 };
 
-const SIMPLER_GRANTS_GOV: ReusedCodeEntry = {
-  name: "simpler-grants-gov (U.S. Department of Health and Human Services)",
-  URL: "https://github.com/HHS/simpler-grants-gov",
-};
-
 const SIMPROCESD: ReusedCodeEntry = {
   name: "simprocesd (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/simprocesd",
@@ -1949,19 +1894,9 @@ const SINGULARJS: ReusedCodeEntry = {
   URL: "https://github.com/ncbi/singularjs",
 };
 
-const SKHASH: ReusedCodeEntry = {
-  name: "SKHASH (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/esc/SKHASH",
-};
-
 const SMCPY: ReusedCodeEntry = {
   name: "SMCPy (NASA)",
   URL: "https://github.com/nasa/SMCPy",
-};
-
-const SMOT: ReusedCodeEntry = {
-  name: "smot (USDA National Animal Disease Center)",
-  URL: "https://github.com/flu-crew/smot",
 };
 
 const SNP_MUTATOR: ReusedCodeEntry = {
@@ -1994,11 +1929,6 @@ const SSMDEVICES: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/ssmdevices",
 };
 
-const STANDARD_KNOWLEDGE: ReusedCodeEntry = {
-  name: "standard_knowledge (U.S. Integrated Ocean Observing System (NOAA))",
-  URL: "https://github.com/ioos/standard_knowledge",
-};
-
 const STANDARDS2: ReusedCodeEntry = {
   name: "standards2 (NCBI (NLM / NIH))",
   URL: "https://github.com/ncbi/standards2",
@@ -2019,11 +1949,6 @@ const STITCHEE: ReusedCodeEntry = {
   URL: "https://github.com/nasa/stitchee",
 };
 
-const STORMWATER_MANAGEMENT_MODEL: ReusedCodeEntry = {
-  name: "Stormwater-Management-Model (U.S. Environmental Protection Agency)",
-  URL: "https://github.com/USEPA/Stormwater-Management-Model",
-};
-
 const STUDENT_DEBT_CALCULATOR: ReusedCodeEntry = {
   name: "student-debt-calculator (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/student-debt-calculator",
@@ -2034,19 +1959,9 @@ const STYLELINT_CONFIG_OPENSPHERE: ReusedCodeEntry = {
   URL: "https://github.com/ngageoint/stylelint-config-opensphere",
 };
 
-const SYMBOL_LIBRARY: ReusedCodeEntry = {
-  name: "symbol-library (National Park Service)",
-  URL: "https://github.com/nationalparkservice/symbol-library",
-};
-
 const TB3PY: ReusedCodeEntry = {
   name: "tb3py (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/tb3py",
-};
-
-const TENSORFLOW_CANEY: ReusedCodeEntry = {
-  name: "tensorflow-caney (NASA Center for Climate Simulation)",
-  URL: "https://github.com/nasa-nccs-hpda/tensorflow-caney",
 };
 
 const TERMSEQ_PEAKS: ReusedCodeEntry = {
@@ -2099,19 +2014,9 @@ const TN93_JS: ReusedCodeEntry = {
   URL: "https://github.com/CDCgov/tn93.js",
 };
 
-const TRAVIS_WAIT_IMPROVED: ReusedCodeEntry = {
-  name: "travis-wait-improved (Cybersecurity and Infrastructure Security Agency)",
-  URL: "https://github.com/cisagov/travis-wait-improved",
-};
-
 const TRUSTYMAIL: ReusedCodeEntry = {
   name: "trustymail (Cybersecurity and Infrastructure Security Agency)",
   URL: "https://github.com/cisagov/trustymail",
-};
-
-const TURBOWAVE: ReusedCodeEntry = {
-  name: "turboWAVE (U.S. Naval Research Laboratory)",
-  URL: "https://github.com/USNavalResearchLaboratory/turboWAVE",
 };
 
 const UNFORMAT_USD: ReusedCodeEntry = {
@@ -2159,19 +2064,9 @@ const VHR_CLOUDMASK: ReusedCodeEntry = {
   URL: "https://github.com/nasa-nccs-hpda/vhr-cloudmask",
 };
 
-const VHR_COMPOSITE: ReusedCodeEntry = {
-  name: "vhr-composite (NASA Center for Climate Simulation)",
-  URL: "https://github.com/nasa-nccs-hpda/vhr-composite",
-};
-
 const VICA: ReusedCodeEntry = {
   name: "vica (USDA ARS Genomics and Bioinformatics Research Unit)",
   URL: "https://github.com/usda-ars-gbru/vica",
-};
-
-const VIPERSCI: ReusedCodeEntry = {
-  name: "vipersci (NASA Ames NeoGeography Toolkit)",
-  URL: "https://github.com/NeoGeographyToolkit/vipersci",
 };
 
 const WAGTAIL_CONTENT_AUDIT: ReusedCodeEntry = {
@@ -2204,16 +2099,6 @@ const WAGTAIL_TREEMODELADMIN: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/wagtail-treemodeladmin",
 };
 
-const WDFN_VIZ: ReusedCodeEntry = {
-  name: "wdfn-viz (U.S. Geological Survey)",
-  URL: "https://code.usgs.gov/wma/iow/wdfn-viz",
-};
-
-const WEB_ANALYTICS: ReusedCodeEntry = {
-  name: "web-analytics (NASA Planetary Data System)",
-  URL: "https://github.com/NASA-PDS/web-analytics",
-};
-
 const WEBWORLDWIND: ReusedCodeEntry = {
   name: "WebWorldWind (NASA WorldWind)",
   URL: "https://github.com/NASAWorldWind/WebWorldWind",
@@ -2222,16 +2107,6 @@ const WEBWORLDWIND: ReusedCodeEntry = {
 const WORLDVIEW_COMPONENTS: ReusedCodeEntry = {
   name: "worldview-components (NASA Global Imagery Browse Services)",
   URL: "https://github.com/nasa-gibs/worldview-components",
-};
-
-const XAPIWRAPPER: ReusedCodeEntry = {
-  name: "xAPIWrapper (Advanced Distributed Learning Initiative (DoD))",
-  URL: "https://github.com/adlnet/xAPIWrapper",
-};
-
-const XAPIWRAPPER_NODE: ReusedCodeEntry = {
-  name: "xapiwrapper-node (Advanced Distributed Learning Initiative (DoD))",
-  URL: "https://github.com/adlnet-archive/xapiwrapper-node",
 };
 
 const XML_UTILS: ReusedCodeEntry = {
@@ -2249,14 +2124,14 @@ const ZYRA: ReusedCodeEntry = {
   URL: "https://github.com/NOAA-GSL/zyra",
 };
 
-const CORE_FILE_PREVIEW_APP: ReusedCodeEntry = {
-  name: "core_file_preview_app (National Institute of Standards and Technology)",
-  URL: "https://github.com/usnistgov/core_file_preview_app",
+const CTOS_MEVAL: ReusedCodeEntry = {
+  name: "ctos-meval (NCI Center for Biomedical Informatics and IT)",
+  URL: "https://github.com/cbiit/meval",
 };
 
-const CTREFPROP: ReusedCodeEntry = {
-  name: "ctrefprop (National Institute of Standards and Technology)",
-  URL: "https://github.com/usnistgov/REFPROP-wrappers",
+const CUMULUS_CUMULUS_MESSAGE_ADAPTER_JS: ReusedCodeEntry = {
+  name: "cumulus-message-adapter-js (NASA)",
+  URL: "https://github.com/nasa/cumulus-message-adapter-js",
 };
 
 const DATAMODELDICT: ReusedCodeEntry = {
@@ -2264,9 +2139,119 @@ const DATAMODELDICT: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/DataModelDict",
 };
 
+const DEPARTMENT_OF_VETERANS_AFFAIRS_REACT_JSONSCHEMA_FORM: ReusedCodeEntry = {
+  name: "react-jsonschema-form (Department of Veterans Affairs)",
+  URL: "https://github.com/department-of-veterans-affairs/react-jsonschema-form",
+};
+
+const DEPTOFDEFENSE_COVID19_CALCULATOR: ReusedCodeEntry = {
+  name: "covid19-calculator (Code.mil)",
+  URL: "https://github.com/code-dot-mil/covid19-calculator",
+};
+
 const DESIGN_SYSTEM_REACT: ReusedCodeEntry = {
   name: "design-system-react (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/design-system-react",
+};
+
+const DICAUGMENT: ReusedCodeEntry = {
+  name: "DICaugment (DIDSR (Aldo Badano, Director))",
+  URL: "https://github.com/didsr/dicaugment",
+};
+
+const DRAGODIS: ReusedCodeEntry = {
+  name: "dragodis (DoD Cyber Crime Center (DC3))",
+  URL: "https://github.com/dod-cyber-crime-center/dragodis",
+};
+
+const DTDANALYZER: ReusedCodeEntry = {
+  name: "dtdanalyzer (NCBI (NLM / NIH))",
+  URL: "https://github.com/ncbi/dtdanalyzer",
+};
+
+const DYNAMODB_AUTOINCREMENT: ReusedCodeEntry = {
+  name: "dynamodb-autoincrement (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/python-dynamodb-autoincrement",
+};
+
+const EARTHQUAKE_CPT: ReusedCodeEntry = {
+  name: "earthquake-cpt (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/earthquake-cpt",
+};
+
+const EARTHQUAKE_HAZARD_TOOL: ReusedCodeEntry = {
+  name: "earthquake-hazard-tool (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/earthquake-hazard-tool",
+};
+
+const EARTHQUAKE_LIST_WIDGET: ReusedCodeEntry = {
+  name: "earthquake-list-widget (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/earthquake-list-widget",
+};
+
+const EARTHQUAKE_RTGM_CALCULATOR: ReusedCodeEntry = {
+  name: "earthquake-rtgm-calculator (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/earthquake-rtgm-calculator",
+};
+
+const EARTHQUAKE_USDESIGN: ReusedCodeEntry = {
+  name: "earthquake-usdesign (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/earthquake-usdesign",
+};
+
+const EDSC_ECHOFORMS: ReusedCodeEntry = {
+  name: "echoforms (NASA)",
+  URL: "https://github.com/nasa/edsc-echoforms",
+};
+
+const EDSC_GEO_UTILS: ReusedCodeEntry = {
+  name: "geo-utils (NASA)",
+  URL: "https://github.com/nasa/edsc-geo",
+};
+
+const EDSC_SMART_HANDOFFS: ReusedCodeEntry = {
+  name: "smart-handoffs (NASA)",
+  URL: "https://github.com/nasa/edsc-smart-handoffs",
+};
+
+const EDSC_TIMELINE: ReusedCodeEntry = {
+  name: "timeline (NASA)",
+  URL: "https://github.com/nasa/edsc-timeline",
+};
+
+const ELINKAPI: ReusedCodeEntry = {
+  name: "elinkapi (DOE CODE)",
+  URL: "https://github.com/doecode/elinkapi",
+};
+
+const ENTERPRISE_CMCS_MACPRO_SERVERLESS_RUNNING_STAGES: ReusedCodeEntry = {
+  name: "macpro-serverless-running-stages (CMS Enterprise (CMCS))",
+  URL: "https://github.com/enterprise-cmcs/macpro-serverless-running-stages",
+};
+
+const ENTERPRISE_CMCS_SERVERLESS_WAF_PLUGIN: ReusedCodeEntry = {
+  name: "serverless-waf-plugin (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/cmsgov/serverless-cms-waf",
+};
+
+const ERDC_ITL_SIMPLE_LOGGER: ReusedCodeEntry = {
+  name: "simple-logger (ERDC ITL)",
+  URL: "https://github.com/erdc-itl/node-logger",
+};
+
+const ERDDAPY: ReusedCodeEntry = {
+  name: "erddapy (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/erddapy",
+};
+
+const FAA_AVIATION_DATA_PORTAL_TFRS: ReusedCodeEntry = {
+  name: "tfrs (Federal Aviation Administration Weather Camera Program)",
+  URL: "https://github.com/faa-aviation-data-portal/tfrs",
+};
+
+const FAST_SHARED_CLIENT: ReusedCodeEntry = {
+  name: "fast-shared-client (Centers for Medicare & Medicaid Services)",
+  URL: "https://www.npmjs.com/package/fast-shared-client",
 };
 
 const FIPY: ReusedCodeEntry = {
@@ -2274,9 +2259,284 @@ const FIPY: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/fipy",
 };
 
+const FREMOR: ReusedCodeEntry = {
+  name: "fremor (NOAA - Geophysical Fluid Dynamics Laboratory)",
+  URL: "https://github.com/noaa-gfdl/fremor",
+};
+
+const GCN_KAFKA: ReusedCodeEntry = {
+  name: "gcn-kafka (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/gcn-kafka-python",
+};
+
+const GENERATOR_18F: ReusedCodeEntry = {
+  name: "generator-18f (18F (GSA))",
+  URL: "https://github.com/18f/18f-cli",
+};
+
+const GENERATOR_ENERGYAPPS: ReusedCodeEntry = {
+  name: "generator-energyapps (E APPS)",
+  URL: "https://github.com/energyapps/generator-energyapps",
+};
+
+const GEOMETRY_UTILS: ReusedCodeEntry = {
+  name: "geometry_utils (NOAA Office of Response and Restoration)",
+  URL: "https://github.com/noaa-orr-erd/geometry_utils",
+};
+
+const GLIDERPY: ReusedCodeEntry = {
+  name: "gliderpy (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/gliderpy",
+};
+
+const GSA_SAM_ICONS: ReusedCodeEntry = {
+  name: "icons (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/sds-icons",
+};
+
+const GSA_SAM_SAM_UI_ELEMENTS: ReusedCodeEntry = {
+  name: "sam-ui-elements (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/sam-ui-elements",
+};
+
+const GSA_TTS_SVELTE_UI_USWDS: ReusedCodeEntry = {
+  name: "svelte-ui-uswds (GSA Technology Transformation Services)",
+  URL: "https://github.com/gsa-tts/svelte-ui",
+};
+
+const GSPY: ReusedCodeEntry = {
+  name: "gspy (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/gspy",
+};
+
+const GTAX_PKG: ReusedCodeEntry = {
+  name: "gtax (NCBI (NLM / NIH))",
+  URL: "https://github.com/ncbi/gtax",
+};
+
+const GVAL: ReusedCodeEntry = {
+  name: "gval (NOAA Office of Water Prediction)",
+  URL: "https://github.com/noaa-owp/gval",
+};
+
+const HARMONIZE_WQ: ReusedCodeEntry = {
+  name: "harmonize_wq (U.S. Environmental Protection Agency)",
+  URL: "https://github.com/usepa/harmonize-wq",
+};
+
+const HAZDEV_ACCORDION: ReusedCodeEntry = {
+  name: "hazdev-accordion (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/hazdev-accordion",
+};
+
+const HAZDEV_D3: ReusedCodeEntry = {
+  name: "hazdev-d3 (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/hazdev-d3",
+};
+
+const HAZDEV_NG_GEOSERVE_OUTPUT: ReusedCodeEntry = {
+  name: "hazdev-ng-geoserve-output (U.S. Geological Survey)",
+  URL: "https://www.npmjs.com/package/hazdev-ng-geoserve-output",
+};
+
+const HAZDEV_NG_LOCATION_VIEW: ReusedCodeEntry = {
+  name: "hazdev-ng-location-view (U.S. Geological Survey)",
+  URL: "https://www.npmjs.com/package/hazdev-ng-location-view",
+};
+
+const HAZDEV_NG_TEMPLATE: ReusedCodeEntry = {
+  name: "hazdev-ng-template (U.S. Geological Survey)",
+  URL: "https://www.npmjs.com/package/hazdev-ng-template",
+};
+
+const HAZDEV_QUESTION_VIEW: ReusedCodeEntry = {
+  name: "hazdev-question-view (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/hazdev-question-view",
+};
+
+const HAZDEV_SVGIMAGEMAP: ReusedCodeEntry = {
+  name: "hazdev-svgimagemap (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/hazdev-svgimagemap",
+};
+
+const HAZDEV_WEBUTILS: ReusedCodeEntry = {
+  name: "hazdev-webutils (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/hazdev-webutils",
+};
+
+const HPX: ReusedCodeEntry = {
+  name: "hpx (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/hpx",
+};
+
+const HUBOT_CF_NOTIFICATIONS_PKG: ReusedCodeEntry = {
+  name: "hubot-cf-notifications (18F (GSA))",
+  URL: "https://github.com/18f/hubot-cf-notifications",
+};
+
+const IOOS_METRICS: ReusedCodeEntry = {
+  name: "ioos_metrics (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/ioos_metrics",
+};
+
+const IOOS_PKG_SKELETON: ReusedCodeEntry = {
+  name: "ioos-pkg-skeleton (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/ioos-python-package-skeleton",
+};
+
+const IOOS_QC: ReusedCodeEntry = {
+  name: "ioos-qc (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/ioos_qc",
+};
+
 const IPRPY: ReusedCodeEntry = {
   name: "iprpy (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/iprPy",
+};
+
+const IS_MONEY_USD: ReusedCodeEntry = {
+  name: "is-money-usd (Consumer Financial Protection Bureau)",
+  URL: "https://github.com/cfpb/is-money",
+};
+
+const ITSXPRESS: ReusedCodeEntry = {
+  name: "itsxpress (USDA ARS Genomics and Bioinformatics Research Unit)",
+  URL: "https://github.com/usda-ars-gbru/itsxpress",
+};
+
+const KYOS: ReusedCodeEntry = {
+  name: "kyos (FDA Center for Food Safety and Applied Nutrition)",
+  URL: "https://github.com/cfsan-biostatistics/kyos",
+};
+
+const LIBPQ_DEV: ReusedCodeEntry = {
+  name: "libpq-dev (NCBI (NLM / NIH))",
+  URL: "https://github.com/ncbi/python-libpq-dev",
+};
+
+const MICROSECRETS_PKG: ReusedCodeEntry = {
+  name: "microsecrets (USCIS)",
+  URL: "https://github.com/uscis/microsecrets",
+};
+
+const MODEL_CATALOGS: ReusedCodeEntry = {
+  name: "model_catalogs (NOAA Office of Response and Restoration)",
+  URL: "https://github.com/noaa-orr-erd/model_catalogs",
+};
+
+const MWCP: ReusedCodeEntry = {
+  name: "mwcp (DoD Cyber Crime Center (DC3))",
+  URL: "https://github.com/dod-cyber-crime-center/dc3-mwcp",
+};
+
+const NASA_GCN_AFM: ReusedCodeEntry = {
+  name: "afm (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/afm",
+};
+
+const NASA_GCN_ARCHITECT_FUNCTIONS_SEARCH: ReusedCodeEntry = {
+  name: "architect-functions-search (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/architect-functions-search",
+};
+
+const NASA_GCN_ARCHITECT_PLUGIN_DYNAMODB_LOCAL: ReusedCodeEntry = {
+  name: "architect-plugin-dynamodb-local (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/architect-plugin-dynamodb-local",
+};
+
+const NASA_GCN_ARCHITECT_PLUGIN_DYNAMODB_LOCAL_STREAMS: ReusedCodeEntry = {
+  name: "architect-plugin-dynamodb-local-streams (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/architect-plugin-dynamodb-local-streams",
+};
+
+const NASA_GCN_ARCHITECT_PLUGIN_SEARCH: ReusedCodeEntry = {
+  name: "architect-plugin-search (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/architect-plugin-search",
+};
+
+const NASA_GCN_ARCHITECT_PLUGIN_TRACING: ReusedCodeEntry = {
+  name: "architect-plugin-tracing (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/architect-plugin-tracing",
+};
+
+const NASA_GCN_ARCHITECT_PLUGIN_UTILS: ReusedCodeEntry = {
+  name: "architect-plugin-utils (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/architect-plugin-utils",
+};
+
+const NASA_GCN_DYNAMODB_AUTOINCREMENT: ReusedCodeEntry = {
+  name: "dynamodb-autoincrement (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/dynamodb-autoincrement",
+};
+
+const NASA_GCN_ESLINT_CONFIG_GITIGNORE: ReusedCodeEntry = {
+  name: "eslint-config-gitignore (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/eslint-config-gitignore",
+};
+
+const NASA_GCN_RCFILES: ReusedCodeEntry = {
+  name: "rcfiles (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/rcfiles",
+};
+
+const NASA_GCN_REMARK_REHYPE_ASTRO: ReusedCodeEntry = {
+  name: "remark-rehype-astro (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/remark-rehype-astro",
+};
+
+const NASA_GCN_REMIX_SEO: ReusedCodeEntry = {
+  name: "remix-seo (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/remix-seo",
+};
+
+const NASA_GCN_SCHEMA: ReusedCodeEntry = {
+  name: "schema (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/gcn-schema",
+};
+
+const NASA_HDS_CORE: ReusedCodeEntry = {
+  name: "core (NASA)",
+  URL: "https://github.com/nasa/hds-core",
+};
+
+const NASA_JPL_AERIE_AMPCS: ReusedCodeEntry = {
+  name: "aerie-ampcs (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/aerie-ampcs",
+};
+
+const NASA_JPL_AERIE_MONACO_EDITOR_CUSTOMIZATIONS: ReusedCodeEntry = {
+  name: "aerie-monaco-editor-customizations (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/aerie-monaco-editor-customizations",
+};
+
+const NASA_JPL_AERIE_SEQUENCE_LANGUAGES: ReusedCodeEntry = {
+  name: "aerie-sequence-languages (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/aerie-sequence-languages",
+};
+
+const NASA_JPL_AERIE_TIME_UTILS: ReusedCodeEntry = {
+  name: "aerie-time-utils (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/aerie-time-utils",
+};
+
+const NASAPDS_ESSENCE: ReusedCodeEntry = {
+  name: "essence (NASA Planetary Data System)",
+  URL: "https://github.com/nasa-pds-engineering-node/essence",
+};
+
+const NASAPDS_WDS: ReusedCodeEntry = {
+  name: "wds (NASA Planetary Data System)",
+  URL: "https://github.com/nasa-pds/wds",
+};
+
+const NASAPDS_WDS_REACT: ReusedCodeEntry = {
+  name: "wds-react (NASA Planetary Data System)",
+  URL: "https://github.com/nasa-pds/wds-react",
+};
+
+const NAVV: ReusedCodeEntry = {
+  name: "navv (Cybersecurity and Infrastructure Security Agency)",
+  URL: "https://github.com/cisagov/network-architecture-verification-and-validation",
 };
 
 const NEMO: ReusedCodeEntry = {
@@ -2284,9 +2544,174 @@ const NEMO: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/NEMO",
 };
 
+const NEMO_CONTRACTS: ReusedCodeEntry = {
+  name: "NEMO-contracts (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/nemo-contracts",
+};
+
+const NEMO_CUSTOM_FORMS: ReusedCodeEntry = {
+  name: "NEMO-custom-forms (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/nemo-custom-forms",
+};
+
+const NEMO_ONLINE_TRAINING: ReusedCodeEntry = {
+  name: "NEMO-online-training (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/nemo-online-training",
+};
+
+const NEMO_SENSORS: ReusedCodeEntry = {
+  name: "NEMO-sensors (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/nemo-sensors",
+};
+
+const NGAGEOINT_CLOSURE_WEBPACK_PLUGIN: ReusedCodeEntry = {
+  name: "closure-webpack-plugin (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/closure-webpack-plugin",
+};
+
+const NGAGEOINT_COLOR_JS: ReusedCodeEntry = {
+  name: "color-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/color-js",
+};
+
+const NGAGEOINT_GARS_JS: ReusedCodeEntry = {
+  name: "gars-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/gars-js",
+};
+
+const NGAGEOINT_GEOPACKAGE: ReusedCodeEntry = {
+  name: "geopackage (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-js",
+};
+
+const NGAGEOINT_GEOPACKAGE_CSV_JS: ReusedCodeEntry = {
+  name: "geopackage-csv-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-csv-js",
+};
+
+const NGAGEOINT_GEOPACKAGE_GEOJSON_JS: ReusedCodeEntry = {
+  name: "geopackage-geojson-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-geojson-js",
+};
+
+const NGAGEOINT_GEOPACKAGE_KML_JS: ReusedCodeEntry = {
+  name: "geopackage-kml-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-kml-js",
+};
+
+const NGAGEOINT_GEOPACKAGE_MBTILES_JS: ReusedCodeEntry = {
+  name: "geopackage-mbtiles-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-mbtiles-js",
+};
+
+const NGAGEOINT_GEOPACKAGE_MOBILE_OPTIMIZER: ReusedCodeEntry = {
+  name: "geopackage-mobile-optimizer (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-mobile-optimizer",
+};
+
+const NGAGEOINT_GEOPACKAGE_PBF_JS: ReusedCodeEntry = {
+  name: "geopackage-pbf-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-pbf-js",
+};
+
+const NGAGEOINT_GEOPACKAGE_SHAPEFILE_JS: ReusedCodeEntry = {
+  name: "geopackage-shapefile-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-shapefile-js",
+};
+
+const NGAGEOINT_GEOPACKAGE_XYZ_JS: ReusedCodeEntry = {
+  name: "geopackage-xyz-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/geopackage-xyz-js",
+};
+
+const NGAGEOINT_GRID_JS: ReusedCodeEntry = {
+  name: "grid-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/grid-js",
+};
+
+const NGAGEOINT_LEAFLET_GEOPACKAGE: ReusedCodeEntry = {
+  name: "leaflet-geopackage (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/leaflet-geopackage",
+};
+
+const NGAGEOINT_MGRS_JS: ReusedCodeEntry = {
+  name: "mgrs-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/mgrs-js",
+};
+
+const NGAGEOINT_OPENSPHERE_COVERAGE_LOADER: ReusedCodeEntry = {
+  name: "opensphere-coverage-loader (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/opensphere-coverage-loader",
+};
+
+const NGAGEOINT_PROJECTIONS_JS: ReusedCodeEntry = {
+  name: "projections-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/projections-js",
+};
+
+const NGAGEOINT_SIMPLE_FEATURES_GEOJSON_JS: ReusedCodeEntry = {
+  name: "simple-features-geojson-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/simple-features-geojson-js",
+};
+
+const NGAGEOINT_SIMPLE_FEATURES_PROJ_JS: ReusedCodeEntry = {
+  name: "simple-features-proj-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/simple-features-proj-js",
+};
+
+const NGAGEOINT_SIMPLE_FEATURES_WKT_JS: ReusedCodeEntry = {
+  name: "simple-features-wkt-js (National Geospatial-Intelligence Agency)",
+  URL: "https://github.com/ngageoint/simple-features-wkt-js",
+};
+
+const NGX_CMS_COMMON: ReusedCodeEntry = {
+  name: "ngx-cms-common (Centers for Medicare & Medicaid Services)",
+  URL: "https://www.npmjs.com/package/ngx-cms-common",
+};
+
+const NGX_CMS_COMMON_APP: ReusedCodeEntry = {
+  name: "ngx-cms-common-app (Centers for Medicare & Medicaid Services)",
+  URL: "https://www.npmjs.com/package/ngx-cms-common-app",
+};
+
 const NRSS: ReusedCodeEntry = {
   name: "nrss (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/NRSS",
+};
+
+const NUCOS: ReusedCodeEntry = {
+  name: "nucos (NOAA Office of Response and Restoration)",
+  URL: "https://github.com/noaa-orr-erd/nucos",
+};
+
+const NUWCDIVNPT_STIG_MANAGER_CLIENT_MODULES: ReusedCodeEntry = {
+  name: "stig-manager-client-modules (Naval Undersea Warfare Center Division Newport)",
+  URL: "https://github.com/nuwcdivnpt/stig-manager-client-modules",
+};
+
+const OAUTH2_PROXY_AUTHENTICATION: ReusedCodeEntry = {
+  name: "oauth2-proxy-authentication (18F (GSA))",
+  URL: "https://github.com/18f/oauth2-proxy-authentication",
+};
+
+const ODVC: ReusedCodeEntry = {
+  name: "odvc (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/odvc",
+};
+
+const ONEARGOPY: ReusedCodeEntry = {
+  name: "oneargopy (Pacific Marine Environmental Laboratory)",
+  URL: "https://github.com/noaa-pmel/oneargopy",
+};
+
+const OPENACR_OPENACR: ReusedCodeEntry = {
+  name: "openacr (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/openacr",
+};
+
+const OPENAQ_QUALITY_CHECKER: ReusedCodeEntry = {
+  name: "openaq-quality-checker (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/openaq/openaq-quality-check",
 };
 
 const OSCAL_DEEP_DIFF: ReusedCodeEntry = {
@@ -2294,14 +2719,289 @@ const OSCAL_DEEP_DIFF: ReusedCodeEntry = {
   URL: "https://github.com/usnistgov/oscal-deep-diff",
 };
 
+const PA11Y_CRAWL: ReusedCodeEntry = {
+  name: "pa11y-crawl (18F (GSA))",
+  URL: "https://www.npmjs.com/package/pa11y-crawl",
+};
+
+const PDS_DOI_SERVICE: ReusedCodeEntry = {
+  name: "pds-doi-service (NASA Planetary Data System)",
+  URL: "https://github.com/nasa-pds/pds-doi-service",
+};
+
+const PETULANT_BEAR: ReusedCodeEntry = {
+  name: "petulant-bear (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/petulant-bear",
+};
+
+const PKG_18F_18F_ESLINT: ReusedCodeEntry = {
+  name: "18f-eslint (18F (GSA))",
+  URL: "https://www.npmjs.com/package/@18f/18f-eslint",
+};
+
+const PKG_18F_ESLINT_PLUGIN_IDENTITY: ReusedCodeEntry = {
+  name: "eslint-plugin-identity (18F (GSA))",
+  URL: "https://github.com/18f/identity-idp",
+};
+
+const PKG_18F_PRIVATE_EYE: ReusedCodeEntry = {
+  name: "private-eye (18F (GSA))",
+  URL: "https://github.com/18f/private-eye",
+};
+
+const PKG_18F_REDUX_TEXTAREA_DEBOUNCE: ReusedCodeEntry = {
+  name: "redux-textarea-debounce (18F (GSA))",
+  URL: "https://github.com/18f/redux-textarea-debounce",
+};
+
+const PKG_18F_STYLELINT_RULES: ReusedCodeEntry = {
+  name: "stylelint-rules (18F (GSA))",
+  URL: "https://github.com/18f/stylelint-rules",
+};
+
+const PKG_18F_TRELLO_WEBHOOK_SERVER: ReusedCodeEntry = {
+  name: "trello-webhook-server (18F (GSA))",
+  URL: "https://github.com/18f/trello-webhook-server",
+};
+
+const PKG_18F_US_FEDERAL_HOLIDAYS: ReusedCodeEntry = {
+  name: "us-federal-holidays (18F (GSA))",
+  URL: "https://github.com/18f/us-federal-holidays",
+};
+
+const PY_GD: ReusedCodeEntry = {
+  name: "py-gd (NOAA Office of Response and Restoration)",
+  URL: "https://github.com/noaa-orr-erd/py_gd",
+};
+
+const PYEBSDINDEX: ReusedCodeEntry = {
+  name: "pyebsdindex (U.S. Naval Research Laboratory)",
+  URL: "https://github.com/usnavalresearchlaboratory/pyebsdindex",
+};
+
+const PYGCN: ReusedCodeEntry = {
+  name: "pygcn (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/pygcn",
+};
+
+const PYOOS: ReusedCodeEntry = {
+  name: "pyoos (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/pyoos",
+};
+
+const PYTEST_KAFKA_BROKER: ReusedCodeEntry = {
+  name: "pytest-kafka-broker (NASA General Coordinates Network)",
+  URL: "https://github.com/nasa-gcn/pytest-kafka-broker",
+};
+
+const PYWATERSHED: ReusedCodeEntry = {
+  name: "pywatershed (U.S. Geological Survey)",
+  URL: "https://github.com/doi-usgs/pywatershed",
+};
+
+const Q2_ITSXPRESS: ReusedCodeEntry = {
+  name: "q2_itsxpress (USDA ARS Genomics and Bioinformatics Research Unit)",
+  URL: "https://github.com/usda-ars-gbru/q2_itsxpress",
+};
+
+const QPP_BSR_EXCEL_TOOL: ReusedCodeEntry = {
+  name: "qpp-bsr-excel-tool (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/cmsgov/qpp-bsr-excel-tool",
+};
+
+const QPP_SHARED_HEALTH_CHECK_NODE: ReusedCodeEntry = {
+  name: "qpp-shared-health-check-node (Centers for Medicare & Medicaid Services)",
+  URL: "https://www.npmjs.com/package/qpp-shared-health-check-node",
+};
+
+const QPP_STICKYFILLJS: ReusedCodeEntry = {
+  name: "qpp-stickyfilljs (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/somepedro/stickyfill",
+};
+
+const QPP_STYLE: ReusedCodeEntry = {
+  name: "qpp-style (Centers for Medicare & Medicaid Services)",
+  URL: "https://github.com/cmsgov/qpp-style",
+};
+
+const QUAKEML_PARSER_JS: ReusedCodeEntry = {
+  name: "quakeml-parser-js (U.S. Geological Survey)",
+  URL: "https://github.com/usgs/quakeml-parser-js",
+};
+
+const QUARTO_UTILS: ReusedCodeEntry = {
+  name: "quarto-utils (U.S. Geological Survey)",
+  URL: "https://github.com/doi-usgs/quarto-utils",
+};
+
+const REID_HOTA: ReusedCodeEntry = {
+  name: "reid_hota (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/reid_hota",
+};
+
 const RENTAL_ASSISTANCE_FINDER: ReusedCodeEntry = {
   name: "rental-assistance-finder (Consumer Financial Protection Bureau)",
   URL: "https://github.com/cfpb/rental-assistance-finder",
 };
 
+const RETEXT_18F_SIMPLIFY: ReusedCodeEntry = {
+  name: "retext-18f-simplify (18F (GSA))",
+  URL: "https://github.com/18f/retext-simplify",
+};
+
+const ROSETTA_SOIL: ReusedCodeEntry = {
+  name: "rosetta-soil (USDA ARS U.S. Salinity Laboratory)",
+  URL: "https://github.com/usda-ars-ussl/rosetta-soil",
+};
+
+const RUGOSA: ReusedCodeEntry = {
+  name: "rugosa (DoD Cyber Crime Center (DC3))",
+  URL: "https://github.com/dod-cyber-crime-center/rugosa",
+};
+
+const RUN_TIME_ASSURANCE: ReusedCodeEntry = {
+  name: "run-time-assurance (Air Force Research Laboratory ACT3)",
+  URL: "https://github.com/act3-ace/run-time-assurance",
+};
+
+const SAFE_AUTONOMY_DYNAMICS: ReusedCodeEntry = {
+  name: "safe-autonomy-dynamics (Air Force Research Laboratory ACT3)",
+  URL: "https://github.com/act3-ace/safe-autonomy-dynamics",
+};
+
+const SAFE_AUTONOMY_SIMS: ReusedCodeEntry = {
+  name: "safe-autonomy-sims (Air Force Research Laboratory ACT3)",
+  URL: "https://github.com/act3-ace/safe-autonomy-sims",
+};
+
+const SAVVY_UTILS: ReusedCodeEntry = {
+  name: "savvy-utils (U.S. General Services Administration)",
+  URL: "https://www.npmjs.com/package/savvy-utils",
+};
+
+const SCIKIT_EIT: ReusedCodeEntry = {
+  name: "scikit-eit (U.S. Naval Research Laboratory)",
+  URL: "https://github.com/usnavalresearchlaboratory/scikit-eit",
+};
+
+const SENTOP: ReusedCodeEntry = {
+  name: "sentop (U.S. Department of Homeland Security)",
+  URL: "https://github.com/dhs-gov/sentop",
+};
+
+const STICKYFILL_WEB_MODULE: ReusedCodeEntry = {
+  name: "stickyfill-web-module (18F (GSA))",
+  URL: "https://github.com/18f/stickyfill",
+};
+
+const TEAM_API_SERVER: ReusedCodeEntry = {
+  name: "team-api-server (18F (GSA))",
+  URL: "https://github.com/18f/team-api",
+};
+
+const TEKRSA_API_WRAP: ReusedCodeEntry = {
+  name: "tekrsa-api-wrap (National Telecommunications and Information Administration)",
+  URL: "https://github.com/ntia/tekrsa-api-wrap",
+};
+
 const TEQP: ReusedCodeEntry = {
   name: "teqp (National Institute of Standards and Technology)",
   URL: "https://github.com/usnistgov/teqp",
+};
+
+const TEQPFLSH: ReusedCodeEntry = {
+  name: "teqpflsh (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/teqpflsh",
+};
+
+const THREDDS_CRAWLER: ReusedCodeEntry = {
+  name: "thredds-crawler (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/thredds_crawler",
+};
+
+const USDS_GOV_QUESTIONABLE: ReusedCodeEntry = {
+  name: "questionable (U.S. Digital Service)",
+  URL: "https://github.com/usds/questionable",
+};
+
+const USGS_ASTROGEOLOGY_USGSCSM: ReusedCodeEntry = {
+  name: "usgscsm (USGS Astrogeology)",
+  URL: "https://github.com/usgs-astrogeology/usgscsm",
+};
+
+const USTAXCOURT_PAYMENT_PORTAL: ReusedCodeEntry = {
+  name: "payment-portal (U.S. Tax Court)",
+  URL: "https://github.com/ustaxcourt/ustc-payment-portal",
+};
+
+const USTAXCOURT_SHAREPOINT_INTEGRATION: ReusedCodeEntry = {
+  name: "sharepoint-integration (U.S. Tax Court)",
+  URL: "https://github.com/ustaxcourt/sharepoint-integration",
+};
+
+const USTAXCOURT_USTC_PAY_GOV_TEST_SERVER: ReusedCodeEntry = {
+  name: "ustc-pay-gov-test-server (U.S. Tax Court)",
+  URL: "https://github.com/ustaxcourt/ustc-pay-gov-test-server",
+};
+
+const USWDS_ELEMENTS: ReusedCodeEntry = {
+  name: "elements (U.S. Web Design System)",
+  URL: "https://github.com/uswds/uswds-elements",
+};
+
+const USWDS_EXTENDED: ReusedCodeEntry = {
+  name: "uswds-extended (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/uswds-extended",
+};
+
+const USWDS_TOKENS: ReusedCodeEntry = {
+  name: "tokens (U.S. Web Design System)",
+  URL: "https://github.com/uswds/uswds-tokens",
+};
+
+const USWDS_WEB_COMPONENTS: ReusedCodeEntry = {
+  name: "web-components (U.S. Web Design System)",
+  URL: "https://www.npmjs.com/package/@uswds/web-components",
+};
+
+const VYPERDATUM: ReusedCodeEntry = {
+  name: "vyperdatum (NOAA Office of Coast Survey)",
+  URL: "https://github.com/noaa-ocs-hydrography/vyperdatum",
+};
+
+const WDFN_VIZ_PKG: ReusedCodeEntry = {
+  name: "wdfn-viz (U.S. Geological Survey)",
+  URL: "https://www.npmjs.com/package/wdfn-viz",
+};
+
+const WICKEN: ReusedCodeEntry = {
+  name: "Wicken (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/wicken",
+};
+
+const WIMLIB: ReusedCodeEntry = {
+  name: "WIMLib (USGS Web Informatics and Mapping)",
+  URL: "https://github.com/usgs-wim/wimlib",
+};
+
+const WNTR: ReusedCodeEntry = {
+  name: "wntr (U.S. Environmental Protection Agency)",
+  URL: "https://github.com/usepa/wntr",
+};
+
+const WXMPL: ReusedCodeEntry = {
+  name: "wxmpl (NOAA Office of Response and Restoration)",
+  URL: "https://github.com/noaa-orr-erd/wxmpl",
+};
+
+const XARRAY_SUBSET_GRID: ReusedCodeEntry = {
+  name: "xarray-subset-grid (U.S. Integrated Ocean Observing System (NOAA))",
+  URL: "https://github.com/ioos/xarray-subset-grid",
+};
+
+const XWMT: ReusedCodeEntry = {
+  name: "xwmt (NOAA - Geophysical Fluid Dynamics Laboratory)",
+  URL: "https://github.com/noaa-gfdl/xwmt",
 };
 
 const YABADABA: ReusedCodeEntry = {
@@ -2311,128 +3011,94 @@ const YABADABA: ReusedCodeEntry = {
 
 // npm packages, keyed by lowercased package name
 export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {
-  "@enterprise-cmcs/macpro-security-hub-sync": MACPRO_SECURITY_HUB_SYNC,
-  "@nasaworldwind/worldwind": WEBWORLDWIND,
-  "@ngageoint/simple-features-wkb-js": SIMPLE_FEATURES_WKB_JS,
-  "@ngageoint/simple-features-js": SIMPLE_FEATURES_JS,
-  "@cmsgov/design-system": CMS_DESIGN_SYSTEM,
-  "@cmsgov/ds-cms-gov": CMS_DS_CMS_GOV,
-  "@cmsgov/ds-healthcare-gov": CMS_DS_HEALTHCARE_GOV,
-  "@cmsgov/ds-medicare-gov": CMS_DS_MEDICARE_GOV,
-  "@uswds/compile": USWDS_COMPILE,
-  "@uswds/uswds": USWDS,
-  "@cfpb/jumbo-mortgage": JUMBO_MORTGAGE,
-  "@cfpb/student-debt-calculator": STUDENT_DEBT_CALCULATOR,
-  "@cfpb/object-assign": ATOMICCOMPONENT,
-  "@cfpb/function-bind": ATOMICCOMPONENT,
-  "@cfpb/dom-closest": ATOMICCOMPONENT,
-  "@cfpb/ccdb5-ui": CCDB5_UI,
-  "@cfpb/cfpb-analytics": CFPB_ANALYTICS,
-  "@cfpb/browserslist-config": CFPB_ANALYTICS,
-  "@cfpb/britecharts": BRITECHARTS,
-  "@cfpb/cfpb-design-system": CFPB_DESIGN_SYSTEM,
-  "@cfpb/rental-assistance-finder": RENTAL_ASSISTANCE_FINDER,
-  "@cfpb/design-system-react": DESIGN_SYSTEM_REACT,
-  "@oscal/oscal-deep-diff": OSCAL_DEEP_DIFF,
   "18f-pages-server": PAGES_SERVER,
   "3d-tiles-renderer": PKG_3DTILESRENDERERJS,
   "about-yml-validator": ABOUT_YML_VALIDATOR,
-  "adl-xapiwrapper": XAPIWRAPPER_NODE,
+  "adl-xapiwrapper": ADL_XAPIWRAPPER,
   "alignment-viewer": ALIGNMENTVIEWER,
   amortize: AMORTIZE,
   "analytics-reporter": ANALYTICS_REPORTER,
   "aria-accordion": ACCORDION,
   "atomic-component": ATOMICCOMPONENT,
   "bems-theme-react-starter": BEMS_THEME_REACT_STARTER,
-  "capital-framework": CAPITAL_FRAMEWORK,
+  bioseq: BIOSEQ,
   "cbp-ds": CBP_THEME,
-  "cbp-theme": CBP_THEME,
-  "cbp-theme-react-starter": BEMS_THEME_REACT_STARTER,
-  "cf-atomic-component": CAPITAL_FRAMEWORK,
-  "cf-blue-green": CF_BLUE_GREEN,
-  "cf-buttons": CAPITAL_FRAMEWORK,
+  "cf-blue-green": CF_BLUE_GREEN_PKG,
   "cf-component-demo": CF_COMPONENT_DEMO,
-  "cf-core": CAPITAL_FRAMEWORK,
-  "cf-expandables": CAPITAL_FRAMEWORK,
-  "cf-forms": CAPITAL_FRAMEWORK,
-  "cf-grid": CAPITAL_FRAMEWORK,
   "cf-grunt-config": CF_GRUNT_CONFIG,
-  "cf-icons": CAPITAL_FRAMEWORK,
-  "cf-layout": CAPITAL_FRAMEWORK,
-  "cf-notification": CAPITAL_FRAMEWORK,
-  "cf-notifications": CAPITAL_FRAMEWORK,
-  "cf-pagination": CAPITAL_FRAMEWORK,
-  "cf-tables": CAPITAL_FRAMEWORK,
   "cf-theme-cfpb": CF_THEME_CFPB,
-  "cf-typography": CAPITAL_FRAMEWORK,
-  "cfasim-ui": CFA_SIMULATOR,
   "cfgov-sheer-templates": CFGOV_SHEER_TEMPLATES,
   "cfpb-chart-builder": CFPB_CHART_BUILDER,
-  "cfpb-chart-builder-canary": CFPB_CHART_BUILDER,
-  "cfpb-front-end": DEVELOPMENT,
-  "cg-style": CG_STYLE,
+  "cfpb-front-end": CFPB_FRONT_END,
   citysdk: CITYSDK,
-  "cmapi-kotlin": CMAPI_KOTLIN,
+  "cms-common": CMS_COMMON,
   "cms-mrf-validator": PRICE_TRANSPARENCY_GUIDE_VALIDATOR,
   "code-clerk": CODE_CLERK,
-  "code-gov-front-end": CODE_GOV_FRONT_END,
+  "codejson-core": CODEJSON_CORE,
   "codejson-crosswalk": CODEJSON_CROSSWALK,
   "compass-rose-ui": COMPASS_ROSE_UI,
   "continua11y-acceptance": NODE_CONTINUA11Y_ACCEPTANCE,
   "continua11y-ci-reporter": NODE_CONTINUA11Y_CI_REPORTER,
   "continua11y-reports": NODE_CONTINUA11Y_REPORTS,
   "contracting-cookbook": CONTRACTING_COOKBOOK_CLIENT,
-  "create-terra-ui-app": TERRA_UI_COMPONENTS,
   "ctrl-f": CTRL_F,
   "data-api": QU,
-  "dom-class-list": ATOMICCOMPONENT,
-  "earthquake-eventpages": EARTHQUAKE_EVENTPAGES,
+  dtdanalyzer: DTDANALYZER,
+  "earthquake-cpt": EARTHQUAKE_CPT,
+  "earthquake-hazard-tool": EARTHQUAKE_HAZARD_TOOL,
   "earthquake-latest-earthquakes": EARTHQUAKE_LATEST_EARTHQUAKES,
+  "earthquake-list-widget": EARTHQUAKE_LIST_WIDGET,
+  "earthquake-rtgm-calculator": EARTHQUAKE_RTGM_CALCULATOR,
+  "earthquake-usdesign": EARTHQUAKE_USDESIGN,
   "earthquake-website": EARTHQUAKE_WEBSITE,
-  "element-data-set": ATOMICCOMPONENT,
   endpointjs: ENDPOINT_JS,
   "eslint-config-opensphere": ESLINT_CONFIG_OPENSPHERE,
   "eslint-plugin-opensphere": ESLINT_PLUGIN_OPENSPHERE,
   exitscript: EXITSCRIPT,
-  "fam-style": FAM_IM_EIS3_UIX,
+  "fast-shared-client": FAST_SHARED_CLIENT,
   "fdns-js-sdk": FDNS_JS_SDK,
   "fdns-ui-react": FDNS_UI_REACT,
   "fdsh-client": NODE_FDSH_CLIENT,
   "fec-style": FEC_STYLE,
   "file-locked-operation": FILE_LOCKED_OPERATION,
   "format-usd": FORMAT_USD,
-  "fsa-style": FSA_STYLE,
   "fuzzy-state-search": FUZZY_STATE_SEARCH,
   "gcn-kafka": GCN_KAFKA_JS,
-  "generator-18f": PKG_18F_SCAFFOLDING,
+  "generator-18f": GENERATOR_18F,
   "generator-cf": GENERATOR_CF,
   "generator-cf-component": GENERATOR_CF_COMPONENT,
+  "generator-energyapps": GENERATOR_ENERGYAPPS,
   "generator-node-cfpb": GENERATOR_NODE_CFPB,
   ghad: GHAD,
-  "gist-angular-popovers": GIST_ANGULAR_POPOVERS,
   "glossary-panel": GLOSSARY,
   h5wasm: H5WASM,
+  "hazdev-accordion": HAZDEV_ACCORDION,
+  "hazdev-d3": HAZDEV_D3,
   "hazdev-geoserve-ws": HAZDEV_GEOSERVE_WS,
   "hazdev-leaflet": HAZDEV_LEAFLET,
   "hazdev-location-view": HAZDEV_LOCATION_VIEW,
+  "hazdev-ng-geoserve-output": HAZDEV_NG_GEOSERVE_OUTPUT,
+  "hazdev-ng-location-view": HAZDEV_NG_LOCATION_VIEW,
+  "hazdev-ng-template": HAZDEV_NG_TEMPLATE,
+  "hazdev-question-view": HAZDEV_QUESTION_VIEW,
+  "hazdev-svgimagemap": HAZDEV_SVGIMAGEMAP,
   "hazdev-tablist": HAZDEV_TABLIST,
   "hazdev-template": HAZDEV_TEMPLATE,
-  "hdf5-wasm-tools": LIBHDF5_WASM,
+  "hazdev-webutils": HAZDEV_WEBUTILS,
   "hmac-authentication": HMAC_AUTHENTICATION_NPM,
   "hmda-explorer": HMDA_EXPLORER,
-  "hmda-file-parser": HMDA_PLATFORM,
   "hmda-ui": HMDA_UI_MODULES,
   "hubot-acrogov": HUBOT_ACROGOV,
   "hubot-aws-cfpb": HUBOT_AWS_CFPB,
-  "hubot-cf-notifications": HUBOT_CF_NOTIFICATIONS,
+  "hubot-cf-notifications": HUBOT_CF_NOTIFICATIONS_PKG,
   "hubot-cfpb-indexer": HUBOT_CFPB_INDEXER,
   "hubot-new-relic-alerts": HUBOT_NEW_RELIC_ALERTS,
   "hubot-onboarding": HUBOT_ONBOARDING,
   "hubot-scripts-us-federal-holidays-reminder":
     HUBOT_SCRIPTS_US_FEDERAL_HOLIDAYS_REMINDER,
   icn3d: ICN3D,
-  "identity-style-guide": IDENTITY_DESIGN_SYSTEM,
   "ipymesh-widgets": IPYMESH,
+  "is-money-usd": IS_MONEY_USD,
   jsfive: JSFIVE,
   "jumbo-mortgage": JUMBO_MORTGAGE,
   "linkify-citations": LINKIFY_CITATIONS,
@@ -2445,11 +3111,13 @@ export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {
   "nara-node": NARA_NODE,
   "ncbi-web-standards": STANDARDS2,
   "ngx-cbp-theme": NGX_CBP_THEME,
-  "ngx-uswds": NGX_USWDS,
-  npmaki: SYMBOL_LIBRARY,
-  nucos: JSNUCOS,
+  "ngx-cms-common": NGX_CMS_COMMON,
+  "ngx-cms-common-app": NGX_CMS_COMMON_APP,
+  nucos: NUCOS,
+  "oauth2-proxy-authentication": OAUTH2_PROXY_AUTHENTICATION,
   objectified: OBJECTIFIED,
   "onboarding-scheduler": ONBOARDING_SCHEDULER,
+  "openaq-quality-checker": OPENAQ_QUALITY_CHECKER,
   openmct: OPENMCT,
   "openmct-mcws-plugin": OPENMCT_MCWS,
   "openseadragon-filtering": OPENSEADRAGONFILTERING,
@@ -2461,76 +3129,271 @@ export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {
   "opensphere-state-schema": OPENSPHERE_STATE_SCHEMA,
   "overall-loan-cost": OVERALL_LOAN_COST,
   "owning-a-home": OWNING_A_HOME,
+  "pa11y-crawl": PA11Y_CRAWL,
   "pa11y-reporter-ci": PA11Y_REPORTER_CI,
   patristic: PATRISTIC,
-  "pmps-ui": PMPS_UI,
-  "present-value": PRESENT_VALUE,
-  "public-sans": PUBLIC_SANS,
+  "qpp-bsr-excel-tool": QPP_BSR_EXCEL_TOOL,
+  "qpp-design-system": CMSGOV_QPP_DESIGN_SYSTEM_CORE,
   "qpp-file-upload-api-client": QPP_FILE_UPLOAD_API_CLIENT,
   "qpp-measures-data": QPP_MEASURES_DATA,
+  "qpp-shared-health-check-node": QPP_SHARED_HEALTH_CHECK_NODE,
   "qpp-shared-healthcheck-node": QPP_SHARED_HEALTHCHECK_NODE,
   "qpp-shared-logger-node": QPP_SHARED_LOGGER_NODE,
+  "qpp-stickyfilljs": QPP_STICKYFILLJS,
+  "qpp-style": QPP_STYLE,
   "qpp-submissions-schema": QPP_SUBMISSIONS_SCHEMA,
+  "quakeml-parser-js": QUAKEML_PARSER_JS,
   read2me: READ2ME,
-  "report-granules": CUMULUS,
-  "report-pdrs": CUMULUS,
+  "retext-18f-simplify": RETEXT_18F_SIMPLIFY,
+  "savvy-utils": SAVVY_UTILS,
   "seed-images": SEED_IMAGES,
   sendak: SENDAK,
   "sendak-usage": SENDAK_USAGE,
+  "simple-features-js": SIMPLE_FEATURES_JS,
+  "simple-features-wkb-js": SIMPLE_FEATURES_WKB_JS,
   singularjs: SINGULARJS,
-  standard_knowledge_js: STANDARD_KNOWLEDGE,
   "stay-positive": STAY_POSITIVE,
-  "stigman-watcher": STIGMAN_WATCHER,
+  "stickyfill-web-module": STICKYFILL_WEB_MODULE,
   "student-debt-calc": STUDENT_DEBT_CALCULATOR,
   "stylelint-config-opensphere": STYLELINT_CONFIG_OPENSPHERE,
+  "team-api-server": TEAM_API_SERVER,
   tidytree: TIDYTREE,
   time2read: TIME2READ,
   timecraftjs: TIMECRAFTJS,
   tn93: TN93_JS,
-  "type-checkers": ATOMICCOMPONENT,
   "unformat-usd": UNFORMAT_USD,
   "us-forms-system": US_FORMS_SYSTEM,
-  uswds: USWDS,
+  "uswds-extended": USWDS_EXTENDED,
   vax: VAX,
   "vets-json-schema": VETS_JSON_SCHEMA,
   wcag: NODE_WCAG,
   "wcag-cli": NODE_WCAG_CLI,
-  "wdfn-viz": WDFN_VIZ,
+  "wdfn-viz": WDFN_VIZ_PKG,
   "worldview-components": WORLDVIEW_COMPONENTS,
-  xapiwrapper: XAPIWRAPPER,
+  "@18f/18f-eslint": PKG_18F_18F_ESLINT,
+  "@18f/eslint-plugin-identity": PKG_18F_ESLINT_PLUGIN_IDENTITY,
+  "@18f/identity-address-search": PKG_18F_ESLINT_PLUGIN_IDENTITY,
+  "@18f/identity-build-sass": PKG_18F_ESLINT_PLUGIN_IDENTITY,
+  "@18f/identity-components": PKG_18F_ESLINT_PLUGIN_IDENTITY,
+  "@18f/identity-design-system": IDENTITY_DESIGN_SYSTEM,
+  "@18f/identity-i18n": PKG_18F_ESLINT_PLUGIN_IDENTITY,
+  "@18f/identity-normalize-yaml": PKG_18F_ESLINT_PLUGIN_IDENTITY,
+  "@18f/identity-stylelint-config": PKG_18F_ESLINT_PLUGIN_IDENTITY,
+  "@18f/private-eye": PKG_18F_PRIVATE_EYE,
+  "@18f/redux-textarea-debounce": PKG_18F_REDUX_TEXTAREA_DEBOUNCE,
+  "@18f/stylelint-rules": PKG_18F_STYLELINT_RULES,
+  "@18f/trello-webhook-server": PKG_18F_TRELLO_WEBHOOK_SERVER,
+  "@18f/us-federal-holidays": PKG_18F_US_FEDERAL_HOLIDAYS,
+  "@cbiitss/react-components": CBIITSS_REACT_COMPONENTS,
+  "@cdc/map": CDC_MAP,
+  "@cfpb/atomic-component": CFPB_ATOMIC_COMPONENT,
+  "@cfpb/britecharts": BRITECHARTS,
+  "@cfpb/browserslist-config": CFPB_ANALYTICS,
+  "@cfpb/buttons": CFPB_BUTTONS,
+  "@cfpb/ccdb5-ui": CCDB5_UI,
+  "@cfpb/cfpb-analytics": CFPB_ANALYTICS,
+  "@cfpb/cfpb-atomic-component": CFPB_CFPB_ATOMIC_COMPONENT,
+  "@cfpb/cfpb-buttons": CFPB_CFPB_BUTTONS,
+  "@cfpb/cfpb-core": CFPB_CFPB_CORE,
+  "@cfpb/cfpb-design-system": CFPB_DESIGN_SYSTEM,
+  "@cfpb/cfpb-expandables": CFPB_CFPB_EXPANDABLES,
+  "@cfpb/cfpb-forms": CFPB_CFPB_FORMS,
+  "@cfpb/cfpb-grid": CFPB_CFPB_GRID,
+  "@cfpb/cfpb-icons": CFPB_CFPB_ICONS,
+  "@cfpb/cfpb-layout": CFPB_CFPB_LAYOUT,
+  "@cfpb/cfpb-notifications": CFPB_CFPB_NOTIFICATIONS,
+  "@cfpb/cfpb-pagination": CFPB_CFPB_PAGINATION,
+  "@cfpb/cfpb-tables": CFPB_CFPB_TABLES,
+  "@cfpb/cfpb-typography": CFPB_CFPB_TYPOGRAPHY,
+  "@cfpb/core": CFPB_CORE,
+  "@cfpb/design-system": CFPB_DESIGN_SYSTEM,
+  "@cfpb/design-system-react": DESIGN_SYSTEM_REACT,
+  "@cfpb/expandables": CFPB_EXPANDABLES,
+  "@cfpb/forms": CFPB_FORMS,
+  "@cfpb/grid": CFPB_GRID,
+  "@cfpb/icons": CFPB_ICONS,
+  "@cfpb/jumbo-mortgage": JUMBO_MORTGAGE,
+  "@cfpb/layout": CFPB_LAYOUT,
+  "@cfpb/netlify-cms": CFPB_NETLIFY_CMS,
+  "@cfpb/notifications": CFPB_NOTIFICATIONS,
+  "@cfpb/pagination": CFPB_PAGINATION,
+  "@cfpb/rental-assistance-finder": RENTAL_ASSISTANCE_FINDER,
+  "@cfpb/student-debt-calculator": STUDENT_DEBT_CALCULATOR,
+  "@cfpb/tables": CFPB_TABLES,
+  "@cfpb/typography": CFPB_TYPOGRAPHY,
+  "@cmsgov/design-system": CMS_DESIGN_SYSTEM,
+  "@cmsgov/design-system-core": CMS_DESIGN_SYSTEM,
+  "@cmsgov/design-system-docs": CMS_DESIGN_SYSTEM,
+  "@cmsgov/design-system-layout": CMS_DESIGN_SYSTEM,
+  "@cmsgov/design-system-scripts": CMS_DESIGN_SYSTEM,
+  "@cmsgov/design-system-support": CMS_DESIGN_SYSTEM,
+  "@cmsgov/ds-cms-gov": CMS_DS_CMS_GOV,
+  "@cmsgov/ds-healthcare-gov": CMS_DS_HEALTHCARE_GOV,
+  "@cmsgov/ds-medicare-gov": CMS_DS_MEDICARE_GOV,
+  "@cmsgov/eslint-config-design-system": CMS_DESIGN_SYSTEM,
+  "@cmsgov/hpt-validator": CMSGOV_HPT_VALIDATOR,
+  "@cmsgov/hpt-validator-cli": CMSGOV_HPT_VALIDATOR_CLI,
+  "@cmsgov/medicare-site-package": CMSGOV_MEDICARE_SITE_PACKAGE,
+  "@cmsgov/qpp-design-system-core": CMSGOV_QPP_DESIGN_SYSTEM_CORE,
+  "@cmsgov/qpp-design-system-support": CMSGOV_QPP_DESIGN_SYSTEM_CORE,
+  "@cmsgov/qpp-measures-data": QPP_MEASURES_DATA,
+  "@cmsgov/qpp-shared-api-versioning-node":
+    CMSGOV_QPP_SHARED_API_VERSIONING_NODE,
+  "@cmsgov/qpp-shared-logger-node": QPP_SHARED_LOGGER_NODE,
+  "@cmsgov/qpp-style-angular": CMSGOV_QPP_STYLE_ANGULAR,
+  "@cmsgov/request-version": CMSGOV_REQUEST_VERSION,
+  "@cmsgov/stylelint-config-design-system": CMS_DESIGN_SYSTEM,
+  "@code.gov/about-page": CODE_GOV_ABOUT_PAGE,
+  "@code.gov/api-client": CODE_GOV_API_CLIENT,
+  "@code.gov/cautious": CODE_GOV_CAUTIOUS,
+  "@code.gov/code-gov-adapter": CODE_GOV_CODE_GOV_ADAPTER,
+  "@code.gov/code-gov-font": CODE_GOV_CODE_GOV_FONT,
+  "@code.gov/code-gov-style": CODE_GOV_CODE_GOV_STYLE,
+  "@code.gov/code-gov-validator": CODE_GOV_CODE_GOV_VALIDATOR,
+  "@code.gov/coding-languages": CODE_GOV_CODING_LANGUAGES,
+  "@code.gov/compliance-dashboard-web-component":
+    CODE_GOV_COMPLIANCE_DASHBOARD_WEB_COMPONENT,
+  "@code.gov/fscp-react-component": CODE_GOV_FSCP_REACT_COMPONENT,
+  "@code.gov/json-schema-validator-web-component":
+    CODE_GOV_JSON_SCHEMA_VALIDATOR_WEB_COMPONENT,
+  "@code.gov/json-schema-web-component": CODE_GOV_JSON_SCHEMA_WEB_COMPONENT,
+  "@code.gov/site-map-generator": CODE_GOV_SITE_MAP_GENERATOR,
+  "@cumulus/cumulus-message-adapter-js": CUMULUS_CUMULUS_MESSAGE_ADAPTER_JS,
+  "@department-of-veterans-affairs/react-jsonschema-form":
+    DEPARTMENT_OF_VETERANS_AFFAIRS_REACT_JSONSCHEMA_FORM,
+  "@deptofdefense/covid19-calculator": DEPTOFDEFENSE_COVID19_CALCULATOR,
+  "@edsc/echoforms": EDSC_ECHOFORMS,
+  "@edsc/geo-utils": EDSC_GEO_UTILS,
+  "@edsc/smart-handoffs": EDSC_SMART_HANDOFFS,
+  "@edsc/timeline": EDSC_TIMELINE,
+  "@enterprise-cmcs/macpro-security-hub-sync": MACPRO_SECURITY_HUB_SYNC,
+  "@enterprise-cmcs/macpro-serverless-running-stages":
+    ENTERPRISE_CMCS_MACPRO_SERVERLESS_RUNNING_STAGES,
+  "@enterprise-cmcs/serverless-waf-plugin":
+    ENTERPRISE_CMCS_SERVERLESS_WAF_PLUGIN,
+  "@erdc-itl/simple-logger": ERDC_ITL_SIMPLE_LOGGER,
+  "@faa-aviation-data-portal/tfrs": FAA_AVIATION_DATA_PORTAL_TFRS,
+  "@gsa-sam/icons": GSA_SAM_ICONS,
+  "@gsa-sam/sam-ui-elements": GSA_SAM_SAM_UI_ELEMENTS,
+  "@gsa-tts/svelte-ui-uswds": GSA_TTS_SVELTE_UI_USWDS,
+  "@nasa-gcn/afm": NASA_GCN_AFM,
+  "@nasa-gcn/architect-functions-search": NASA_GCN_ARCHITECT_FUNCTIONS_SEARCH,
+  "@nasa-gcn/architect-plugin-dynamodb-local":
+    NASA_GCN_ARCHITECT_PLUGIN_DYNAMODB_LOCAL,
+  "@nasa-gcn/architect-plugin-dynamodb-local-streams":
+    NASA_GCN_ARCHITECT_PLUGIN_DYNAMODB_LOCAL_STREAMS,
+  "@nasa-gcn/architect-plugin-search": NASA_GCN_ARCHITECT_PLUGIN_SEARCH,
+  "@nasa-gcn/architect-plugin-tracing": NASA_GCN_ARCHITECT_PLUGIN_TRACING,
+  "@nasa-gcn/architect-plugin-utils": NASA_GCN_ARCHITECT_PLUGIN_UTILS,
+  "@nasa-gcn/dynamodb-autoincrement": NASA_GCN_DYNAMODB_AUTOINCREMENT,
+  "@nasa-gcn/eslint-config-gitignore": NASA_GCN_ESLINT_CONFIG_GITIGNORE,
+  "@nasa-gcn/rcfiles": NASA_GCN_RCFILES,
+  "@nasa-gcn/remark-rehype-astro": NASA_GCN_REMARK_REHYPE_ASTRO,
+  "@nasa-gcn/remix-seo": NASA_GCN_REMIX_SEO,
+  "@nasa-gcn/schema": NASA_GCN_SCHEMA,
+  "@nasa-hds/core": NASA_HDS_CORE,
+  "@nasa-jpl/aerie-ampcs": NASA_JPL_AERIE_AMPCS,
+  "@nasa-jpl/aerie-monaco-editor-customizations":
+    NASA_JPL_AERIE_MONACO_EDITOR_CUSTOMIZATIONS,
+  "@nasa-jpl/aerie-sequence-languages": NASA_JPL_AERIE_SEQUENCE_LANGUAGES,
+  "@nasa-jpl/aerie-time-utils": NASA_JPL_AERIE_TIME_UTILS,
+  "@nasa-jpl/seq-json-schema": SEQ_JSON_SCHEMA,
+  "@nasa-terra/components": TERRA_UI_COMPONENTS,
+  "@nasapds/essence": NASAPDS_ESSENCE,
+  "@nasapds/wds": NASAPDS_WDS,
+  "@nasapds/wds-react": NASAPDS_WDS_REACT,
+  "@nasaworldwind/worldwind": WEBWORLDWIND,
+  "@ngageoint/closure-webpack-plugin": NGAGEOINT_CLOSURE_WEBPACK_PLUGIN,
+  "@ngageoint/color-js": NGAGEOINT_COLOR_JS,
+  "@ngageoint/gars-js": NGAGEOINT_GARS_JS,
+  "@ngageoint/geopackage": NGAGEOINT_GEOPACKAGE,
+  "@ngageoint/geopackage-csv-js": NGAGEOINT_GEOPACKAGE_CSV_JS,
+  "@ngageoint/geopackage-geojson-js": NGAGEOINT_GEOPACKAGE_GEOJSON_JS,
+  "@ngageoint/geopackage-kml-js": NGAGEOINT_GEOPACKAGE_KML_JS,
+  "@ngageoint/geopackage-mbtiles-js": NGAGEOINT_GEOPACKAGE_MBTILES_JS,
+  "@ngageoint/geopackage-mobile-optimizer":
+    NGAGEOINT_GEOPACKAGE_MOBILE_OPTIMIZER,
+  "@ngageoint/geopackage-pbf-js": NGAGEOINT_GEOPACKAGE_PBF_JS,
+  "@ngageoint/geopackage-shapefile-js": NGAGEOINT_GEOPACKAGE_SHAPEFILE_JS,
+  "@ngageoint/geopackage-xyz-js": NGAGEOINT_GEOPACKAGE_XYZ_JS,
+  "@ngageoint/grid-js": NGAGEOINT_GRID_JS,
+  "@ngageoint/leaflet-geopackage": NGAGEOINT_LEAFLET_GEOPACKAGE,
+  "@ngageoint/mgrs-js": NGAGEOINT_MGRS_JS,
+  "@ngageoint/opensphere-coverage-loader": NGAGEOINT_OPENSPHERE_COVERAGE_LOADER,
+  "@ngageoint/projections-js": NGAGEOINT_PROJECTIONS_JS,
+  "@ngageoint/seed-images": SEED_IMAGES,
+  "@ngageoint/simple-features-geojson-js": NGAGEOINT_SIMPLE_FEATURES_GEOJSON_JS,
+  "@ngageoint/simple-features-js": SIMPLE_FEATURES_JS,
+  "@ngageoint/simple-features-proj-js": NGAGEOINT_SIMPLE_FEATURES_PROJ_JS,
+  "@ngageoint/simple-features-wkb-js": SIMPLE_FEATURES_WKB_JS,
+  "@ngageoint/simple-features-wkt-js": NGAGEOINT_SIMPLE_FEATURES_WKT_JS,
+  "@nuwcdivnpt/stig-manager-client-modules":
+    NUWCDIVNPT_STIG_MANAGER_CLIENT_MODULES,
+  "@nuwcdivnpt/stigman-watcher": STIGMAN_WATCHER,
+  "@openacr/openacr": OPENACR_OPENACR,
+  "@oscal/oscal-deep-diff": OSCAL_DEEP_DIFF,
+  "@usds.gov/questionable": USDS_GOV_QUESTIONABLE,
+  "@usgs-astrogeology/usgscsm": USGS_ASTROGEOLOGY_USGSCSM,
+  "@ustaxcourt/payment-portal": USTAXCOURT_PAYMENT_PORTAL,
+  "@ustaxcourt/sharepoint-integration": USTAXCOURT_SHAREPOINT_INTEGRATION,
+  "@ustaxcourt/ustc-pay-gov-test-server": USTAXCOURT_USTC_PAY_GOV_TEST_SERVER,
+  "@uswds/compile": USWDS_COMPILE,
+  "@uswds/elements": USWDS_ELEMENTS,
+  "@uswds/tokens": USWDS_TOKENS,
+  "@uswds/uswds": USWDS,
+  "@uswds/web-components": USWDS_WEB_COMPONENTS,
 };
 
-// PyPI packages, keyed by normalized name: lowercased, with runs of - _ . collapsed
+// PyPI packages, keyed by normalized (lowercased, -/_/. collapsed) name
 export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   abcmrt16: ABCMRT16,
+  "aerie-cli": AERIE_CLI,
+  affinis: AFFINIS,
+  "ait-core": AIT_CORE,
+  "ait-dsn": AIT_DSN,
+  "ait-gui": AIT_GUI,
   analphipy: ANALPHIPY,
-  astrotime: ASTROTIME,
+  "anms-ace": ANMS_ACE,
+  "anms-camp": ANMS_CAMP,
+  atomgpt: ATOMGPT,
   atomman: ATOMMAN,
   atomvision: ATOMVISION,
   "bart-survival": BART_SURVIVAL,
   batchee: BATCHEE,
+  beaapi: BEAAPI,
+  "bento-mdf": BENTO_MDF,
   "bento-sts": BENTO_STS,
   "bingo-nasa": BINGO,
   "blob-utils": BLOB_UTILS,
   "bmds-ui": BMDS_UI,
-  "case-prov": CASE_IMPLEMENTATION_PROV_O,
-  "case-utils": CASE_UTILITIES_PYTHON,
+  "boto3-missing": BOTO3_MISSING,
+  "cc-plugin-glider": CC_PLUGIN_GLIDER,
+  "cc-plugin-ncei": CC_PLUGIN_NCEI,
+  "cc-plugin-og": CC_PLUGIN_OG,
+  "cc-plugin-sgrid": CC_PLUGIN_SGRID,
+  "cc-plugin-ugrid": CC_PLUGIN_UGRID,
   cdcs: PYCDCS,
+  "certbot-pkcs12": CERTBOT_PKCS12,
   cfasim: CFA_SIMULATOR,
   cfasodapy: CFASODAPY,
   "cfgov-setup": CFGOV_DJANGO_SETUP,
+  chemnlp: CHEMNLP,
+  chiltepin: CHILTEPIN,
   chipsff: CHIPSFF,
+  ciso: CISO,
   "ckanext-datagovcatalog": CKANEXT_DATAGOVCATALOG,
   "ckanext-datagovtheme": CKANEXT_DATAGOVTHEME,
-  "ckanext-datajson": CKANEXT_DATAJSON,
-  "ckanext-dcat-usmetadata": CKANEXT_DCAT_USMETADATA,
+  "ckanext-datajson": CKANEXT_DATAJSON_PKG,
   "ckanext-geodatagov": CKANEXT_GEODATAGOV,
   "ckanext-googleanalyticsbasic": CKANEXT_GOOGLEANALYTICSBASIC,
   "ckanext-metrics-dashboard": CKANEXT_METRICS_DASHBOARD,
   "ckanext-usmetadata": CKANEXT_USMETADATA,
   cmomy: CMOMY,
+  "codejson-index-generator": CODEJSON_INDEX_GENERATOR,
+  "compliance-checker": COMPLIANCE_CHECKER,
   condor: CONDOR,
   "consul-announcer": CONSUL_ANNOUNCER,
+  "contingency-tools": CONTINGENCY_TOOLS,
   "core-cache-manager-app": CORE_CACHE_MANAGER_APP,
   "core-composer-app": CORE_COMPOSER_APP,
   "core-curate-app": CORE_CURATE_APP,
@@ -2550,7 +3413,6 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "core-explore-tree-app": CORE_EXPLORE_TREE_APP,
   "core-exporters-app": CORE_EXPORTERS_APP,
   "core-federated-search-app": CORE_FEDERATED_SEARCH_APP,
-  "core-file-preview-app": CORE_FILE_PREVIEW_APP,
   "core-json-app": CORE_JSON_APP,
   "core-linked-records-app": CORE_LINKED_RECORDS_APP,
   "core-main-app": CORE_MAIN_APP,
@@ -2583,95 +3445,82 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "core-visualization-insitu-app": CORE_VISUALIZATION_INSITU_APP,
   "core-website-app": CORE_WEBSITE_APP,
   corl: CORL,
-  "cpa-data-services": CON_PCA_CICD,
-  cpadataservices: CON_PCA_CICD,
   "cpc-geofiles": CPC_GEOFILES,
   "cpc-geogrids": CPC_GEOGRIDS,
   "cpc-geoplot": CPC_GEOPLOT,
-  ctrefprop: CTREFPROP,
+  "ctos-meval": CTOS_MEVAL,
   "ctx-python": CTX_PYTHON,
   "cumulus-message-adapter": CUMULUS_MESSAGE_ADAPTER,
   datamodeldict: DATAMODELDICT,
   dataretrieval: DATARETRIEVAL_PYTHON,
-  "detection-limits": DETECTION_LIMITS,
+  dicaugment: DICAUGMENT,
   "dioptra-platform": DIOPTRA,
   "django-cache-tools": DJANGO_CACHE_TOOLS,
   "django-flags": DJANGO_FLAGS,
   "django-mysql-ssl": DJANGO_MYSQL_SSL,
   "django-tabular-export": DJANGO_TABULAR_EXPORT,
-  "django-uswds-forms": DJANGO_USWDS_FORMS,
-  "dmarc-import": DMARC_IMPORT,
   "docker-compose-control-center": DOCKER_CONTROL_CENTER,
   dodcerts: DODCERTS,
-  "domain-scan": DOMAIN_SCAN,
   "dorado-sensitivity": DORADO_SENSITIVITY,
+  dragodis: DRAGODIS,
+  "dynamodb-autoincrement": DYNAMODB_AUTOINCREMENT,
   "earthdata-hashdiff": EARTHDATA_HASHDIFF,
   "earthdata-varinfo": EARTHDATA_VARINFO,
   "egi-pynetstation": EGI_PYNETSTATION,
   eispac: EISPAC,
-  "elastic-blast": ELASTIC_BLAST,
-  emanifest: E_MANIFEST,
-  "eo-validation": EO_VALIDATION,
-  epaswmm: STORMWATER_MANAGEMENT_MODEL,
-  "erdc-quest": QUEST,
-  "esi-utils-time": ESI_UTILS_TIME,
+  elinkapi: ELINKAPI,
+  erddapy: ERDDAPY,
   etspy: ETSPY,
   exoscene: EXOSCENE,
   fastatools: FASTATOOLS,
-  fcpgtools: FCPGTOOLS,
-  fdtool: FDTOOL,
   fipy: FIPY,
-  flutile: FLUTILE,
-  "fluvial-particle": FLUVPARTICLE,
   fluxpart: FLUXPART,
-  fmdtools: FMDTOOLS,
-  fprime: FPRIME,
   "fprime-fpp": FPP,
-  "fprime-gds": FPRIME_GDS,
-  "fprime-tools": FPRIME_TOOLS,
+  fremor: FREMOR,
   fv3grid: FV3GRID,
-  gdptools: GDPTOOLS,
-  "gdptools-pygeoapi-plugin": GDPTOOLS_PYGEOAPI_PLUGIN,
+  "gcn-kafka": GCN_KAFKA,
   geneflow: GENEFLOW2,
   genesignet: GENESIGNET,
   "geo-prepper": GEO_PREPPER,
-  geocamutil: GEOCAMUTILWEB,
-  geocolor: GEOCOLOR,
-  geoips: GEOIPS,
-  "geoips-clavrx": GEOIPS_CLAVRX,
+  "geometry-utils": GEOMETRY_UTILS,
   gff3tool: GFF3TOOLKIT,
   "github-changelog": GITHUB_CHANGELOG,
-  gme: GME,
+  gliderpy: GLIDERPY,
   govdelivery: GOVDELIVERY,
-  "grants-shared": SIMPLER_GRANTS_GOV,
-  gtax: GTAX,
+  gspy: GSPY,
+  gtax: GTAX_PKG,
+  gval: GVAL,
+  "harmonize-wq": HARMONIZE_WQ,
   "harmony-py": HARMONY_PY,
   "harmony-service-lib": HARMONY_SERVICE_LIB_PY,
   hitips: HITIPS,
   "hmac-authentication": HMAC_AUTHENTICATION_PY,
-  "hmda-tools": HMDA_TOOLS,
   hobo: HOBO_PY,
+  hpx: HPX,
   "hybig-py": HARMONY_BROWSE_IMAGE_GENERATOR,
   hybridq: HYBRIDQ,
   hydroid: HYDROID,
-  "hydrotools-gcp-client": HYDROTOOLS,
-  icn3dpy: ICN3D,
+  hydrotools: HYDROTOOLS,
+  "hydrotools-waterdata-client": HYDROTOOLS,
   imppy3d: IMPPY3D,
   intermat: INTERMAT,
   "io-model-builder": IO_MODEL_BUILDER,
+  "ioos-metrics": IOOS_METRICS,
+  "ioos-pkg-skeleton": IOOS_PKG_SKELETON,
+  "ioos-qc": IOOS_QC,
   iprpy: IPRPY,
-  ipv6: IPV6_PYTHON,
+  ipymesh: IPYMESH,
+  itsxpress: ITSXPRESS,
   jobrunner: JOBRUNNER,
   judi: JUDI,
-  "justice40-data-pipeline": JUSTICE40_TOOL,
   "kamodo-ccmc": KAMODO,
+  kyos: KYOS,
   labbench: LABBENCH,
-  lasertram: LASERTRAM,
   "lasso-issues": LASSO_ISSUES,
   "lasso-releasers": LASSO_RELEASERS,
   "lasso-reports": LASSO_REPORTS,
   "lasso-requirements": LASSO_REQUIREMENTS,
-  "lcmap-pyccd": PYCCD,
+  "libpq-dev": LIBPQ_DEV,
   materialite: MATERIALITE,
   "mcp-data-check": MCP_DATA_CHECK,
   mcvqoe: MCVQOE,
@@ -2681,101 +3530,91 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "mcvqoe-mouth2ear": MOUTH2EAR,
   "mcvqoe-psud": PSUD,
   "mcvqoe-tvo": MCV_QOE_TVO,
-  microsecrets: MICROSECRETS,
-  misrtoolkit: MISR_TOOLKIT,
+  microsecrets: MICROSECRETS_PKG,
   mlmcpy: MLMCPY,
+  "model-catalogs": MODEL_CATALOGS,
   "modflow-setup": MODFLOW_SETUP,
-  modisconverter: MODISCONVERTER,
   "module-utilities": MODULE_UTILITIES,
-  "mosaic-nist": MOSAIC,
+  mwcp: MWCP,
   mxmcpy: MXMCPY,
   "naif-pds4-bundler": NAIF_PDS4_BUNDLER,
   "nasa-mika": MIKA,
-  "nasa-scrub": SCRUB,
+  navv: NAVV,
   "nda-tools": NDA_TOOLS,
   nemo: NEMO,
+  "nemo-contracts": NEMO_CONTRACTS,
+  "nemo-custom-forms": NEMO_CUSTOM_FORMS,
+  "nemo-online-training": NEMO_ONLINE_TRAINING,
+  "nemo-sensors": NEMO_SENSORS,
   "nestor-qt": NESTOR_QT,
   nfflr: NFFLR,
-  nimbus: NIMBUS,
-  "nldi-flowtools": NLDI_FLOWTOOLS,
-  "nldi-xstool": NLDI_XSTOOL,
   noaabathymetry: NOAABATHYMETRY,
   nrss: NRSS,
-  octofludb: OCTOFLUDB,
+  odvc: ODVC,
+  oneargopy: ONEARGOPY,
   "open-notebook": OPEN_NOTEBOOK,
-  "pds-api": PDS_API,
   "pds-data-upload-manager": DATA_UPLOAD_MANAGER,
-  "pds-deeparchive": DEEP_ARCHIVE,
-  "pds-doi-core": DOI_SERVICE,
-  "pds-doi-service": DOI_SERVICE,
+  "pds-doi-service": PDS_DOI_SERVICE,
   "pds-epitome": EPITOME,
   "pds-github-util": PDS_GITHUB_UTIL,
   "pds-ldd-manager": LDD_MANAGER,
-  "pds-peppi": PEPPI,
   "pds-registry": REGISTRY,
-  "pds-registry-client": REGISTRY_CLIENT,
-  "pds-registry-sweepers": REGISTRY_SWEEPERS,
-  "pds-updart": PEPPI,
-  "pds-web-analytics": WEB_ANALYTICS,
-  plagioclase: PLAG,
-  pm4ngs: PM4NGS,
+  "petulant-bear": PETULANT_BEAR,
   podaacpy: PODAACPY_2,
   porerefiner: POREREFINER,
   potentials: POTENTIALS,
-  "prog-algs": PROG_ALGS,
-  "prog-models": PROG_MODELS,
   "prog-server": PROG_SERVER,
   progpy: PROGPY,
-  "proplib-lfmf": LFMF,
-  "proplib-p2108": P2108,
   pshtt: PSHTT,
+  "py-gd": PY_GD,
   pyaqsapi: PYAQSAPI,
   "pybeepop-plus": PYBEEPOP,
   pybmds: BMDS,
   "pycap-dss": PYCAP_DSS,
-  "pycast-usgs": SHAKECAST,
-  "pycax-client": PYCAX,
+  pyebsdindex: PYEBSDINDEX,
+  pygcn: PYGCN,
   pyhappyornot: PYHAPPYORNOT,
-  pyhidra: PYHIDRA,
   pyhyperscattering: PYHYPERSCATTERING,
-  pymaxspots: PYMAXSPOTS,
   pymcr: PYMCR,
   pymdwizard: FORT_PYMDWIZARD,
-  pymrgeo: MRGEO,
-  pynims: PYNIMS,
   pynssp: PYNSSP,
   pynucos: PYNUCOS,
+  pyoos: PYOOS,
   pyprism: PYPRISM,
   pyprms: PYPRMS,
   pyproject2conda: PYPROJECT2CONDA,
-  pysatsi: PYSATSI,
   pysips: PYSIPS,
+  "pytest-kafka-broker": PYTEST_KAFKA_BROKER,
   "python-cmr": PYTHON_CMR,
-  "pytorch-caney": PYTORCH_CANEY,
+  pywatershed: PYWATERSHED,
+  "q2-itsxpress": Q2_ITSXPRESS,
   qarrayrun: QARRAYRUN,
+  "quarto-utils": QUARTO_UTILS,
   radbelt: RADBELT,
   "rdbms-subsetter": RDBMS_SUBSETTER,
   refchooser: REFCHOOSER,
   regdown: REGDOWN,
-  "registry-sweepers": REGISTRY_SWEEPERS,
+  "reid-hota": REID_HOTA,
+  "rosetta-soil": ROSETTA_SOIL,
+  rugosa: RUGOSA,
+  "run-time-assurance": RUN_TIME_ASSURANCE,
+  "safe-autonomy-dynamics": SAFE_AUTONOMY_DYNAMICS,
+  "safe-autonomy-sims": SAFE_AUTONOMY_SIMS,
   sarpy: SARPY,
-  "sarpy-apps": SARPY_APPS,
   sas2db: SAS2DB,
-  sciencebasepy: SCIENCEBASEPY,
+  "scikit-eit": SCIKIT_EIT,
   scpopcorn: SCPOPCORN,
   sdnist: SDNIST,
   sensoff: SENSOFF,
-  sensortoolkit: SENSORTOOLKIT,
+  sentop: SENTOP,
   "seq-json-schema": SEQ_JSON_SCHEMA,
   serotools: SEROTOOLS,
   sfrmaker: SFRMAKER,
   "shakecast-aebm": SHAKECAST_AEBM,
   "signals-utils": SIGNALS_UTILS,
   simprocesd: SIMPROCESD,
-  skhash: SKHASH,
   "slack-emoji-search": EMOJI_SEARCH,
   smcpy: SMCPY,
-  smot: SMOT,
   "snp-mutator": SNP_MUTATOR,
   "snp-pipeline": SNP_PIPELINE,
   "sql-insert-writer": SQL_INSERT_WRITER,
@@ -2784,30 +3623,35 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   ssmdevices: SSMDEVICES,
   stitchee: STITCHEE,
   tb3py: TB3PY,
-  "tensorflow-caney": TENSORFLOW_CANEY,
+  "tekrsa-api-wrap": TEKRSA_API_WRAP,
   teqp: TEQP,
+  teqpflsh: TEQPFLSH,
   "termseq-peaks": TERMSEQ_PEAKS,
   thermoextrap: THERMOEXTRAP,
+  "thredds-crawler": THREDDS_CRAWLER,
   "tk-builder": TK_BUILDER,
   "tmmc-lnpy": TMMC_LNPY,
   tn93: TN93,
-  "travis-wait-improved": TRAVIS_WAIT_IMPROVED,
   trustymail: TRUSTYMAIL,
-  twutils: TURBOWAVE,
   "usgs-shakecast": SHAKECAST,
   "uv-workon": UV_WORKON,
   vcftoolz: VCFTOOLZ,
   "vhr-cloudmask": VHR_CLOUDMASK,
-  "vhr-composite": VHR_COMPOSITE,
   vica: VICA,
-  vipersci: VIPERSCI,
+  vyperdatum: VYPERDATUM,
   "wagtail-content-audit": WAGTAIL_CONTENT_AUDIT,
   "wagtail-copyablemodeladmin": WAGTAIL_COPYABLEMODELADMIN,
   "wagtail-flags": WAGTAIL_FLAGS,
   "wagtail-inventory": WAGTAIL_INVENTORY,
   "wagtail-sharing": WAGTAIL_SHARING,
   "wagtail-treemodeladmin": WAGTAIL_TREEMODELADMIN,
+  wicken: WICKEN,
+  wimlib: WIMLIB,
+  wntr: WNTR,
+  wxmpl: WXMPL,
+  "xarray-subset-grid": XARRAY_SUBSET_GRID,
   "xml-utils": XML_UTILS,
+  xwmt: XWMT,
   yabadaba: YABADABA,
   "zarr-eosdis-store": ZARR_EOSDIS_STORE,
   zyra: ZYRA,
