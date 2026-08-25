@@ -1,51 +1,20 @@
-export interface ReusedCodeEntry {
-  name: string;
-  URL: string;
-}
+import {
+  ReusedCodeEntry,
+  GOV_DEPENDENCIES,
+  GOV_DEPENDENCIES_PYPI,
+} from "./gov-dependencies.data.js";
 
-// each dependency gets its own entry with the repository URL where the source code is hosted
-export const USWDS: ReusedCodeEntry = {
-  name: "U.S. Web Design System (USWDS)",
-  URL: "https://github.com/uswds/uswds",
-};
+export type { ReusedCodeEntry };
+export { GOV_DEPENDENCIES, GOV_DEPENDENCIES_PYPI };
+export {
+  USWDS,
+  USWDS_COMPILE,
+  CMS_DESIGN_SYSTEM,
+  CMS_DS_HEALTHCARE_GOV,
+  CMS_DS_MEDICARE_GOV,
+  CMS_DS_CMS_GOV,
+} from "./gov-dependencies.data.js";
 
-export const USWDS_COMPILE: ReusedCodeEntry = {
-  name: "USWDS Compile",
-  URL: "https://github.com/uswds/uswds-compile",
-};
-
-export const CMS_DESIGN_SYSTEM: ReusedCodeEntry = {
-  name: "CMS Design System",
-  URL: "https://github.com/CMSgov/design-system",
-};
-
-export const CMS_DS_HEALTHCARE_GOV: ReusedCodeEntry = {
-  name: "CMS Design System - HealthCare.gov",
-  URL: "https://github.com/CMSgov/design-system/tree/main/packages/ds-healthcare-gov",
-};
-
-export const CMS_DS_MEDICARE_GOV: ReusedCodeEntry = {
-  name: "CMS Design System - Medicare.gov",
-  URL: "https://github.com/CMSgov/design-system/tree/main/packages/ds-medicare-gov",
-};
-
-export const CMS_DS_CMS_GOV: ReusedCodeEntry = {
-  name: "CMS Design System - CMS.gov",
-  URL: "https://github.com/CMSgov/design-system/tree/main/packages/ds-cms-gov",
-};
-
-// keys are lowercased package names; each maps to its own unique entry
-export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {
-  uswds: USWDS,
-  "@uswds/uswds": USWDS,
-  "@uswds/compile": USWDS_COMPILE,
-  "@cmsgov/design-system": CMS_DESIGN_SYSTEM,
-  "@cmsgov/ds-healthcare-gov": CMS_DS_HEALTHCARE_GOV,
-  "@cmsgov/ds-medicare-gov": CMS_DS_MEDICARE_GOV,
-  "@cmsgov/ds-cms-gov": CMS_DS_CMS_GOV,
-};
-
-// npm names are lowercase and Python names are case-insensitive, so lowercasing suffices to match
 export function normalizePackageName(name: string): string {
   return name.trim().toLowerCase();
 }
@@ -55,5 +24,22 @@ export function lookupGovDependency(name: string): ReusedCodeEntry | undefined {
   const key = normalizePackageName(name);
   return Object.hasOwn(GOV_DEPENDENCIES, key)
     ? GOV_DEPENDENCIES[key]
+    : undefined;
+}
+
+// Normalize a PyPI name: lowercase, then collapse runs of -, _, . into a single -.
+export function normalizePyPIName(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[-_.]+/g, "-");
+}
+
+export function lookupPyPIGovDependency(
+  name: string,
+): ReusedCodeEntry | undefined {
+  const key = normalizePyPIName(name);
+  return Object.hasOwn(GOV_DEPENDENCIES_PYPI, key)
+    ? GOV_DEPENDENCIES_PYPI[key]
     : undefined;
 }

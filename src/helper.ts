@@ -2,7 +2,11 @@ import { CodeJSON } from "./types/CodeJSONSchema.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
 import { validateCodeJSON } from "./zod-validation.js";
 import { Dependencies } from "./types/Dependencies.js";
-import { ReusedCodeEntry, lookupGovDependency } from "./gov-dependencies.js";
+import {
+  ReusedCodeEntry,
+  lookupGovDependency,
+  lookupPyPIGovDependency,
+} from "./gov-dependencies.js";
 
 const HOURS_PER_MONTH = 730.001;
 
@@ -141,14 +145,23 @@ export function createHelpers(deps: Dependencies) {
       readManifest("/github/workspace/requirements.txt"),
     ]);
 
-    const names: string[] = [];
-    if (packageJSON) names.push(...parsePackageJSON(packageJSON));
-    if (requirements) names.push(...parseRequirementsTxt(requirements));
+    // npm and PyPI normalize package names differently, so each ecosystem is
+    // resolved through its own lookup.
+    const detected: Array<ReusedCodeEntry | undefined> = [];
+    if (packageJSON) {
+      for (const name of parsePackageJSON(packageJSON)) {
+        detected.push(lookupGovDependency(name));
+      }
+    }
+    if (requirements) {
+      for (const name of parseRequirementsTxt(requirements)) {
+        detected.push(lookupPyPIGovDependency(name));
+      }
+    }
 
     const entries: ReusedCodeEntry[] = [];
     const seen = new Set<string>();
-    for (const name of names) {
-      const entry = lookupGovDependency(name);
+    for (const entry of detected) {
       if (entry && !seen.has(entry.URL)) {
         seen.add(entry.URL);
         entries.push(entry);
