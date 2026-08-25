@@ -39,7 +39,7 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^3.0.0",
-    "@octokit/action": "^7.0.0",
+    "@octokit/action": "^8.0.4",
     "codejson-core": "^0.1.1",
     "octokit-plugin-create-pull-request": "^6.0.1",
     "zod": "^4.2.1"
