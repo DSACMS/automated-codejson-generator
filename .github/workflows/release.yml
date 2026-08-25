@@ -91,7 +91,7 @@ jobs:
           git push origin $major --force
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.next.outputs.next }}
           name: Release ${{ steps.next.outputs.next }}
