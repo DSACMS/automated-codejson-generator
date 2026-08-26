@@ -3,28 +3,29 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     groups:
-      actions-minor:
+      github-actions:
+        patterns:
+          - "*"
         update-types:
+          - major
           - minor
           - patch
 
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     ignore:
       - dependency-name: "@types/node"
         update-types:
           - "version-update:semver-major"
     groups:
-      npm-development:
-        dependency-type: development
+      npm:
+        patterns:
+          - "*"
         update-types:
+          - major
           - minor
-          - patch
-      npm-production:
-        dependency-type: production
-        update-types:
           - patch
