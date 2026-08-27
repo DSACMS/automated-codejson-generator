@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "20"
           cache: "npm"
@@ -32,7 +32,7 @@ jobs:
       # lets the run skip every repo that has not changed. The run id in the key
       # means each run saves a fresh copy for the next one.
       - name: Restore discovery cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .gov-update-cache
           key: gov-update-cache-${{ github.run_id }}
@@ -66,7 +66,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.changes.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore: update federal dependency list"
           title: "chore: update federal dependency list"
