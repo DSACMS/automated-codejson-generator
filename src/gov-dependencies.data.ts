@@ -2154,6 +2154,11 @@ const DESIGN_SYSTEM_REACT: ReusedCodeEntry = {
   URL: "https://github.com/cfpb/design-system-react",
 };
 
+const DETECTION_LIMITS: ReusedCodeEntry = {
+  name: "detection-limits (National Institute of Standards and Technology)",
+  URL: "https://github.com/usnistgov/detection_limits",
+};
+
 const DICAUGMENT: ReusedCodeEntry = {
   name: "DICaugment (DIDSR (Aldo Badano, Director))",
   URL: "https://github.com/didsr/dicaugment",
@@ -2294,6 +2299,11 @@ const GSA_SAM_ICONS: ReusedCodeEntry = {
   URL: "https://github.com/gsa/sds-icons",
 };
 
+const GSA_SAM_SAM_STYLES: ReusedCodeEntry = {
+  name: "sam-styles (U.S. General Services Administration)",
+  URL: "https://github.com/gsa/sam-styles",
+};
+
 const GSA_SAM_SAM_UI_ELEMENTS: ReusedCodeEntry = {
   name: "sam-ui-elements (U.S. General Services Administration)",
   URL: "https://github.com/gsa/sam-ui-elements",
@@ -2402,6 +2412,11 @@ const IS_MONEY_USD: ReusedCodeEntry = {
 const ITSXPRESS: ReusedCodeEntry = {
   name: "itsxpress (USDA ARS Genomics and Bioinformatics Research Unit)",
   URL: "https://github.com/usda-ars-gbru/itsxpress",
+};
+
+const KAMODO_CORE_OFFICIAL: ReusedCodeEntry = {
+  name: "kamodo-core-official (NASA)",
+  URL: "https://github.com/nasa/kamodo-core",
 };
 
 const KYOS: ReusedCodeEntry = {
@@ -2517,6 +2532,31 @@ const NASA_JPL_AERIE_SEQUENCE_LANGUAGES: ReusedCodeEntry = {
 const NASA_JPL_AERIE_TIME_UTILS: ReusedCodeEntry = {
   name: "aerie-time-utils (NASA AMMOS)",
   URL: "https://github.com/nasa-ammos/aerie-time-utils",
+};
+
+const NASA_JPL_PLANDEV_ACTIONS: ReusedCodeEntry = {
+  name: "plandev-actions (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/plandev-actions",
+};
+
+const NASA_JPL_PLANDEV_AMPCS: ReusedCodeEntry = {
+  name: "plandev-ampcs (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/plandev-ampcs",
+};
+
+const NASA_JPL_PLANDEV_SEQUENCE_LANGUAGES: ReusedCodeEntry = {
+  name: "plandev-sequence-languages (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/plandev-sequence-languages",
+};
+
+const NASA_JPL_PLANDEV_TIME_UTILS: ReusedCodeEntry = {
+  name: "plandev-time-utils (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/plandev-time-utils",
+};
+
+const NASA_JPL_PLANDEV_TS_USER_CODE_RUNNER: ReusedCodeEntry = {
+  name: "plandev-ts-user-code-runner (NASA AMMOS)",
+  URL: "https://github.com/nasa-ammos/plandev-ts-user-code-runner",
 };
 
 const NASAPDS_ESSENCE: ReusedCodeEntry = {
@@ -3342,6 +3382,12 @@ export const GOV_DEPENDENCIES: Record<string, ReusedCodeEntry> = {
   "@uswds/tokens": USWDS_TOKENS,
   "@uswds/uswds": USWDS,
   "@uswds/web-components": USWDS_WEB_COMPONENTS,
+  "@gsa-sam/sam-styles": GSA_SAM_SAM_STYLES,
+  "@nasa-jpl/plandev-actions": NASA_JPL_PLANDEV_ACTIONS,
+  "@nasa-jpl/plandev-ampcs": NASA_JPL_PLANDEV_AMPCS,
+  "@nasa-jpl/plandev-sequence-languages": NASA_JPL_PLANDEV_SEQUENCE_LANGUAGES,
+  "@nasa-jpl/plandev-time-utils": NASA_JPL_PLANDEV_TIME_UTILS,
+  "@nasa-jpl/plandev-ts-user-code-runner": NASA_JPL_PLANDEV_TS_USER_CODE_RUNNER,
 };
 
 // PyPI packages, keyed by normalized (lowercased, -/_/. collapsed) name
@@ -3453,6 +3499,7 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   "cumulus-message-adapter": CUMULUS_MESSAGE_ADAPTER,
   datamodeldict: DATAMODELDICT,
   dataretrieval: DATARETRIEVAL_PYTHON,
+  "detection-limits": DETECTION_LIMITS,
   dicaugment: DICAUGMENT,
   "dioptra-platform": DIOPTRA,
   "django-cache-tools": DJANGO_CACHE_TOOLS,
@@ -3514,6 +3561,7 @@ export const GOV_DEPENDENCIES_PYPI: Record<string, ReusedCodeEntry> = {
   jobrunner: JOBRUNNER,
   judi: JUDI,
   "kamodo-ccmc": KAMODO,
+  "kamodo-core-official": KAMODO_CORE_OFFICIAL,
   kyos: KYOS,
   labbench: LABBENCH,
   "lasso-issues": LASSO_ISSUES,
