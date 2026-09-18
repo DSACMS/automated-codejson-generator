@@ -1,4 +1,4 @@
-name: Code.json Generator
+name: automated-codejson-generator
 description: "Automatically generates and updates code.json metadata files for CMS repositories"
 author: DSACMS
 
@@ -38,7 +38,7 @@ outputs:
 
 runs:
   using: docker
-  image: Dockerfile
+  image: docker://ghcr.io/dsacms/automated-codejson-generator:v2.0.0
 
 branding:
   icon: "file-text"
