@@ -4,6 +4,9 @@ import {
   parsePackageJSON,
   parseRequirementsTxt,
   mergeReusedCode,
+  deriveRepositoryHost,
+  deriveUsageType,
+  deriveMaturityTier,
 } from "../../helper.js";
 import {
   GOV_DEPENDENCIES,
@@ -524,4 +527,178 @@ describe("GOV_DEPENDENCIES_PYPI integrity", () => {
       expect(entry.URL).toMatch(/^https:\/\//);
     },
   );
+});
+
+describe("deriveRepositoryHost", () => {
+  it.each([
+    ["https://github.com/CMSgov/some-repo", "github.com/CMSgov"],
+    [
+      "https://github.com/CMS-Enterprise/some-repo",
+      "github.com/CMS-Enterprise",
+    ],
+    [
+      "https://github.com/Enterprise-CMCS/some-repo",
+      "github.com/Enterprise-CMCS",
+    ],
+    ["https://github.com/DSACMS/some-repo", "github.com/DSACMS"],
+    [
+      "https://github.com/MeasureAuthoringTool/some-repo",
+      "github.com/MeasureAuthoringTool",
+    ],
+    ["https://github.cms.gov/some-org/some-repo", "github.cms.gov"],
+  ])("maps %s to %s", (url, expected) => {
+    expect(deriveRepositoryHost(url)).toBe(expected);
+  });
+
+  it("matches the organization regardless of case", () => {
+    expect(deriveRepositoryHost("https://github.com/dsacms/some-repo")).toBe(
+      "github.com/DSACMS",
+    );
+  });
+
+  it("returns undefined for an organization outside the enum", () => {
+    expect(
+      deriveRepositoryHost("https://github.com/some-vendor/some-repo"),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined for a host outside the enum", () => {
+    expect(
+      deriveRepositoryHost("https://gitlab.com/DSACMS/some-repo"),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined when the URL has no organization segment", () => {
+    expect(deriveRepositoryHost("https://github.com/")).toBeUndefined();
+  });
+
+  it("returns undefined for a value that is not a URL", () => {
+    expect(deriveRepositoryHost("")).toBeUndefined();
+    expect(deriveRepositoryHost("private")).toBeUndefined();
+  });
+});
+
+describe("deriveUsageType", () => {
+  it("treats a public repository as open source", () => {
+    expect(deriveUsageType("public")).toEqual(["openSource"]);
+  });
+
+  // every remaining usageType value is an exemption needing a written justification
+  it("leaves a private repository for a human to classify", () => {
+    expect(deriveUsageType("private")).toEqual([]);
+    expect(deriveUsageType(undefined)).toEqual([]);
+  });
+});
+
+describe("deriveMaturityTier", () => {
+  const tier3Files = new Set([
+    "LICENSE",
+    "README",
+    "COMMUNITY",
+    "SECURITY",
+    "CONTRIBUTING",
+    "CODE_OF_CONDUCT",
+  ]);
+
+  it("reports tier 4 when the repository documents its governance", () => {
+    expect(
+      deriveMaturityTier(new Set([...tier3Files, "GOVERNANCE"]), "public"),
+    ).toBe(4);
+  });
+
+  it("reports tier 3 for a public repository open to contribution", () => {
+    expect(deriveMaturityTier(tier3Files, "public")).toBe(3);
+  });
+
+  // tiers 2 and 3 require the same documents, so visibility is the only separator
+  it("reports tier 2 for the same documents in a private repository", () => {
+    expect(deriveMaturityTier(tier3Files, "private")).toBe(2);
+  });
+
+  it("reports tier 1 when only a security policy is present", () => {
+    expect(
+      deriveMaturityTier(new Set(["LICENSE", "README", "SECURITY"]), "public"),
+    ).toBe(1);
+  });
+
+  it("reports tier 0 when the distinguishing documents are absent", () => {
+    expect(deriveMaturityTier(new Set(["LICENSE", "README"]), "public")).toBe(
+      0,
+    );
+    expect(deriveMaturityTier(new Set(), "public")).toBe(0);
+  });
+
+  // a contributing guide on its own does not reach the tier 2 checklist
+  it("requires both a contributing guide and a code of conduct", () => {
+    expect(
+      deriveMaturityTier(new Set(["LICENSE", "CONTRIBUTING"]), "public"),
+    ).toBe(0);
+  });
+});
+
+describe("createHelpers - detectCommunityFiles", () => {
+  it("reports the documents the repository ships", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({
+        "/github/workspace/LICENSE": "CC0",
+        "/github/workspace/README.md": "# Project",
+        "/github/workspace/CONTRIBUTING.md": "how to contribute",
+      }),
+    });
+
+    const files = await createHelpers(deps).detectCommunityFiles();
+
+    expect(files).toEqual(new Set(["LICENSE", "README", "CONTRIBUTING"]));
+  });
+
+  it("accepts community health files stored under .github", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({
+        "/github/workspace/.github/SECURITY.md": "report issues here",
+        "/github/workspace/.github/CODE_OF_CONDUCT.md": "be kind",
+      }),
+    });
+
+    const files = await createHelpers(deps).detectCommunityFiles();
+
+    expect(files).toEqual(new Set(["SECURITY", "CODE_OF_CONDUCT"]));
+  });
+
+  it("accepts alternate LICENSE extensions", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({ "/github/workspace/LICENSE.md": "CC0" }),
+    });
+
+    const files = await createHelpers(deps).detectCommunityFiles();
+
+    expect(files).toEqual(new Set(["LICENSE"]));
+  });
+
+  it("returns an empty set for a repository with no documents", async () => {
+    const files = await createHelpers(createMockDeps()).detectCommunityFiles();
+
+    expect(files).toEqual(new Set());
+  });
+});
+
+describe("createHelpers - readREADME", () => {
+  it("reads README.md", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({ "/github/workspace/README.md": "# Project" }),
+    });
+
+    expect(await createHelpers(deps).readREADME()).toBe("# Project");
+  });
+
+  it("falls back to other README spellings", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({ "/github/workspace/README.rst": "Project" }),
+    });
+
+    expect(await createHelpers(deps).readREADME()).toBe("Project");
+  });
+
+  it("returns null when the repository has no README", async () => {
+    expect(await createHelpers(createMockDeps()).readREADME()).toBeNull();
+  });
 });

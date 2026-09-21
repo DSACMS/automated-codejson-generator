@@ -1,11 +1,12 @@
 import {
   CodeJSON,
   assembleDraft,
+  draftBaseline,
   droppedFields,
   validateCodeJSON,
 } from "./codejson.js";
 import { Dependencies } from "./types/Dependencies.js";
-import { createHelpers, Helpers } from "./helper.js";
+import { createHelpers, deriveUsageType, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
 import { tryModelSmokeTest } from "./llm.js";
 
@@ -31,6 +32,24 @@ async function getMetaData(
     partialCodeJSON.tags ?? [],
     existingCodeJSON?.tags ?? [],
   );
+
+  const repositoryHost = existingCodeJSON?.repositoryHost || partialCodeJSON.repositoryHost;
+
+  const maturityModelTier = existingCodeJSON?.maturityModelTier || partialCodeJSON.maturityModelTier || 0;
+
+  const existingUsageType = existingCodeJSON?.permissions?.usageType ?? [];
+
+  const permissions: CodeJSON["permissions"] = {
+    licenses:
+      existingCodeJSON?.permissions?.licenses ??
+      draftBaseline.permissions?.licenses ??
+      [],
+    usageType:
+      existingUsageType.length > 0
+        ? existingUsageType
+        : deriveUsageType(partialCodeJSON.repositoryVisibility),
+    exemptionText: existingCodeJSON?.permissions?.exemptionText ?? "",
+  };
 
   // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode
   const [forkParent, detectedDeps] = await Promise.all([
@@ -59,6 +78,9 @@ async function getMetaData(
       lastModified: partialCodeJSON.date?.lastModified ?? "",
     },
     reusedCode,
+    permissions,
+    maturityModelTier,
+    ...(repositoryHost ? { repositoryHost } : {}),
   };
 }
 

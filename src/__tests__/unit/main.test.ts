@@ -159,6 +159,142 @@ describe("getMetaData", () => {
 
     expect(result.tags).toEqual(["test", "automation"]);
   });
+
+  it("marks a public repository as open source", async () => {
+    const result = await getMetaData(createHelpers(createMockDeps()), null);
+
+    expect(result.permissions?.usageType).toEqual(["openSource"]);
+  });
+
+  it("preserves an existing usageType rather than reclassifying it", async () => {
+    const existing = {
+      ...validCodeJSON,
+      permissions: {
+        licenses: [{ name: "MIT", URL: "https://example.gov/license" }],
+        usageType: ["exemptByAgencyMission"],
+        exemptionText: "sharing would risk agency operations",
+      },
+    } as any;
+
+    const result = await getMetaData(createHelpers(createMockDeps()), existing);
+
+    expect(result.permissions?.usageType).toEqual(["exemptByAgencyMission"]);
+  });
+
+  // usageType is the only part of permissions the action observes
+  it("carries existing licenses and exemption text through untouched", async () => {
+    const existing = {
+      ...validCodeJSON,
+      permissions: {
+        licenses: [{ name: "MIT", URL: "https://example.gov/license" }],
+        usageType: [],
+        exemptionText: "left over from an earlier exemption",
+      },
+    } as any;
+
+    const result = await getMetaData(createHelpers(createMockDeps()), existing);
+
+    expect(result.permissions?.licenses).toEqual([
+      { name: "MIT", URL: "https://example.gov/license" },
+    ]);
+    expect(result.permissions?.exemptionText).toBe(
+      "left over from an earlier exemption",
+    );
+    expect(result.permissions?.usageType).toEqual(["openSource"]);
+  });
+
+  it("defaults licenses to the draft baseline for a new repository", async () => {
+    const result = await getMetaData(createHelpers(createMockDeps()), null);
+
+    expect(result.permissions?.licenses).toEqual([
+      { name: "CC0-1.0", URL: "" },
+    ]);
+  });
+
+  it("derives the maturity tier from the community health files present", async () => {
+    const deps = createMockDeps({
+      readFile: jest.fn<any>((filepath: string) =>
+        filepath === "/github/workspace/GOVERNANCE.md"
+          ? Promise.resolve("how this project is governed")
+          : Promise.reject(new Error("ENOENT")),
+      ),
+    });
+
+    const result = await getMetaData(createHelpers(deps), null);
+
+    expect(result.maturityModelTier).toBe(4);
+  });
+
+  it("preserves a maturity tier a human has already set", async () => {
+    const existing = { ...validCodeJSON, maturityModelTier: 2 } as any;
+
+    const result = await getMetaData(createHelpers(createMockDeps()), existing);
+
+    expect(result.maturityModelTier).toBe(2);
+  });
+
+  // every file this action has generated before carries the baseline 0, so a zero has to
+  // count as unset or the field could never be filled on a later run
+  it("treats a maturity tier of 0 as unset", async () => {
+    const deps = createMockDeps({
+      readFile: jest.fn<any>((filepath: string) =>
+        filepath === "/github/workspace/SECURITY.md"
+          ? Promise.resolve("report issues here")
+          : Promise.reject(new Error("ENOENT")),
+      ),
+    });
+    const existing = { ...validCodeJSON, maturityModelTier: 0 } as any;
+
+    const result = await getMetaData(createHelpers(deps), existing);
+
+    expect(result.maturityModelTier).toBe(1);
+  });
+
+  it("omits repositoryHost when the repository is not under a known organization", async () => {
+    const result = await getMetaData(createHelpers(createMockDeps()), null);
+
+    expect(result).not.toHaveProperty("repositoryHost");
+  });
+
+  it("derives repositoryHost from a recognised organization", async () => {
+    const dsacmsOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          get: jest.fn<any>().mockResolvedValue({
+            data: {
+              name: "test-repo",
+              description: "A test repository",
+              html_url: "https://github.com/DSACMS/test-repo",
+              private: false,
+              forks_count: 5,
+              topics: [],
+              created_at: "2024-01-01T00:00:00Z",
+              updated_at: "2024-06-01T00:00:00Z",
+              default_branch: "main",
+              fork: false,
+              parent: null,
+            },
+          }),
+        },
+      },
+    });
+
+    const deps = createMockDeps({ octokit: dsacmsOctokit });
+    const result = await getMetaData(createHelpers(deps), null);
+
+    expect(result.repositoryHost).toBe("github.com/DSACMS");
+  });
+
+  it("preserves an existing repositoryHost the URL cannot confirm", async () => {
+    const existing = {
+      ...validCodeJSON,
+      repositoryHost: "CCSQ GitHub",
+    } as any;
+
+    const result = await getMetaData(createHelpers(createMockDeps()), existing);
+
+    expect(result.repositoryHost).toBe("CCSQ GitHub");
+  });
 });
 
 describe("runWithDeps", () => {
