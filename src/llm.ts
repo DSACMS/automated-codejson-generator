@@ -31,13 +31,13 @@ export async function runModelSmokeTest(log: Logger): Promise<string | null> {
   // (local-action runs, unit tests) can still load this module
   const { getLlama, LlamaChatSession } = await import("node-llama-cpp");
 
-  // "never" means use the prebuilt binary or fail loudly, no compiling inside the runner
+  // no GPU on an Actions runner, and "never" means use the prebuilt binary
+  // rather than compiling llama.cpp from source inside the container
   const llama = await getLlama({ gpu: false, build: "never" });
-  const model = await llama.loadModel({ modelPath, gpuLayers: 0 });
+  const model = await llama.loadModel({ modelPath });
 
   try {
-    // a small context keeps the runner's memory use down, this only needs to answer once
-    const context = await model.createContext({ contextSize: 512 });
+    const context = await model.createContext();
 
     try {
       const session = new LlamaChatSession({
@@ -46,12 +46,27 @@ export async function runModelSmokeTest(log: Logger): Promise<string | null> {
 
       log.info(`Prompt: ${SMOKE_TEST_PROMPT}`);
 
+      // gemma reasons before it answers, and that reasoning is a "thought" segment
+      // that never appears in the returned text. capture it so a run that spends all
+      // its tokens thinking is visible in the log instead of looking like a blank answer
+      let thought = "";
+
       const answer = await session.prompt(SMOKE_TEST_PROMPT, {
-        maxTokens: 64,
-        temperature: 0,
+        // thinking has to stay bounded or a CPU only runner will sit here for minutes
+        budgets: { thoughtTokens: 200 },
+        maxTokens: 500,
+        onResponseChunk: (chunk) => {
+          if (chunk.type === "segment" && chunk.segmentType === "thought") {
+            thought += chunk.text;
+          }
+        },
       });
 
       const elapsedSeconds = ((Date.now() - startedAt) / 1000).toFixed(1);
+
+      if (thought.trim() !== "") {
+        log.info(`Thought: ${thought.trim()}`);
+      }
 
       log.info(`Response: ${answer.trim()}`);
       log.info(`Model responded in ${elapsedSeconds}s`);
