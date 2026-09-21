@@ -17,7 +17,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN npm run package
  
 # stage 2: model 
 # download the model GGUF and cache
