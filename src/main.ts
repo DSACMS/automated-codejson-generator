@@ -8,7 +8,6 @@ import {
 import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, deriveUsageType, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
-import { tryModelSmokeTest } from "./llm.js";
 
 // gathers what can be observed about the repository right now so anything not an observation belongs to codejson-core
 async function getMetaData(
@@ -33,9 +32,13 @@ async function getMetaData(
     existingCodeJSON?.tags ?? [],
   );
 
-  const repositoryHost = existingCodeJSON?.repositoryHost || partialCodeJSON.repositoryHost;
+  const repositoryHost =
+    existingCodeJSON?.repositoryHost || partialCodeJSON.repositoryHost;
 
-  const maturityModelTier = existingCodeJSON?.maturityModelTier || partialCodeJSON.maturityModelTier || 0;
+  const maturityModelTier =
+    existingCodeJSON?.maturityModelTier ||
+    partialCodeJSON.maturityModelTier ||
+    0;
 
   const existingUsageType = existingCodeJSON?.permissions?.usageType ?? [];
 
@@ -90,9 +93,6 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
   const helpers = createHelpers(deps);
 
   try {
-    // temporary: proves the model baked into the image loads and generates
-    await tryModelSmokeTest(deps.log);
-
     const eventName = process.env.GITHUB_EVENT_NAME;
 
     if (eventName === "pull_request") {
