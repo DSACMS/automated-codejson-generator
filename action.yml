@@ -38,7 +38,7 @@ outputs:
 
 runs:
   using: docker
-  image: dockerfile
+  image: docker://ghcr.io/dsacms/automated-codejson-generator:v2.0.1
 
 branding:
   icon: "file-text"
