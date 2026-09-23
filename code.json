@@ -1,8 +1,8 @@
 {
   "name": "automated-codejson-generator",
   "version": "1.2.1",
-  "description": "Tooling that allows for code.json creation through automation",
-  "longDescription": "This project provides a GitHub Action that helps federal agencies maintain their code.json files, which are required for compliance with the Federal Source Code Policy. The action automatically calculates and updates various metadata fields including labor hours, programming languages used, repository information, and timestamps. It creates pull requests with these updates, making it easier to keep code.json files accurate and up-to-date.",
+  "description": "Github Action that allows for automated code.json creation and maintenance ",
+  "longDescription": "This GitHub Action is designed to streamline the maintenance of code.json files, which are essential for adhering to the Federal Source Code Policy in federal open source projects. It automatically calculates and updates critical metadata, including programming languages, repository details, and labor hours, ensuring that these compliance metrics are consistently accurate across all repositories. The system enforces quality control by running automated validation checks on any manual edits made to the code. This validation prevents invalid code.json configurations from being merged into the main branch, thereby guaranteeing schema consistency and maintaining regulatory compliance throughout the development lifecycle.",
   "status": "Production",
   "permissions": {
     "licenses": [
@@ -11,7 +11,9 @@
         "URL": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     ],
-    "usageType": ["openSource"],
+    "usageType": [
+      "openSource"
+    ],
     "exemptionText": ""
   },
   "organization": "Centers for Medicare & Medicaid Services",
@@ -23,34 +25,43 @@
   "disclaimerURL": "",
   "disclaimerText": "",
   "vcs": "git",
-  "laborHours": 3137,
+  "laborHours": 6364,
   "reuseFrequency": {
-    "forks": 4,
+    "forks": 7,
     "clones": 0
   },
-  "platforms": ["web", "linux"],
-  "categories": ["developer-tools", "automation"],
-  "softwareType": "standalone/backend",
-  "languages": ["TypeScript", "JavaScript"],
+  "platforms": [
+    "web"
+  ],
+  "categories": [
+    "Software"
+  ],
+  "softwareType": "library",
+  "languages": [
+    "TypeScript",
+    "JavaScript"
+  ],
   "maintenance": "internal",
   "contractNumber": [],
   "SBOM": "https://github.com/DSACMS/automated-codejson-generator/network/dependencies",
   "relatedCode": [],
-  "reusedCode": [],
+  "reusedCode": [
+    {
+      "name": "codejson-core (CMS Digital Service)",
+      "URL": "https://github.com/dsacms/codejson-core"
+    }
+  ],
   "partners": [],
   "date": {
     "created": "2025-02-07T16:29:38Z",
-    "lastModified": "2025-10-21T21:52:17Z",
-    "metadataLastUpdated": "2025-10-30T22:53:09.463Z"
+    "lastModified": "2026-08-26T15:41:51Z",
+    "metadataLastUpdated": "2026-09-23T19:23:54.992Z"
   },
   "tags": [
     "cmsoss-tier2",
-    "metadata",
     "codejson",
-    "ci",
-    "github-action",
-    "workflow",
-    "featured"
+    "featured",
+    "metadata"
   ],
   "contact": {
     "email": "opensource@cms.hhs.gov",
@@ -59,13 +70,19 @@
   "feedbackMechanism": "https://github.com/DSACMS/automated-codejson-generator/issues",
   "AIUseCaseID": "0",
   "localisation": false,
-  "repositoryType": "tools",
+  "repositoryType": "website",
   "userInput": false,
   "fismaLevel": "low",
   "group": "CMS/OA/DSAC",
-  "projects": ["share-it-act"],
+  "projects": [
+    "share-it-act"
+  ],
   "systems": [],
-  "subsetInHealthcare": ["operational"],
-  "userType": ["government"],
+  "subsetInHealthcare": [
+    "operational"
+  ],
+  "userType": [
+    "government"
+  ],
   "maturityModelTier": 3
 }
