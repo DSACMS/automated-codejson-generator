@@ -375,6 +375,38 @@ describe("runWithDeps", () => {
     expect(deps.octokit.createPullRequest).toHaveBeenCalled();
   });
 
+  it("skips AI enrichment when no model is available, logging why", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockRejectedValue(new Error("no file")),
+    });
+
+    await runWithDeps(deps);
+
+    expect(deps.log.info).toHaveBeenCalledWith(
+      expect.stringContaining("No model found at"),
+    );
+    expect(deps.octokit.createPullRequest).toHaveBeenCalled();
+  });
+
+  it("skips model generation entirely when the existing code.json has nothing left to enrich", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const deps = createMockDeps({
+      readFile: jest.fn<any>().mockResolvedValue(JSON.stringify(validCodeJSON)),
+    });
+
+    await runWithDeps(deps);
+
+    expect(deps.log.info).toHaveBeenCalledWith(
+      expect.stringContaining("No AI-enrichable fields are missing"),
+    );
+    expect(generatedCodeJSON(deps).longDescription).toBe(
+      validCodeJSON.longDescription,
+    );
+  });
+
   it("defaults feedbackMechanism and SBOM to the repository URL", async () => {
     process.env.GITHUB_EVENT_NAME = "schedule";
 

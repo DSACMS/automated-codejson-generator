@@ -330,28 +330,7 @@ describe("enrichCodeJSON", () => {
     expect(session.generateJSON).toHaveBeenCalledTimes(1);
   });
 
-  it("retries once when the longDescription comes back too short", async () => {
-    const generateText = jest
-      .fn<any>()
-      .mockResolvedValueOnce("too short")
-      .mockResolvedValueOnce(usableDescription);
-    const session = createFakeSession({ generateText });
-
-    const result = await enrichCodeJSON(
-      { ...blankDraft, softwareType: "library", repositoryType: "tools" },
-      { readme: null },
-      createMockLogger(),
-      runnerFor(session),
-    );
-
-    expect(result.longDescription).toBe(usableDescription);
-    expect(generateText).toHaveBeenCalledTimes(2);
-    expect(generateText.mock.calls[1][0]).toEqual(
-      expect.stringContaining("too short"),
-    );
-  });
-
-  it("leaves longDescription blank and warns when both attempts come back too short", async () => {
+  it("leaves longDescription blank and warns when the answer comes back too short", async () => {
     const generateText = jest.fn<any>().mockResolvedValue("still too short");
     const session = createFakeSession({
       generateText,

@@ -104,7 +104,6 @@ export function condenseReadme(
   ).trim();
 }
 
-
 export function applyEnrichment(
   codeJSON: CodeJSON,
   generated: Partial<GeneratedFields>,
@@ -271,9 +270,11 @@ async function generateLongDescription(
   const prompt = `${promptContext}\n\nWrite a longer description of this software for a potential user, at least four sentences. Do not repeat the short description verbatim.`;
 
   try {
-    let answer = await session.generateText(prompt);
+    const answer = await session.generateText(prompt);
 
-    let isUnusable = answer.trim().length < LONG_DESCRIPTION_MIN_LENGTH || answer.trim().toLowerCase() === shortDescription.trim().toLowerCase();
+    const isUnusable =
+      answer.trim().length < LONG_DESCRIPTION_MIN_LENGTH ||
+      answer.trim().toLowerCase() === shortDescription.trim().toLowerCase();
 
     if (isUnusable) {
       log.warning(

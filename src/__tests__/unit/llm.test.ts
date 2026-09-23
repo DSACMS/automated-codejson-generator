@@ -254,7 +254,7 @@ describe("withModel with a model present", () => {
 
     await withModel(log, async (session) => session.generateText("first"));
 
-    expect(log.info).toHaveBeenCalledWith(
+    expect(log.debug).toHaveBeenCalledWith(
       expect.stringContaining("Model responded in"),
     );
   });

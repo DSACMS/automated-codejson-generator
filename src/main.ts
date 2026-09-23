@@ -8,6 +8,7 @@ import {
 import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, deriveUsageType, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
+import { enrichCodeJSON } from "./enrich.js";
 
 // gathers what can be observed about the repository right now so anything not an observation belongs to codejson-core
 async function getMetaData(
@@ -110,9 +111,15 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
     }
 
     const metaData = await getMetaData(helpers, currentCodeJSON);
-    const finalCodeJSON = assembleDraft(metaData, currentCodeJSON, {
+    const draftCodeJSON = assembleDraft(metaData, currentCodeJSON, {
       isArchived: deps.isArchived,
     });
+    const readme = await helpers.readREADME();
+    const finalCodeJSON = await enrichCodeJSON(
+      draftCodeJSON,
+      { readme },
+      deps.log,
+    );
 
     // a generated code.json is a draft so we must report what fields are missing
     const validationErrors = validateCodeJSON(finalCodeJSON);
