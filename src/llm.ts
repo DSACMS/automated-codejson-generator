@@ -9,7 +9,12 @@ import { Logger } from "./types/Dependencies.js";
 const DEFAULT_MODEL_PATH = "/opt/models/model.gguf";
 const TIMEOUT_MS = 900_000;
 const DEFAULT_MAX_TOKENS = 1500;
-const THOUGHT_TOKEN_BUDGET = 400;
+const THOUGHT_TOKEN_BUDGET = 500;
+
+const SYSTEM_PROMPT =
+  "You write precise, factual text for USA government software metadata records. Answer " +
+  "only with the requested content: no preamble, no meta-commentary, no " +
+  "markdown formatting, and never mention that you are an AI or a language model.";
 
 export function getModelPath(): string {
   return process.env.ACG_MODEL_PATH || DEFAULT_MODEL_PATH;
@@ -48,6 +53,7 @@ export const withModel: ModelRunner = async (log, run) => {
     text: string,
     maxTokens: number,
     grammar?: LlamaGrammar,
+    temperature?: number,
   ): Promise<string> {
     const startedAt = Date.now();
     const context = await model.createContext();
@@ -55,6 +61,7 @@ export const withModel: ModelRunner = async (log, run) => {
     try {
       const session = new LlamaChatSession({
         contextSequence: context.getSequence(),
+        systemPrompt: SYSTEM_PROMPT,
       });
 
       let thought = "";
@@ -64,6 +71,7 @@ export const withModel: ModelRunner = async (log, run) => {
         maxTokens,
         signal: deadline,
         grammar,
+        temperature,
         onResponseChunk: (chunk) => {
           if (chunk.type === "segment" && chunk.segmentType === "thought") {
             thought += chunk.text;
@@ -78,9 +86,12 @@ export const withModel: ModelRunner = async (log, run) => {
         log.debug(`Model thought for ${thought.trim().length} characters`);
       }
 
-      log.info(
+      log.debug(
         `Model responded in ${elapsedSeconds}s with ${trimmed.length} characters`,
       );
+
+      log.info(`Model thoughts: ${thought}`);
+      log.info(`Model response: ${trimmed}`);
 
       return trimmed;
     } finally {
@@ -99,7 +110,7 @@ export const withModel: ModelRunner = async (log, run) => {
         maxTokens: number = DEFAULT_MAX_TOKENS,
       ): Promise<GbnfJsonSchemaToType<Schema>> => {
         const grammar = await llama.createGrammarForJsonSchema<Schema>(schema);
-        const answer = await prompt(text, maxTokens, grammar);
+        const answer = await prompt(text, maxTokens, grammar, 0);
 
         return grammar.parse(answer) as GbnfJsonSchemaToType<Schema>;
       },

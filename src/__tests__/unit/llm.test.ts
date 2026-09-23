@@ -33,10 +33,14 @@ const getLlamaMock = jest.fn<any>(async () => ({
   loadModel: loadModelMock,
   createGrammarForJsonSchema: createGrammarMock,
 }));
+const sessionConstructorMock = jest.fn<any>();
 
 jest.unstable_mockModule("node-llama-cpp", () => ({
   getLlama: getLlamaMock,
   LlamaChatSession: class {
+    constructor(options: unknown) {
+      sessionConstructorMock(options);
+    }
     async prompt(text: string, options: unknown) {
       return promptMock(text, options);
     }
@@ -207,6 +211,42 @@ describe("withModel with a model present", () => {
       expect.objectContaining({ grammar: expect.anything() }),
     );
     expect(result).toEqual({ softwareType: "library" });
+  });
+
+  // an unset temperature would let identical repo state classify differently
+  // across scheduled runs, opening a no-op-looking PR
+  it("pins temperature to 0 for JSON generation so results are reproducible", async () => {
+    const schema = { type: "object", properties: {} } as const;
+    promptMock.mockResolvedValueOnce("{}");
+
+    await withModel(createMockLogger(), async (session) =>
+      session.generateJSON("classify this", schema),
+    );
+
+    expect(promptMock).toHaveBeenCalledWith(
+      "classify this",
+      expect.objectContaining({ temperature: 0 }),
+    );
+  });
+
+  it("replaces the library's generic assistant persona with a task-specific system prompt", async () => {
+    await withModel(createMockLogger(), async (session) =>
+      session.generateText("first"),
+    );
+
+    const options = sessionConstructorMock.mock.calls[0][0] as any;
+    expect(options.systemPrompt).toEqual(
+      expect.stringContaining("no preamble"),
+    );
+  });
+
+  it("leaves temperature unset for free-text generation", async () => {
+    await withModel(createMockLogger(), async (session) =>
+      session.generateText("describe this project"),
+    );
+
+    const options = promptMock.mock.calls[0][1] as any;
+    expect(options.temperature).toBeUndefined();
   });
 
   it("reports how long generation took", async () => {
