@@ -13,7 +13,7 @@ import { Logger } from "./types/Dependencies.js";
 const LONG_DESCRIPTION_MIN_LENGTH = 150;
 const LONG_DESCRIPTION_MAX_LENGTH = 10000;
 const DEFAULT_README_MAX_CHARS = 4000;
-const MIN_TAGS = 5;
+const TARGET_ITEM_COUNT = 5;
 
 export const ENRICHABLE_FIELDS = [
   "longDescription",
@@ -44,7 +44,7 @@ export function missingEnrichableFields(codeJSON: CodeJSON): EnrichableField[] {
           codeJSON.longDescription.trim().length < LONG_DESCRIPTION_MIN_LENGTH
         );
       case "tags":
-        return codeJSON.tags.length < MIN_TAGS;
+        return codeJSON.tags.length < TARGET_ITEM_COUNT;
       case "categories":
       case "platforms":
         return codeJSON[field].length === 0;
@@ -272,17 +272,31 @@ async function generateClassification(
   fields: ClassificationField[],
   log: Logger,
 ): Promise<Partial<GeneratedFields>> {
-  const instructions = ["Classify this software project."];
+  const instructions = [
+    "Classify this software project for a code.json metadata record. Choose only labels the project clearly fits; do not pad.",
+  ];
 
   if (fields.includes("tags")) {
     instructions.push(
-      `For tags, list at least ${MIN_TAGS} single words or short phrases describing the project's purpose, domain, or technology.`,
+      `For tags, list at least ${TARGET_ITEM_COUNT} of the best single words or short phrases describing the project's purpose, domain, or technology.`,
     );
   }
 
   if (fields.includes("categories")) {
     instructions.push(
-      `For categories, choose one or more from this list: ${CATEGORIES.join(", ")}.`,
+      `For categories, choose the best matching items from this list: ${CATEGORIES.join(", ")}.`,
+    );
+  }
+
+  if (fields.includes("softwareType")) {
+    instructions.push(
+      "For softwareType, say what the software is: addon extends another product or platform, library is imported by other code, standalone/* runs on its own.",
+    );
+  }
+
+  if (fields.includes("repositoryType")) {
+    instructions.push(
+      "For repositoryType, say what this repository ships: tools for developer or automation tooling, application for an end-user product, package for a published dependency, website for a site's source.",
     );
   }
 
@@ -307,14 +321,23 @@ function classificationSchema(fields: ClassificationField[]): GbnfJsonSchema {
     properties.tags = {
       type: "array",
       items: { type: "string" },
-      minItems: MIN_TAGS,
+      minItems: TARGET_ITEM_COUNT,
     };
   }
   if (fields.includes("categories")) {
-    properties.categories = { type: "array", items: { enum: CATEGORIES } };
+    properties.categories = {
+      type: "array",
+      items: { enum: CATEGORIES },
+      minItems: 1,
+      maxItems: TARGET_ITEM_COUNT,
+    };
   }
   if (fields.includes("platforms")) {
-    properties.platforms = { type: "array", items: { enum: PLATFORMS } };
+    properties.platforms = {
+      type: "array",
+      items: { enum: PLATFORMS },
+      minItems: 1,
+    };
   }
   if (fields.includes("softwareType")) {
     properties.softwareType = { enum: SOFTWARE_TYPES };
