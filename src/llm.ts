@@ -90,7 +90,7 @@ export const withModel: ModelRunner = async (log, run) => {
         `Model responded in ${elapsedSeconds}s with ${trimmed.length} characters`,
       );
 
-      log.info(`Model thoughts: ${thought}`);
+      log.info(`Model thoughts: ${thought.trim() || "(none)"}`);
       log.info(`Model response: ${trimmed}`);
 
       return trimmed;

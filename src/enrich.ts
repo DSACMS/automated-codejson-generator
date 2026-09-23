@@ -296,7 +296,7 @@ async function generateClassification(
   fields: ClassificationField[],
   log: Logger,
 ): Promise<Partial<GeneratedFields>> {
-  const prompt = `${promptContext}\n\nClassify this software project. For categories, choose from the list at ${CATEGORIES_LIST_URL}.`;
+  const prompt = `${promptContext}\n\nClassify this software project. For categories, choose from the list at ${CATEGORIES_LIST_URL}. For tags, list at least 5 single words or short phrases describing the project's purpose, domain, or technology.`;
 
   try {
     const result = await session.generateJSON(
@@ -314,7 +314,11 @@ function classificationSchema(fields: ClassificationField[]): GbnfJsonSchema {
   const properties: Record<string, GbnfJsonSchema> = {};
 
   if (fields.includes("tags")) {
-    properties.tags = { type: "array", items: { type: "string" } };
+    properties.tags = {
+      type: "array",
+      items: { type: "string" },
+      minItems: 5,
+    };
   }
   if (fields.includes("categories")) {
     properties.categories = { type: "array", items: { type: "string" } };
