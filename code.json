@@ -1,8 +1,8 @@
 {
   "name": "automated-codejson-generator",
   "version": "1.2.1",
-  "description": "Tooling that allows for code.json creation through automation",
-  "longDescription": "This project provides a GitHub Action that helps federal agencies maintain their code.json files, which are required for compliance with the Federal Source Code Policy. The action automatically calculates and updates various metadata fields including labor hours, programming languages used, repository information, and timestamps. It creates pull requests with these updates, making it easier to keep code.json files accurate and up-to-date.",
+  "description": "Github Action that allows for automated code.json creation and maintenance ",
+  "longDescription": "This GitHub Action automates the creation and ongoing maintenance of code.json files, which are essential for adhering to the Federal Source Code Policy in federal open source projects. It efficiently calculates complex metadata, including programming languages, repository details, and labor hours, ensuring that all required compliance data is accurate and current. The action provides flexibility by allowing users to either push changes directly or create pull requests, depending on repository branch protection settings. Furthermore, it incorporates automated validation checks on pull requests, preventing non-compliant code. This system significantly reduces manual effort and minimizes the risk of metadata errors, streamlining the compliance process for federal developers.",
   "status": "Production",
   "permissions": {
     "licenses": [
@@ -11,7 +11,9 @@
         "URL": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     ],
-    "usageType": ["openSource"],
+    "usageType": [
+      "openSource"
+    ],
     "exemptionText": ""
   },
   "organization": "Centers for Medicare & Medicaid Services",
@@ -23,34 +25,54 @@
   "disclaimerURL": "",
   "disclaimerText": "",
   "vcs": "git",
-  "laborHours": 3137,
+  "laborHours": 6400,
   "reuseFrequency": {
-    "forks": 4,
+    "forks": 7,
     "clones": 0
   },
-  "platforms": ["web", "linux"],
-  "categories": ["developer-tools", "automation"],
-  "softwareType": "standalone/backend",
-  "languages": ["TypeScript", "JavaScript"],
+  "platforms": [
+    "linux",
+    "windows",
+    "mac"
+  ],
+  "categories": [
+    "compliance-management",
+    "project-collaboration",
+    "workflow-management",
+    "it-development",
+    "it-management",
+    "business-process-management",
+    "data-collection",
+    "document-management",
+    "project-management"
+  ],
+  "softwareType": "library",
+  "languages": [
+    "TypeScript",
+    "JavaScript"
+  ],
   "maintenance": "internal",
   "contractNumber": [],
   "SBOM": "https://github.com/DSACMS/automated-codejson-generator/network/dependencies",
   "relatedCode": [],
-  "reusedCode": [],
+  "reusedCode": [
+    {
+      "name": "codejson-core (CMS Digital Service)",
+      "URL": "https://github.com/dsacms/codejson-core"
+    }
+  ],
   "partners": [],
   "date": {
     "created": "2025-02-07T16:29:38Z",
-    "lastModified": "2025-10-21T21:52:17Z",
-    "metadataLastUpdated": "2025-10-30T22:53:09.463Z"
+    "lastModified": "2026-09-23T19:57:54Z",
+    "metadataLastUpdated": "2026-09-23T20:01:58.094Z"
   },
   "tags": [
-    "cmsoss-tier2",
-    "metadata",
-    "codejson",
-    "ci",
-    "github-action",
-    "workflow",
-    "featured"
+    "code-json",
+    "dsacms-tier3",
+    "typescript",
+    "javascript",
+    "github-action"
   ],
   "contact": {
     "email": "opensource@cms.hhs.gov",
@@ -59,13 +81,19 @@
   "feedbackMechanism": "https://github.com/DSACMS/automated-codejson-generator/issues",
   "AIUseCaseID": "0",
   "localisation": false,
-  "repositoryType": "tools",
+  "repositoryType": "website",
   "userInput": false,
   "fismaLevel": "low",
   "group": "CMS/OA/DSAC",
-  "projects": ["share-it-act"],
+  "projects": [
+    "share-it-act"
+  ],
   "systems": [],
-  "subsetInHealthcare": ["operational"],
-  "userType": ["government"],
+  "subsetInHealthcare": [
+    "operational"
+  ],
+  "userType": [
+    "government"
+  ],
   "maturityModelTier": 3
 }
