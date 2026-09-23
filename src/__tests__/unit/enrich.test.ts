@@ -37,6 +37,11 @@ describe("missingEnrichableFields", () => {
     expect(missingEnrichableFields(codeJSON)).toEqual(["longDescription"]);
   });
 
+  it("treats a tag list under the minimum as missing", () => {
+    const codeJSON = { ...complete, tags: ["only", "two"] };
+    expect(missingEnrichableFields(codeJSON)).toEqual(["tags"]);
+  });
+
   it("treats empty arrays as missing", () => {
     const codeJSON = {
       ...complete,
@@ -143,7 +148,10 @@ describe("applyEnrichment", () => {
   it("only writes fields listed as missing", () => {
     const result = applyEnrichment(
       blankDraft,
-      { longDescription: "a".repeat(200), categories: ["compliance"] },
+      {
+        longDescription: "a".repeat(200),
+        categories: ["compliance-management"],
+      },
       ["longDescription"],
     );
 
@@ -170,14 +178,14 @@ describe("applyEnrichment", () => {
     expect(result.tags).toEqual(["generated", "manual"]);
   });
 
-  it("writes categories directly", () => {
+  it("drops category values outside the controlled vocabulary", () => {
     const result = applyEnrichment(
       blankDraft,
-      { categories: ["compliance", "automation"] },
+      { categories: ["compliance-management", "GitHub Actions"] },
       ["categories"],
     );
 
-    expect(result.categories).toEqual(["compliance", "automation"]);
+    expect(result.categories).toEqual(["compliance-management"]);
   });
 
   it("drops platform values outside the schema's enum", () => {
@@ -306,7 +314,7 @@ describe("enrichCodeJSON", () => {
       generateText: jest.fn<any>().mockResolvedValue(usableDescription),
       generateJSON: jest.fn<any>().mockResolvedValue({
         tags: ["generated"],
-        categories: ["compliance"],
+        categories: ["compliance-management"],
         platforms: ["web"],
         softwareType: "library",
         repositoryType: "tools",
@@ -322,7 +330,7 @@ describe("enrichCodeJSON", () => {
 
     expect(result.longDescription).toBe(usableDescription);
     expect(result.tags).toEqual(["generated"]);
-    expect(result.categories).toEqual(["compliance"]);
+    expect(result.categories).toEqual(["compliance-management"]);
     expect(result.platforms).toEqual(["web"]);
     expect(result.softwareType).toBe("library");
     expect(result.repositoryType).toBe("tools");

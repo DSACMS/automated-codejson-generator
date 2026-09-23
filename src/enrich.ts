@@ -1,5 +1,11 @@
 import type { GbnfJsonSchema } from "node-llama-cpp";
 import { CodeJSON } from "./codejson.js";
+import {
+  CATEGORIES,
+  PLATFORMS,
+  REPOSITORY_TYPES,
+  SOFTWARE_TYPES,
+} from "./enrich.data.js";
 import { mergeTags } from "./helper.js";
 import { ModelRunner, ModelSession, withModel } from "./llm.js";
 import { Logger } from "./types/Dependencies.js";
@@ -7,7 +13,7 @@ import { Logger } from "./types/Dependencies.js";
 const LONG_DESCRIPTION_MIN_LENGTH = 150;
 const LONG_DESCRIPTION_MAX_LENGTH = 10000;
 const DEFAULT_README_MAX_CHARS = 4000;
-const CATEGORIES_LIST_URL = "https://yml.publiccode.tools/categories-list.html";
+const MIN_TAGS = 5;
 
 export const ENRICHABLE_FIELDS = [
   "longDescription",
@@ -17,39 +23,6 @@ export const ENRICHABLE_FIELDS = [
   "softwareType",
   "repositoryType",
 ] as const;
-
-export const SOFTWARE_TYPES = [
-  "standalone/mobile",
-  "standalone/iot",
-  "standalone/desktop",
-  "standalone/web",
-  "standalone/backend",
-  "standalone/other",
-  "addon",
-  "library",
-  "configurationFiles",
-] as const satisfies readonly CodeJSON["softwareType"][];
-
-export const REPOSITORY_TYPES = [
-  "package",
-  "website",
-  "standards",
-  "libraries",
-  "data",
-  "application",
-  "tools",
-  "APIs",
-] as const satisfies readonly CodeJSON["repositoryType"][];
-
-export const PLATFORMS = [
-  "mac",
-  "web",
-  "windows",
-  "linux",
-  "ios",
-  "android",
-  "other",
-] as const satisfies readonly CodeJSON["platforms"][number][];
 
 export interface GeneratedFields {
   longDescription: string;
@@ -71,6 +44,7 @@ export function missingEnrichableFields(codeJSON: CodeJSON): EnrichableField[] {
           codeJSON.longDescription.trim().length < LONG_DESCRIPTION_MIN_LENGTH
         );
       case "tags":
+        return codeJSON.tags.length < MIN_TAGS;
       case "categories":
       case "platforms":
         return codeJSON[field].length === 0;
@@ -128,7 +102,9 @@ export function applyEnrichment(
         break;
       case "categories":
         if (generated.categories) {
-          result.categories = generated.categories;
+          result.categories = generated.categories.filter((category) =>
+            (CATEGORIES as readonly string[]).includes(category),
+          );
         }
         break;
       case "platforms":
@@ -296,7 +272,21 @@ async function generateClassification(
   fields: ClassificationField[],
   log: Logger,
 ): Promise<Partial<GeneratedFields>> {
-  const prompt = `${promptContext}\n\nClassify this software project. For categories, choose from the list at ${CATEGORIES_LIST_URL}. For tags, list at least 5 single words or short phrases describing the project's purpose, domain, or technology.`;
+  const instructions = ["Classify this software project."];
+
+  if (fields.includes("tags")) {
+    instructions.push(
+      `For tags, list at least ${MIN_TAGS} single words or short phrases describing the project's purpose, domain, or technology.`,
+    );
+  }
+
+  if (fields.includes("categories")) {
+    instructions.push(
+      `For categories, choose one or more from this list: ${CATEGORIES.join(", ")}.`,
+    );
+  }
+
+  const prompt = `${promptContext}\n\n${instructions.join(" ")}`;
 
   try {
     const result = await session.generateJSON(
@@ -317,11 +307,11 @@ function classificationSchema(fields: ClassificationField[]): GbnfJsonSchema {
     properties.tags = {
       type: "array",
       items: { type: "string" },
-      minItems: 5,
+      minItems: MIN_TAGS,
     };
   }
   if (fields.includes("categories")) {
-    properties.categories = { type: "array", items: { type: "string" } };
+    properties.categories = { type: "array", items: { enum: CATEGORIES } };
   }
   if (fields.includes("platforms")) {
     properties.platforms = { type: "array", items: { enum: PLATFORMS } };
