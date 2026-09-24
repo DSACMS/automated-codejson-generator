@@ -8,6 +8,25 @@ import {
 } from "./gov-dependencies.js";
 
 const HOURS_PER_MONTH = 730.001;
+const WORKSPACE_PATH = "/github/workspace";
+
+const COMMUNITY_FILE_CANDIDATES: Record<string, string[]> = {
+  LICENSE: ["LICENSE", "LICENSE.md", "LICENSE.txt"],
+  README: ["README.md", "README.rst", "README.txt", "README"],
+  COMMUNITY: ["COMMUNITY.md", ".github/COMMUNITY.md"],
+  SECURITY: ["SECURITY.md", ".github/SECURITY.md"],
+  CONTRIBUTING: ["CONTRIBUTING.md", ".github/CONTRIBUTING.md"],
+  CODE_OF_CONDUCT: ["CODE_OF_CONDUCT.md", ".github/CODE_OF_CONDUCT.md"],
+  GOVERNANCE: ["GOVERNANCE.md", ".github/GOVERNANCE.md"],
+};
+
+const GITHUB_ORG_HOSTS: Record<string, CodeJSON["repositoryHost"]> = {
+  cmsgov: "github.com/CMSgov",
+  "cms-enterprise": "github.com/CMS-Enterprise",
+  "enterprise-cmcs": "github.com/Enterprise-CMCS",
+  dsacms: "github.com/DSACMS",
+  measureauthoringtool: "github.com/MeasureAuthoringTool",
+};
 
 // both write paths go through here so the committed file is byte-identical either way
 function serializeCodeJSON(codeJSON: CodeJSON): string {
@@ -23,11 +42,15 @@ export function createHelpers(deps: Dependencies) {
   //===============================================
   async function calculateMetaData(): Promise<Partial<CodeJSON>> {
     try {
-      const [laborHours, basicInfo, version] = await Promise.all([
-        getLaborHours(),
-        getBasicInfo(),
-        getVersion(),
-      ]);
+      const [laborHours, basicInfo, version, communityFiles] =
+        await Promise.all([
+          getLaborHours(),
+          getBasicInfo(),
+          getVersion(),
+          detectCommunityFiles(),
+        ]);
+
+      const repositoryHost = deriveRepositoryHost(basicInfo.url);
 
       return {
         name: basicInfo.title,
@@ -46,6 +69,11 @@ export function createHelpers(deps: Dependencies) {
           created: basicInfo.date.created,
           lastModified: basicInfo.date.lastModified,
         },
+        maturityModelTier: deriveMaturityTier(
+          communityFiles,
+          basicInfo.repositoryVisibility,
+        ),
+        ...(repositoryHost ? { repositoryHost } : {}),
       };
     } catch (error) {
       log.error(`Failed to calculate meta data: ${error}`);
@@ -55,7 +83,10 @@ export function createHelpers(deps: Dependencies) {
 
   async function getVersion(): Promise<string> {
     try {
-      const release = await octokit.rest.repos.getLatestRelease({ owner, repo });
+      const release = await octokit.rest.repos.getLatestRelease({
+        owner,
+        repo,
+      });
       const versionFromRelease = normalizeVersionString(release.data.tag_name);
 
       if (versionFromRelease !== "") {
@@ -178,6 +209,39 @@ export function createHelpers(deps: Dependencies) {
     } catch {
       return null;
     }
+  }
+
+  async function detectCommunityFiles(): Promise<Set<string>> {
+    const found = await Promise.all(
+      Object.entries(COMMUNITY_FILE_CANDIDATES).map(
+        async ([document, candidates]) => {
+          for (const candidate of candidates) {
+            const content = await readManifest(
+              `${WORKSPACE_PATH}/${candidate}`,
+            );
+            if (content !== null) {
+              return document;
+            }
+          }
+          return null;
+        },
+      ),
+    );
+
+    return new Set(
+      found.filter((document): document is string => document !== null),
+    );
+  }
+
+  async function readREADME(): Promise<string | null> {
+    for (const candidate of COMMUNITY_FILE_CANDIDATES.README) {
+      const content = await readManifest(`${WORKSPACE_PATH}/${candidate}`);
+      if (content !== null) {
+        return content;
+      }
+    }
+
+    return null;
   }
 
   //===============================================
@@ -378,6 +442,8 @@ export function createHelpers(deps: Dependencies) {
 
   return {
     calculateMetaData,
+    detectCommunityFiles,
+    readREADME,
     detectReusedCode,
     detectForkParent,
     mergeReusedCode,
@@ -442,6 +508,58 @@ export function mergeReusedCode(
   }
 
   return merged;
+}
+
+// reads the hosting organization off the repository URL
+export function deriveRepositoryHost(
+  repositoryURL: string,
+): CodeJSON["repositoryHost"] | undefined {
+  let url: URL;
+  try {
+    url = new URL(repositoryURL);
+  } catch {
+    return undefined;
+  }
+
+  if (url.hostname === "github.cms.gov") {
+    return "github.cms.gov";
+  }
+
+  if (url.hostname !== "github.com" && url.hostname !== "www.github.com") {
+    return undefined;
+  }
+
+  const organization = url.pathname.split("/").filter(Boolean)[0];
+  if (!organization) {
+    return undefined;
+  }
+
+  return GITHUB_ORG_HOSTS[organization.toLowerCase()];
+}
+
+export function deriveUsageType(
+  repositoryVisibility: "public" | "private" | undefined,
+): CodeJSON["permissions"]["usageType"] {
+  return repositoryVisibility === "public" ? ["openSource"] : [];
+}
+
+export function deriveMaturityTier(
+  presentFiles: Set<string>,
+  repositoryVisibility: "public" | "private" | undefined,
+): 0 | 1 | 2 | 3 | 4 {
+  if (presentFiles.has("GOVERNANCE")) {
+    return 4;
+  }
+
+  if (presentFiles.has("CONTRIBUTING") && presentFiles.has("CODE_OF_CONDUCT")) {
+    return repositoryVisibility === "public" ? 3 : 2;
+  }
+
+  if (presentFiles.has("SECURITY")) {
+    return 1;
+  }
+
+  return 0;
 }
 
 // combines repository topics with existing manually added tags, de-duped

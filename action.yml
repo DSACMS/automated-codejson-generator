@@ -1,4 +1,4 @@
-name: Code.json Generator
+name: automated-codejson-generator
 description: "Automatically generates and updates code.json metadata files for CMS repositories"
 author: DSACMS
 
