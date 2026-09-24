@@ -59,8 +59,14 @@ export function condenseReadme(
   content: string,
   maxChars: number = DEFAULT_README_MAX_CHARS,
 ): string {
-  const stripped = content
-    .replace(/<!--[\s\S]*?-->/g, "")
+  let withoutComments = content;
+  let previous: string;
+  do {
+    previous = withoutComments;
+    withoutComments = withoutComments.replace(/<!--[\s\S]*?-->/g, "");
+  } while (withoutComments !== previous);
+
+  const stripped = withoutComments
     .replace(/```[\s\S]*?```/g, "")
     .replace(/\[!\[.*?\]\(.*?\)\]\(.*?\)/g, "")
     .replace(/\n{3,}/g, "\n\n")
