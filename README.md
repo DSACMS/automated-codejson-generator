@@ -14,6 +14,7 @@ This project provides a GitHub Action that helps federal agencies maintain their
 
 - The action calculates metadata and creates a PR or pushes directly
 - Fields that cannot be observed are left blank and reported in the action log
+- Optionally, a local AI model drafts descriptive fields from your README for you to review (see [AI-Drafted Fields](#ai-drafted-fields))
 - Users can then fill in manual fields by editing the PR
 
 **PR Validation**
@@ -81,7 +82,7 @@ jobs:
 
       - name: Update code.json
         id: update
-        uses: DSACMS/automated-codejson-generator@v1.2.1
+        uses: DSACMS/automated-codejson-generator@v1.3.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }} # PAT with admin/push permissions
@@ -128,7 +129,7 @@ jobs:
           fetch-depth: 0
 
       - name: Update code.json
-        uses: DSACMS/automated-codejson-generator@v1.2.1
+        uses: DSACMS/automated-codejson-generator@v1.3.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: "main"
@@ -156,6 +157,11 @@ ADMIN_TOKEN:
   description: "Personal Access Token with admin/write privileges for direct push. Required when SKIP_PR is true."
   required: false
 
+ARCHIVE:
+  description: "Option to set this tool to archive mode which prepares a repository for archival."
+  required: false
+  default: "false"
+
 ENABLE_AI:
   description: "Use a local AI model to draft missing fields from the README. Generated fields always go through a pull request."
   required: false
@@ -177,6 +183,40 @@ commit_sha:
 method_used:
   description: "Method used for the update: 'direct_push' or 'pull_request'"
 ```
+
+## AI-Drafted Fields
+
+Some code.json fields describe what a project is rather than anything the action can measure. Setting `ENABLE_AI: "true"` lets the action draft these from your README using a small language model bundled inside the action's container:
+
+- `longDescription`
+- `tags` (added to your repository topics and existing tags, never replacing them)
+- `categories`, chosen from the [publiccode.yml category list](https://publiccodeyml.github.io/v0/categories-list.html)
+- `platforms`
+- `softwareType`
+- `repositoryType`
+
+```yaml
+- name: Update code.json
+  uses: DSACMS/automated-codejson-generator@v1.3.0
+  with:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    BRANCH: "main"
+    ENABLE_AI: "true"
+```
+
+**Only missing fields are drafted.** A field you have already filled in is never touched. `longDescription` counts as missing when it is shorter than 150 characters, and `tags` when there are fewer than five.
+
+**Everything drafted goes through review.** When the model fills in any field, the action opens a pull request even if `SKIP_PR` is `"true"`, and the PR description lists exactly which fields were drafted so a reviewer knows what to check.
+
+**Nothing leaves the runner.** The model ([Gemma 4 E2B](https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF), pinned by revision and checksum in the `dockerfile`) runs on the CPU inside the action's container. No API keys are needed and your code is not sent to any external AI service.
+
+**Output is screened.** The model reads repository content, so its output is treated as untrusted. A drafted `longDescription` is discarded if it contains links, markup, or long unbroken strings, and tags must be short plain words or phrases. Anything resembling the workflow's tokens is dropped. Categories, platforms, and types are restricted to values the schema allows.
+
+**It never blocks a run.** If the model is unavailable, times out (15 minutes), or produces nothing usable, the action logs a warning and continues with the fields left blank.
+
+## Archive Mode
+
+Setting `ARCHIVE: "true"` prepares a repository for archival: `status` is set to `Archival`, an `archived` tag is added, and the pull request is titled and labeled for archival. Run it once before archiving the repository.
 
 ## Setting Up Personal Access Token (PAT)
 
@@ -213,29 +253,51 @@ To use the direct push functionality, you'll need to create a Personal Access To
 
 The automated code.json generator calculates specific fields by analyzing your repository and using GitHub's API. Here's what gets generated and what your repository needs for successful generation.
 
-**name**: This field pulls directly from your repository's name as configured in GitHub. No configuration needed.
+Fields the generator can't determine are left blank and listed in the action log. Unless noted otherwise, a value you have already set in code.json is kept.
 
-**description**: The generator extracts this from your repository's description field in GitHub settings. _Make sure you've added a description to your repository through GitHub's interface for this field to populate properly._
+**name**: Your repository's name as configured in GitHub. No configuration needed.
 
-**repositoryURL**: This automatically uses your repository's public GitHub URL. No configuration needed.
+**description**: Your repository's description from GitHub. _Add a description to your repository through GitHub's interface for this field to populate._
 
-**repositoryVisibility**: The generator determines whether your repository is private or public. No configuration needed.
+**version**: The tag of your latest GitHub release, with any leading `v` removed. Falls back to the release name if the tag is not a usable version.
+
+**repositoryURL**: Your repository's GitHub URL. No configuration needed.
+
+**repositoryVisibility**: Whether your repository is public or private. No configuration needed.
+
+**repositoryHost**: Read from the repository URL for repositories hosted on `github.cms.gov` or in the CMSgov, CMS-Enterprise, Enterprise-CMCS, DSACMS, or MeasureAuthoringTool GitHub organizations. Left blank otherwise.
 
 **laborHours**: The generator runs SCC against your workspace to analyze your codebase and estimate development time. No configuration needed.
 
-**languages**: This field populates the programming languages in your repository. No configuration needed.
+**languages**: The programming languages GitHub detects in your repository. Once set, your list is kept as is.
 
-**SBOM**: The repository's SBOM URL in the format of {repositoryURL/network/dependencies}. If you already have a code.json file with the SBOM, the generator preserves those values. No configuration needed.
+**tags**: Your repository's GitHub topics, merged with any tags already in code.json.
 
-**dateCreated**: The generator pulls your repository's creation date. No configuration needed.
+**permissions**: `usageType` is set to `openSource` for public repositories and left blank for private ones. `licenses` defaults to `CC0-1.0`; update it if your repository uses a different license.
 
-**dateLastModified**: This uses your repository's last update timestamp, reflecting the most recent changes. No configuration needed.
+**maturityModelTier**: Estimated from the community files in your repository:
 
-**dateMetadataLastUpdated**: The generator sets this to the current timestamp each time it runs, providing a record of when the metadata was last refreshed. No configuration needed.
+| Tier | Requires |
+| --- | --- |
+| 4 | `GOVERNANCE.md` |
+| 3 | `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`, public repository |
+| 2 | `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`, private repository |
+| 1 | `SECURITY.md` |
+| 0 | None of the above |
 
-**feedbackMechanism**: The repository's issues URL in the format of {repositoryURL}/issues. If you already have a code.json file with existing feedback mechanisms, the generator preserves those values. No configuration needed.
+Files may live at the repository root or under `.github/`. A tier you have already set is kept.
 
-**reusedCode**: The generator scans your `package.json` and `requirements.txt` for dependencies published by federal agencies and lists them here, each linked to the agency repository it comes from. It matches against a curated list of federal packages (see below). Entries already in your code.json are preserved. No configuration needed.
+**reuseFrequency**: `forks` is your repository's fork count. No configuration needed.
+
+**SBOM**: The repository's SBOM URL in the format of {repositoryURL}/network/dependencies. No configuration needed.
+
+**date**: `created` and `lastModified` come from GitHub; `metadataLastUpdated` is set each time the action runs. No configuration needed.
+
+**feedbackMechanism**: The repository's issues URL in the format of {repositoryURL}/issues. No configuration needed.
+
+**reusedCode**: If your repository is a fork, its upstream repository is listed here. The generator also scans your `package.json` and `requirements.txt` for dependencies published by federal agencies and lists them, each linked to the agency repository it comes from. It matches against a curated list of federal packages (see below). Entries already in your code.json are preserved. No configuration needed.
+
+**longDescription, categories, platforms, softwareType, repositoryType**: Left blank for you to fill in, or drafted from your README when `ENABLE_AI` is on (see [AI-Drafted Fields](#ai-drafted-fields)).
 
 ## Schema and Validation
 
@@ -307,9 +369,8 @@ An up-to-date list of core team members can be found in [MAINTAINERS.md](MAINTAI
 - [SECURITY.md](SECURITY.md) - Security and vulnerability disclosure policies
 - [LICENSE](LICENSE) - CC0 1.0 Universal public domain dedication
 - [MAINTAINERS.md](MAINTAINERS.md) - List of project maintainers
-- [COMMUNITY_GUIDELINES.md](COMMUNITY_GUIDELINES.md) - Guidelines for community participation
-- [GOVERNANCE.md](GOVERNANCE.md) - Project governance information
-- [GLOSSARY.md](GLOSSARY.md) - Terminology and acronyms
+- [COMMUNITY.md](COMMUNITY.md) - Project community and maintainers
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) - Expectations for community participation
 
 ## Repository Structure
 
@@ -321,10 +382,15 @@ An up-to-date list of core team members can be found in [MAINTAINERS.md](MAINTAI
 │   ├── codejson.ts          # codejson-core bindings: schema, validation, assembly
 │   ├── helper.ts            # GitHub API, SCC, manifest reads, PR and push
 │   ├── create-deps.ts       # Wires the production dependencies
+│   ├── enrich.ts            # Drafts missing fields with the model and screens its output
+│   ├── enrich.data.ts       # Allowed values for AI-drafted fields
+│   ├── llm.ts               # Loads and runs the local model
 │   ├── gov-dependencies.ts  # Lookup table of government-made dependencies
+│   ├── gov-update/          # Job that keeps the federal dependency list current
 │   └── types/               # Shared interfaces
 ├── .github/
 │   └── workflows/           # GitHub Actions workflow definitions
+├── dockerfile               # Action image: SCC and the pinned model
 └── action.yml               # Action metadata file
 ```
 
@@ -342,18 +408,15 @@ To develop locally:
 4. Build the project with `npm run bundle`
 5. Run tests with `npm test`
 
+The tests replace the model with a fake, so you don't need it to develop or test. To try AI drafting against a real model, download a GGUF file and point `ACG_MODEL_PATH` at it.
+
 ## Coding Style and Linters
 
 This project uses TypeScript and follows standard TypeScript conventions. Lint and code tests are run on each commit, so linters and tests should be run locally before committing.
 
 ## Branching Model
 
-This project follows trunk-based development:
-
-- Make small changes in short-lived feature branches and merge to `main` frequently
-- Each change merged to `main` should be immediately deployable
-- Pull requests are required for all changes
-- Changes are deployed automatically via GitHub Actions
+Feature branches are opened against `dev`. When `dev` is ready to ship, it is merged into `main` with a `release:patch`, `release:minor`, or `release:major` label, which tags and publishes the release automatically. See [CONTRIBUTING.md](CONTRIBUTING.md#workflow-and-branching) for the full steps.
 
 ## Contributing
 

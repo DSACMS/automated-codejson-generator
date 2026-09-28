@@ -2,7 +2,7 @@
 
 We're so thankful you're considering contributing to an [open source project of the U.S. government](https://code.gov/)! If you're unsure about anything, just ask -- or submit the issue or pull request anyway. The worst that can happen is you'll be politely asked to change something. We appreciate all friendly contributions.
 
-We encourage you to read this project's CONTRIBUTING policy (you are here), its [LICENSE](LICENSE.md), and its [README](README.md).
+We encourage you to read this project's CONTRIBUTING policy (you are here), its [LICENSE](LICENSE), and its [README](README.md).
 
 ## Getting Started
 
@@ -60,6 +60,20 @@ Every time the action generates or updates code.json (via schedule or workflow_d
 
 When the `pull_request` trigger is configured, the action validates code.json whenever it's edited in a PR and **fails the check** if it is invalid. This is the gate that keeps invalid files off your main branch.
 
+## Local AI Model
+
+`ENABLE_AI` drafts missing fields with a model that ships inside the action's Docker image. The work is split across three files:
+
+- `src/llm.ts` loads the model through `node-llama-cpp` and exposes it as a `ModelRunner`. If no model file exists at `ACG_MODEL_PATH` (default `/opt/models/model.gguf`), it logs and returns `null` instead of failing.
+- `src/enrich.ts` decides which fields are missing, prompts the model, and screens what comes back. Classification fields are generated with a JSON grammar so the model can only answer with allowed values.
+- `src/enrich.data.ts` holds those allowed values. `CATEGORIES` mirrors the publiccode.yml vocabulary because the model runs offline and cannot look it up.
+
+Treat everything the model writes as untrusted, since it reads repository content that anyone opening a pull request can influence. Output passes through `screenGeneratedContent` before it reaches code.json, and any run that drafted a field always opens a pull request so a human reviews it. Keep both properties intact when changing this code.
+
+The model is downloaded at image build time and pinned by `MODEL_REPO`, `MODEL_FILE`, `MODEL_REVISION`, and `MODEL_SHA256` at the top of the `dockerfile`. To change models, update all four together; the build fails if the checksum does not match.
+
+Tests inject a fake `runModel` through `Dependencies`, so the suite never loads a real model.
+
 ### Workflow and Branching
 
 We follow a **GitHub Flow–inspired workflow** with a protected `main` branch and a `dev` integration branch.
@@ -82,7 +96,7 @@ We follow a **GitHub Flow–inspired workflow** with a protected `main` branch a
 
 ### Testing Conventions
 
-- Tests are written using Jest and can be found in the `__tests__` directory
+- Tests are written using Jest and can be found in `src/__tests__/unit`
 - Run tests with `npm test`
 - All new features should include corresponding test coverage
 - Test files should follow the naming convention: `*.test.ts`
