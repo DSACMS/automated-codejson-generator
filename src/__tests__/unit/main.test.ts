@@ -530,6 +530,39 @@ describe("runWithDeps", () => {
     expect(deps.setOutput).toHaveBeenCalledWith("method_used", "direct_push");
   });
 
+  it("opens a PR instead of pushing directly when the model filled a field", async () => {
+    process.env.GITHUB_EVENT_NAME = "workflow_dispatch";
+
+    const runModel = jest.fn<any>(async (_log: unknown, run: any) =>
+      run({
+        generateText: jest.fn<any>().mockResolvedValue(""),
+        generateJSON: jest
+          .fn<any>()
+          .mockResolvedValue({
+            tags: ["alpha", "beta", "gamma", "delta", "epsilon"],
+          }),
+      }),
+    );
+    const adminOctokit = createMockOctokit();
+    const deps = createMockDeps({
+      skipPR: true,
+      adminToken: "admin-token-value",
+      adminOctokit,
+      runModel,
+    });
+
+    await runWithDeps(deps);
+
+    expect(runModel).toHaveBeenCalled();
+    expect(
+      adminOctokit.rest.repos.createOrUpdateFileContents,
+    ).not.toHaveBeenCalled();
+    expect(deps.setOutput).toHaveBeenCalledWith("method_used", "pull_request");
+    const pullRequestArgs = (deps.octokit.createPullRequest as jest.Mock).mock
+      .calls[0][0] as any;
+    expect(pullRequestArgs.body).toContain("`tags`");
+  });
+
   it("falls back to PR when skipPR but no admin token", async () => {
     process.env.GITHUB_EVENT_NAME = "schedule";
 

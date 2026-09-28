@@ -1,3 +1,5 @@
+import type { ModelRunner } from "../llm.js";
+
 // abstracting external dependencies
 export interface Dependencies {
   owner: string;
@@ -14,6 +16,7 @@ export interface Dependencies {
 
   exec: (command: string) => Promise<{ stdout: string; stderr: string }>;
   readFile: (filepath: string) => Promise<string>;
+  runModel: ModelRunner;
 
   log: Logger;
 

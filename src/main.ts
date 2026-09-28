@@ -8,7 +8,7 @@ import {
 import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, deriveUsageType, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
-import { enrichCodeJSON } from "./enrich.js";
+import { enrichCodeJSON, enrichedFields } from "./enrich.js";
 
 // gathers what can be observed about the repository right now so anything not an observation belongs to codejson-core
 async function getMetaData(
@@ -115,11 +115,15 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
       isArchived: deps.isArchived,
     });
     const readme = await helpers.readREADME();
+
     const finalCodeJSON = await enrichCodeJSON(
       draftCodeJSON,
-      { readme },
+        { readme, secrets: [deps.githubToken, deps.adminToken] },
       deps.log,
+      deps.runModel,
     );
+
+    const aiGeneratedFields = enrichedFields(draftCodeJSON, finalCodeJSON);
 
     // a generated code.json is a draft so we must report what fields are missing
     const validationErrors = validateCodeJSON(finalCodeJSON);
@@ -135,7 +139,12 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
 
     const baseBranchName = await helpers.getBaseBranch();
 
-    if (deps.skipPR) {
+    if (deps.skipPR && aiGeneratedFields.length > 0) {
+      deps.log.info(
+        "AI-generated fields need human review, creating a pull request instead of pushing directly",
+      );
+      await helpers.sendPR(finalCodeJSON, baseBranchName, aiGeneratedFields);
+    } else if (deps.skipPR) {
       if (!deps.adminToken) {
         deps.log.warning("SKIP_PR is enabled but ADMIN_TOKEN is not provided.");
         deps.log.warning(
@@ -150,7 +159,7 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
       }
     } else {
       deps.log.info("Creating pull request with updated code.json");
-      await helpers.sendPR(finalCodeJSON, baseBranchName);
+      await helpers.sendPR(finalCodeJSON, baseBranchName, aiGeneratedFields);
     }
   } catch (error) {
     deps.setFailed(`Action failed: ${error}`);

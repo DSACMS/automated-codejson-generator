@@ -4,6 +4,8 @@ import {
   condenseReadme,
   applyEnrichment,
   enrichCodeJSON,
+  enrichedFields,
+  screenGenerated,
 } from "../../enrich.js";
 import { CodeJSON } from "../../codejson.js";
 import { ModelRunner, ModelSession } from "../../llm.js";
@@ -159,14 +161,14 @@ describe("applyEnrichment", () => {
     expect(result.categories).toEqual([]);
   });
 
-  it("clamps longDescription to the schema's maximum length", () => {
+  it("clamps longDescription to 2000 characters", () => {
     const result = applyEnrichment(
       blankDraft,
-      { longDescription: "a".repeat(10500) },
+      { longDescription: "a ".repeat(1500) },
       ["longDescription"],
     );
 
-    expect(result.longDescription).toHaveLength(10000);
+    expect(result.longDescription).toHaveLength(2000);
   });
 
   it("merges generated tags with existing tags instead of replacing them", () => {
@@ -268,7 +270,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       complete,
-      { readme: null },
+      { readme: null, secrets: [] },
       createMockLogger(),
       runModel as unknown as ModelRunner,
     );
@@ -282,7 +284,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
-      { readme: null },
+      { readme: null, secrets: [] },
       createMockLogger(),
       runModel,
     );
@@ -298,7 +300,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
-      { readme: null },
+      { readme: null, secrets: [] },
       log,
       runModel,
     );
@@ -323,7 +325,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
-      { readme: null },
+      { readme: null, secrets: [] },
       createMockLogger(),
       runnerFor(session),
     );
@@ -350,7 +352,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       { ...blankDraft, repositoryType: "tools" },
-      { readme: null },
+      { readme: null, secrets: [] },
       log,
       runnerFor(session),
     );
@@ -374,7 +376,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       draft,
-      { readme: null },
+      { readme: null, secrets: [] },
       createMockLogger(),
       runnerFor(session),
     );
@@ -394,7 +396,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
-      { readme: null },
+      { readme: null, secrets: [] },
       log,
       runnerFor(session),
     );
@@ -417,7 +419,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
-      { readme: null },
+      { readme: null, secrets: [] },
       log,
       runnerFor(session),
     );
@@ -438,7 +440,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       { ...complete, softwareType: blank },
-      { readme: null },
+      { readme: null, secrets: [] },
       createMockLogger(),
       runnerFor(session),
     );
@@ -453,7 +455,7 @@ describe("enrichCodeJSON", () => {
 
     await enrichCodeJSON(
       { ...complete, longDescription: "" },
-      { readme },
+      { readme, secrets: [] },
       createMockLogger(),
       runnerFor(session),
     );
@@ -463,5 +465,88 @@ describe("enrichCodeJSON", () => {
     expect(prompt).toContain("README:");
     expect(prompt).toContain("intro");
     expect(prompt).not.toContain("internal note");
+  });
+});
+
+describe("screenGenerated", () => {
+  const token = "ghs_abcdEFGH1234ijklMNOP5678";
+  const safeDescription =
+    "A tool that generates code.json metadata for federal repositories.";
+
+  it("keeps output that passes every check", () => {
+    const generated = { longDescription: safeDescription, tags: ["metadata"] };
+
+    expect(screenGenerated(generated, [token], createMockLogger())).toEqual(
+      generated,
+    );
+  });
+
+  it.each([
+    ["a link", "See https://evil.example for details."],
+    ["a bare www link", "Visit www.evil.example today."],
+    ["html", "Metadata <img src=x onerror=alert(1)> tool."],
+    ["a markdown link", "Read [the docs](evil) first."],
+    ["an encoded blob", "Payload aGVsbG8gd29ybGQgaGVsbG8gd29ybGQK here."],
+    ["a leaked token", `Configured with ${token} on every run.`],
+    [
+      "a transformed token fragment",
+      `Key is ${token.slice(7, 15).toUpperCase()} ok.`,
+    ],
+  ])("discards a longDescription containing %s", (_, longDescription) => {
+    const log = createMockLogger();
+    const result = screenGenerated({ longDescription }, [token], log);
+
+    expect(result.longDescription).toBeUndefined();
+    expect(log.warning).toHaveBeenCalledWith(
+      expect.stringContaining("longDescription"),
+    );
+  });
+
+  it("drops only the tags that fail and caps the count", () => {
+    const tags = [
+      "metadata",
+      "https://evil.example",
+      "<script>",
+      "x".repeat(51),
+      token.slice(4, 16),
+      ...Array.from({ length: 12 }, (_, i) => `tag${i}`),
+    ];
+    const result = screenGenerated({ tags }, [token], createMockLogger());
+
+    expect(result.tags).toEqual([
+      "metadata",
+      ...Array.from({ length: 9 }, (_, i) => `tag${i}`),
+    ]);
+  });
+});
+
+describe("enrichedFields", () => {
+  it("lists only the enrichable fields that changed", () => {
+    const after = { ...complete, tags: [...complete.tags, "new"] };
+
+    expect(enrichedFields(complete, after)).toEqual(["tags"]);
+    expect(enrichedFields(complete, { ...complete })).toEqual([]);
+  });
+});
+
+describe("enrichCodeJSON output screening", () => {
+  it("never writes a leaked secret into code.json", async () => {
+    const token = "ghs_abcdEFGH1234ijklMNOP5678";
+    const session = createFakeSession({
+      generateText: jest
+        .fn<any>()
+        .mockResolvedValue(
+          `This project is configured with the token ${token} which it uses on every scheduled run of the workflow. It keeps federal repository metadata current without any manual steps from maintainers.`,
+        ),
+    });
+
+    const result = await enrichCodeJSON(
+      { ...complete, longDescription: "" },
+      { readme: null, secrets: [token] },
+      createMockLogger(),
+      runnerFor(session),
+    );
+
+    expect(result.longDescription).toBe("");
   });
 });

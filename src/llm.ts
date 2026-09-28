@@ -64,34 +64,20 @@ export const withModel: ModelRunner = async (log, run) => {
         systemPrompt: SYSTEM_PROMPT,
       });
 
-      let thought = "";
-
       const answer = await session.prompt(text, {
         budgets: { thoughtTokens: THOUGHT_TOKEN_BUDGET },
         maxTokens,
         signal: deadline,
         grammar,
-        temperature,
-        onResponseChunk: (chunk) => {
-          if (chunk.type === "segment" && chunk.segmentType === "thought") {
-            thought += chunk.text;
-          }
-        },
+        temperature
       });
 
       const elapsedSeconds = ((Date.now() - startedAt) / 1000).toFixed(1);
       const trimmed = answer.trim();
 
-      if (thought.trim() !== "") {
-        log.debug(`Model thought for ${thought.trim().length} characters`);
-      }
-
       log.debug(
-        `Model responded in ${elapsedSeconds}s with ${trimmed.length} characters`,
+        `Model responded in ${elapsedSeconds}s with ${trimmed.length} characters: ${trimmed}`,
       );
-
-      log.info(`Model thoughts: ${thought.trim() || "(none)"}`);
-      log.info(`Model response: ${trimmed}`);
 
       return trimmed;
     } finally {

@@ -11,9 +11,13 @@ import { ModelRunner, ModelSession, withModel } from "./llm.js";
 import { Logger } from "./types/Dependencies.js";
 
 const LONG_DESCRIPTION_MIN_LENGTH = 150;
-const LONG_DESCRIPTION_MAX_LENGTH = 10000;
+const LONG_DESCRIPTION_MAX_LENGTH = 2000;
 const DEFAULT_README_MAX_CHARS = 4000;
 const TARGET_ITEM_COUNT = 5;
+const MAX_TAGS = 10;
+const SECRET_FRAGMENT_LENGTH = 8;
+const TAG_PATTERN = /^[\w.+#-][\w .+#-]{0,49}$/;
+const UNSAFE_TEXT_PATTERN = /https?:\/\/|www\.|[<>`]|\]\(|\S{30,}/i;
 
 export const ENRICHABLE_FIELDS = [
   "longDescription",
@@ -84,6 +88,63 @@ export function condenseReadme(
   ).trim();
 }
 
+// the model reads repository content, so everything it writes is untrusted
+export function screenGeneratedContent(
+  generated: Partial<GeneratedFields>,
+  secrets: string[],
+  log: Logger,
+): Partial<GeneratedFields> {
+  const screened = { ...generated };
+
+  if (
+    screened.longDescription !== undefined &&
+    (UNSAFE_TEXT_PATTERN.test(screened.longDescription) ||
+      containsSecret(screened.longDescription, secrets))
+  ) {
+    log.warning(
+      "Discarding generated longDescription as it failed safety checks.",
+    );
+    delete screened.longDescription;
+  }
+
+  if (screened.tags) {
+    const safeTags = screened.tags.filter(
+      (tag) => TAG_PATTERN.test(tag) && !containsSecret(tag, secrets),
+    );
+    if (safeTags.length < screened.tags.length) {
+      log.warning(
+        `Discarding ${screened.tags.length - safeTags.length} generated tags that failed safety checks.`,
+      );
+    }
+    screened.tags = safeTags.slice(0, MAX_TAGS);
+  }
+
+  return screened;
+}
+
+function containsSecret(text: string, secrets: string[]): boolean {
+  const haystack = text.toLowerCase();
+
+  return secrets.some((secret) => {
+    const needle = secret.toLowerCase();
+    for (let i = 0; i + SECRET_FRAGMENT_LENGTH <= needle.length; i++) {
+      if (haystack.includes(needle.slice(i, i + SECRET_FRAGMENT_LENGTH))) {
+        return true;
+      }
+    }
+    return false;
+  });
+}
+
+export function enrichedFields(
+  before: CodeJSON,
+  after: CodeJSON,
+): EnrichableField[] {
+  return ENRICHABLE_FIELDS.filter(
+    (field) => JSON.stringify(before[field]) !== JSON.stringify(after[field]),
+  );
+}
+
 export function applyEnrichment(
   codeJSON: CodeJSON,
   generated: Partial<GeneratedFields>,
@@ -146,7 +207,7 @@ export function applyEnrichment(
 
 export async function enrichCodeJSON(
   codeJSON: CodeJSON,
-  context: { readme: string | null },
+  context: { readme: string | null; secrets: string[] },
   log: Logger,
   runModel: ModelRunner = withModel,
 ): Promise<CodeJSON> {
@@ -173,7 +234,11 @@ export async function enrichCodeJSON(
     return codeJSON;
   }
 
-  return applyEnrichment(codeJSON, generated, missing);
+  return applyEnrichment(
+    codeJSON,
+    screenGeneratedContent(generated, context.secrets, log),
+    missing,
+  );
 }
 
 function errorMessage(error: unknown): string {
@@ -328,6 +393,7 @@ function classificationSchema(fields: ClassificationField[]): GbnfJsonSchema {
       type: "array",
       items: { type: "string" },
       minItems: TARGET_ITEM_COUNT,
+      maxItems: MAX_TAGS,
     };
   }
   if (fields.includes("categories")) {

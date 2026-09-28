@@ -1,4 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
+import * as fs from "fs/promises";
+import * as os from "os";
+import * as path from "path";
 import {
   createHelpers,
   parsePackageJSON,
@@ -7,6 +10,7 @@ import {
   deriveRepositoryHost,
   deriveUsageType,
   deriveMaturityTier,
+  workspaceFileReader,
 } from "../../helper.js";
 import {
   GOV_DEPENDENCIES,
@@ -199,6 +203,90 @@ describe("createHelpers - sendPR", () => {
         title: "Update code.json for archival",
         labels: ["archived"],
       }),
+    );
+  });
+});
+
+describe("createHelpers - sendPR AI review notice", () => {
+  function prBody(deps: Dependencies): string {
+    const createPullRequestMock = deps.octokit.createPullRequest as jest.Mock;
+    return (createPullRequestMock.mock.calls[0][0] as any).body;
+  }
+
+  it("lists AI-generated fields for review", async () => {
+    const deps = createMockDeps();
+    await createHelpers(deps).sendPR({ name: "test" } as any, "main", [
+      "longDescription",
+      "tags",
+    ]);
+
+    expect(prBody(deps)).toContain("Review AI-Generated Fields");
+    expect(prBody(deps)).toContain("`longDescription`, `tags`");
+  });
+
+  it("omits the notice when nothing was AI-generated", async () => {
+    const deps = createMockDeps();
+    await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+    expect(prBody(deps)).not.toContain("AI-Generated");
+  });
+});
+
+describe("workspaceFileReader", () => {
+  let root: string;
+  let outside: string;
+
+  beforeEach(async () => {
+    root = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-"));
+    outside = await fs.mkdtemp(path.join(os.tmpdir(), "outside-"));
+    await fs.writeFile(path.join(root, "README.md"), "hello");
+    await fs.writeFile(path.join(outside, "secrets"), "INPUT_ADMIN_TOKEN=x");
+  });
+
+  it("reads a regular file inside the workspace", async () => {
+    const read = workspaceFileReader(root);
+
+    expect(await read(path.join(root, "README.md"))).toBe("hello");
+  });
+
+  it("follows a symlink that stays inside the workspace", async () => {
+    await fs.symlink("README.md", path.join(root, "README"));
+
+    expect(await workspaceFileReader(root)(path.join(root, "README"))).toBe(
+      "hello",
+    );
+  });
+
+  it("refuses a symlink that escapes the workspace", async () => {
+    await fs.rm(path.join(root, "README.md"));
+    await fs.symlink(
+      path.join(outside, "secrets"),
+      path.join(root, "README.md"),
+    );
+
+    await expect(
+      workspaceFileReader(root)(path.join(root, "README.md")),
+    ).rejects.toThrow("Refusing to read");
+  });
+
+  it("refuses a file reached through a symlinked directory", async () => {
+    await fs.symlink(outside, path.join(root, ".github"));
+
+    await expect(
+      workspaceFileReader(root)(path.join(root, ".github", "secrets")),
+    ).rejects.toThrow("Refusing to read");
+  });
+
+  it("refuses non-regular and oversized files", async () => {
+    await fs.mkdir(path.join(root, "dir"));
+    await fs.writeFile(path.join(root, "big"), "a".repeat(1_000_001));
+    const read = workspaceFileReader(root);
+
+    await expect(read(path.join(root, "dir"))).rejects.toThrow(
+      "Refusing to read",
+    );
+    await expect(read(path.join(root, "big"))).rejects.toThrow(
+      "Refusing to read",
     );
   });
 });

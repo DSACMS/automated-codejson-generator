@@ -1,10 +1,11 @@
 import * as core from "@actions/core";
-import * as fs from "fs/promises";
 import { Octokit as ActionKit } from "@octokit/action";
 import { createPullRequest } from "octokit-plugin-create-pull-request";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { Dependencies } from "./types/Dependencies.js";
+import { workspaceFileReader } from "./helper.js";
+import { withModel } from "./llm.js";
 
 const execAsync = promisify(exec);
 
@@ -51,7 +52,8 @@ export function createProductionDeps(): Dependencies {
     adminOctokit: adminOctokit as unknown as Dependencies["adminOctokit"],
 
     exec: execAsync,
-    readFile: (filepath: string) => fs.readFile(filepath, "utf8"),
+    readFile: workspaceFileReader("/github/workspace"),
+    runModel: withModel,
 
     log: {
       info: core.info,

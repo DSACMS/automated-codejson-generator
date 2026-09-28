@@ -1,3 +1,4 @@
+import * as fs from "fs/promises";
 import { CodeJSON, validateCodeJSON } from "./codejson.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
 import { Dependencies } from "./types/Dependencies.js";
@@ -9,6 +10,7 @@ import {
 
 const HOURS_PER_MONTH = 730.001;
 const WORKSPACE_PATH = "/github/workspace";
+const MAX_READ_BYTES = 1_000_000;
 
 const COMMUNITY_FILE_CANDIDATES: Record<string, string[]> = {
   LICENSE: ["LICENSE", "LICENSE.md", "LICENSE.txt"],
@@ -319,7 +321,11 @@ export function createHelpers(deps: Dependencies) {
     }
   }
 
-  async function sendPR(updatedCodeJSON: CodeJSON, baseBranchName: string) {
+  async function sendPR(
+    updatedCodeJSON: CodeJSON,
+    baseBranchName: string,
+    aiGeneratedFields: string[] = [],
+  ) {
     try {
       const formattedContent = serializeCodeJSON(updatedCodeJSON);
       const headBranchName = `code-json-${new Date().getTime()}`;
@@ -330,7 +336,9 @@ export function createHelpers(deps: Dependencies) {
         title: isArchived
           ? "Update code.json for archival"
           : "Update code.json",
-        body: isArchived ? bodyOfArchivalPR() : bodyOfPR(),
+        body:
+          (isArchived ? bodyOfArchivalPR() : bodyOfPR()) +
+          aiReviewNotice(aiGeneratedFields),
         base: baseBranchName,
         head: headBranchName,
         labels: isArchived ? ["archived"] : ["codejson-initialized"],
@@ -562,6 +570,26 @@ export function deriveMaturityTier(
   return 0;
 }
 
+export function workspaceFileReader(root: string) {
+  return async (filepath: string): Promise<string> => {
+    const [realRoot, realPath] = await Promise.all([
+      fs.realpath(root),
+      fs.realpath(filepath),
+    ]);
+    const stat = await fs.stat(realPath);
+
+    if (
+      !realPath.startsWith(`${realRoot}/`) ||
+      !stat.isFile() ||
+      stat.size > MAX_READ_BYTES
+    ) {
+      throw new Error(`Refusing to read ${filepath}`);
+    }
+
+    return fs.readFile(realPath, "utf8");
+  };
+}
+
 // combines repository topics with existing manually added tags, de-duped
 export function mergeTags(
   repositoryTopics: string[] = [],
@@ -586,6 +614,18 @@ function bodyOfPR(): string {
 
   If you would like additional information about the code.json metadata requirements, please visit the repository [here](https://github.com/DSACMS/gov-codejson).
   `;
+}
+
+function aiReviewNotice(aiGeneratedFields: string[]): string {
+  if (aiGeneratedFields.length === 0) {
+    return "";
+  }
+
+  return `
+
+  ## Review AI-Generated Fields
+  These fields were drafted by a local AI model from this repository's README. Please verify them before merging: ${aiGeneratedFields.map((field) => `\`${field}\``).join(", ")}
+`;
 }
 
 function bodyOfArchivalPR(): string {
