@@ -379,6 +379,7 @@ describe("runWithDeps", () => {
     process.env.GITHUB_EVENT_NAME = "schedule";
 
     const deps = createMockDeps({
+      enableAI: true,
       readFile: jest.fn<any>().mockRejectedValue(new Error("no file")),
     });
 
@@ -394,6 +395,7 @@ describe("runWithDeps", () => {
     process.env.GITHUB_EVENT_NAME = "schedule";
 
     const deps = createMockDeps({
+      enableAI: true,
       readFile: jest.fn<any>().mockResolvedValue(JSON.stringify(validCodeJSON)),
     });
 
@@ -405,6 +407,18 @@ describe("runWithDeps", () => {
     expect(generatedCodeJSON(deps).longDescription).toBe(
       validCodeJSON.longDescription,
     );
+  });
+
+  it("never runs the model when AI is not enabled", async () => {
+    process.env.GITHUB_EVENT_NAME = "schedule";
+
+    const runModel = jest.fn<any>();
+    const deps = createMockDeps({ runModel });
+
+    await runWithDeps(deps);
+
+    expect(runModel).not.toHaveBeenCalled();
+    expect(deps.octokit.createPullRequest).toHaveBeenCalled();
   });
 
   it("defaults feedbackMechanism and SBOM to the repository URL", async () => {
@@ -536,11 +550,9 @@ describe("runWithDeps", () => {
     const runModel = jest.fn<any>(async (_log: unknown, run: any) =>
       run({
         generateText: jest.fn<any>().mockResolvedValue(""),
-        generateJSON: jest
-          .fn<any>()
-          .mockResolvedValue({
-            tags: ["alpha", "beta", "gamma", "delta", "epsilon"],
-          }),
+        generateJSON: jest.fn<any>().mockResolvedValue({
+          tags: ["alpha", "beta", "gamma", "delta", "epsilon"],
+        }),
       }),
     );
     const adminOctokit = createMockOctokit();
@@ -548,6 +560,7 @@ describe("runWithDeps", () => {
       skipPR: true,
       adminToken: "admin-token-value",
       adminOctokit,
+      enableAI: true,
       runModel,
     });
 

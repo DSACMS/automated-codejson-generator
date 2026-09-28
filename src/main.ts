@@ -114,14 +114,17 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
     const draftCodeJSON = assembleDraft(metaData, currentCodeJSON, {
       isArchived: deps.isArchived,
     });
-    const readme = await helpers.readREADME();
-
-    const finalCodeJSON = await enrichCodeJSON(
-      draftCodeJSON,
-        { readme, secrets: [deps.githubToken, deps.adminToken] },
-      deps.log,
-      deps.runModel,
-    );
+    const finalCodeJSON = deps.enableAI
+      ? await enrichCodeJSON(
+          draftCodeJSON,
+          {
+            readme: await helpers.readREADME(),
+            secrets: [deps.githubToken, deps.adminToken],
+          },
+          deps.log,
+          deps.runModel,
+        )
+      : draftCodeJSON;
 
     const aiGeneratedFields = enrichedFields(draftCodeJSON, finalCodeJSON);
 

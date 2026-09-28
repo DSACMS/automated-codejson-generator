@@ -5,7 +5,7 @@ import {
   applyEnrichment,
   enrichCodeJSON,
   enrichedFields,
-  screenGenerated,
+  screenGeneratedContent,
 } from "../../enrich.js";
 import { CodeJSON } from "../../codejson.js";
 import { ModelRunner, ModelSession } from "../../llm.js";
@@ -468,7 +468,7 @@ describe("enrichCodeJSON", () => {
   });
 });
 
-describe("screenGenerated", () => {
+describe("screenGeneratedContent", () => {
   const token = "ghs_abcdEFGH1234ijklMNOP5678";
   const safeDescription =
     "A tool that generates code.json metadata for federal repositories.";
@@ -476,9 +476,9 @@ describe("screenGenerated", () => {
   it("keeps output that passes every check", () => {
     const generated = { longDescription: safeDescription, tags: ["metadata"] };
 
-    expect(screenGenerated(generated, [token], createMockLogger())).toEqual(
-      generated,
-    );
+    expect(
+      screenGeneratedContent(generated, [token], createMockLogger()),
+    ).toEqual(generated);
   });
 
   it.each([
@@ -494,7 +494,7 @@ describe("screenGenerated", () => {
     ],
   ])("discards a longDescription containing %s", (_, longDescription) => {
     const log = createMockLogger();
-    const result = screenGenerated({ longDescription }, [token], log);
+    const result = screenGeneratedContent({ longDescription }, [token], log);
 
     expect(result.longDescription).toBeUndefined();
     expect(log.warning).toHaveBeenCalledWith(
@@ -511,7 +511,11 @@ describe("screenGenerated", () => {
       token.slice(4, 16),
       ...Array.from({ length: 12 }, (_, i) => `tag${i}`),
     ];
-    const result = screenGenerated({ tags }, [token], createMockLogger());
+    const result = screenGeneratedContent(
+      { tags },
+      [token],
+      createMockLogger(),
+    );
 
     expect(result.tags).toEqual([
       "metadata",

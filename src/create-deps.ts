@@ -47,6 +47,7 @@ export function createProductionDeps(): Dependencies {
     branch: core.getInput("BRANCH", { required: false }),
     skipPR: core.getInput("SKIP_PR", { required: false }) === "true",
     isArchived: core.getInput("ARCHIVE", { required: false }) === "true",
+    enableAI: core.getInput("ENABLE_AI", { required: false }) === "true",
 
     octokit: octokit as unknown as Dependencies["octokit"],
     adminOctokit: adminOctokit as unknown as Dependencies["adminOctokit"],

@@ -10,6 +10,7 @@ export interface Dependencies {
   branch: string;
   skipPR: boolean;
   isArchived: boolean;
+  enableAI: boolean;
 
   octokit: OctokitClient;
   adminOctokit: OctokitClient | null;

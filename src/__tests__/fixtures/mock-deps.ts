@@ -93,6 +93,7 @@ export function createMockDeps(
     branch: "main",
     skipPR: false,
     isArchived: false,
+    enableAI: false,
 
     octokit: mockOctokit,
     adminOctokit: null,
