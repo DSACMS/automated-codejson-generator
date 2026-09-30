@@ -1,7 +1,7 @@
+import { cmsProfile } from "codejson-core";
 import {
   CodeJSON,
-  assembleDraft,
-  draftBaseline,
+  draftCodeJSON,
   droppedFields,
   validateCodeJSON,
 } from "./codejson.js";
@@ -46,7 +46,7 @@ async function getMetaData(
   const permissions: CodeJSON["permissions"] = {
     licenses:
       existingCodeJSON?.permissions?.licenses ??
-      draftBaseline.permissions?.licenses ??
+      cmsProfile.baseline.permissions?.licenses ??
       [],
     usageType:
       existingUsageType.length > 0
@@ -111,12 +111,12 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
     }
 
     const metaData = await getMetaData(helpers, currentCodeJSON);
-    const draftCodeJSON = assembleDraft(metaData, currentCodeJSON, {
+    const draft = draftCodeJSON(metaData, currentCodeJSON, {
       isArchived: deps.isArchived,
     });
     const finalCodeJSON = deps.enableAI
       ? await enrichCodeJSON(
-          draftCodeJSON,
+          draft,
           {
             readme: await helpers.readREADME(),
             secrets: [deps.githubToken, deps.adminToken],
@@ -124,9 +124,9 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
           deps.log,
           deps.runModel,
         )
-      : draftCodeJSON;
+      : draft;
 
-    const aiGeneratedFields = enrichedFields(draftCodeJSON, finalCodeJSON);
+    const aiGeneratedFields = enrichedFields(draft, finalCodeJSON);
 
     // a generated code.json is a draft so we must report what fields are missing
     const validationErrors = validateCodeJSON(finalCodeJSON);
