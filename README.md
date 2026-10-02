@@ -155,6 +155,11 @@ SKIP_PR:
 ADMIN_TOKEN:
   description: "Personal Access Token with admin/write privileges for direct push. Required when SKIP_PR is true."
   required: false
+
+ENABLE_AI:
+  description: "Use a local AI model to draft missing fields from the README. Generated fields always go through a pull request."
+  required: false
+  default: "false"
 ```
 
 ### Outputs

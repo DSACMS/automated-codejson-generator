@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { withModel } from "../../llm.js";
 import {
   Dependencies,
   OctokitClient,
@@ -92,6 +93,7 @@ export function createMockDeps(
     branch: "main",
     skipPR: false,
     isArchived: false,
+    enableAI: false,
 
     octokit: mockOctokit,
     adminOctokit: null,
@@ -101,6 +103,7 @@ export function createMockDeps(
       stderr: "",
     }),
     readFile: jest.fn<any>().mockRejectedValue(new Error("File not found")),
+    runModel: withModel,
 
     log: createMockLogger(),
     setOutput: jest.fn<any>(),

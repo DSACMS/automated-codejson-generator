@@ -1,4 +1,4 @@
-name: Code.json Generator
+name: automated-codejson-generator
 description: "Automatically generates and updates code.json metadata files for CMS repositories"
 author: DSACMS
 
@@ -26,6 +26,11 @@ inputs:
     required: false
     default: "false"
 
+  ENABLE_AI:
+    description: "Use a local AI model to draft missing fields from the README. Generated fields always go through a pull request."
+    required: false
+    default: "false"
+
 outputs:
   updated:
     description: "Boolean indicating whether code.json was updated"
@@ -38,7 +43,7 @@ outputs:
 
 runs:
   using: docker
-  image: Dockerfile
+  image: docker://ghcr.io/dsacms/automated-codejson-generator:v2.0.2
 
 branding:
   icon: "file-text"

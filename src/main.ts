@@ -1,14 +1,16 @@
 import {
   CodeJSON,
   assembleDraft,
+  draftBaseline,
   droppedFields,
   validateCodeJSON,
 } from "./codejson.js";
 import { Dependencies } from "./types/Dependencies.js";
-import { createHelpers, Helpers } from "./helper.js";
+import { createHelpers, deriveUsageType, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
+import { enrichCodeJSON, enrichedFields } from "./enrich.js";
 
-// gathers what can be observed about the repository right now so anything not an observation belongs to codejson-core 
+// gathers what can be observed about the repository right now so anything not an observation belongs to codejson-core
 async function getMetaData(
   helpers: Helpers,
   existingCodeJSON?: CodeJSON | null,
@@ -30,6 +32,28 @@ async function getMetaData(
     partialCodeJSON.tags ?? [],
     existingCodeJSON?.tags ?? [],
   );
+
+  const repositoryHost =
+    existingCodeJSON?.repositoryHost || partialCodeJSON.repositoryHost;
+
+  const maturityModelTier =
+    existingCodeJSON?.maturityModelTier ||
+    partialCodeJSON.maturityModelTier ||
+    0;
+
+  const existingUsageType = existingCodeJSON?.permissions?.usageType ?? [];
+
+  const permissions: CodeJSON["permissions"] = {
+    licenses:
+      existingCodeJSON?.permissions?.licenses ??
+      draftBaseline.permissions?.licenses ??
+      [],
+    usageType:
+      existingUsageType.length > 0
+        ? existingUsageType
+        : deriveUsageType(partialCodeJSON.repositoryVisibility),
+    exemptionText: existingCodeJSON?.permissions?.exemptionText ?? "",
+  };
 
   // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode
   const [forkParent, detectedDeps] = await Promise.all([
@@ -58,6 +82,9 @@ async function getMetaData(
       lastModified: partialCodeJSON.date?.lastModified ?? "",
     },
     reusedCode,
+    permissions,
+    maturityModelTier,
+    ...(repositoryHost ? { repositoryHost } : {}),
   };
 }
 
@@ -84,9 +111,22 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
     }
 
     const metaData = await getMetaData(helpers, currentCodeJSON);
-    const finalCodeJSON = assembleDraft(metaData, currentCodeJSON, {
+    const draftCodeJSON = assembleDraft(metaData, currentCodeJSON, {
       isArchived: deps.isArchived,
     });
+    const finalCodeJSON = deps.enableAI
+      ? await enrichCodeJSON(
+          draftCodeJSON,
+          {
+            readme: await helpers.readREADME(),
+            secrets: [deps.githubToken, deps.adminToken],
+          },
+          deps.log,
+          deps.runModel,
+        )
+      : draftCodeJSON;
+
+    const aiGeneratedFields = enrichedFields(draftCodeJSON, finalCodeJSON);
 
     // a generated code.json is a draft so we must report what fields are missing
     const validationErrors = validateCodeJSON(finalCodeJSON);
@@ -102,7 +142,12 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
 
     const baseBranchName = await helpers.getBaseBranch();
 
-    if (deps.skipPR) {
+    if (deps.skipPR && aiGeneratedFields.length > 0) {
+      deps.log.info(
+        "AI-generated fields need human review, creating a pull request instead of pushing directly",
+      );
+      await helpers.sendPR(finalCodeJSON, baseBranchName, aiGeneratedFields);
+    } else if (deps.skipPR) {
       if (!deps.adminToken) {
         deps.log.warning("SKIP_PR is enabled but ADMIN_TOKEN is not provided.");
         deps.log.warning(
@@ -117,7 +162,7 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
       }
     } else {
       deps.log.info("Creating pull request with updated code.json");
-      await helpers.sendPR(finalCodeJSON, baseBranchName);
+      await helpers.sendPR(finalCodeJSON, baseBranchName, aiGeneratedFields);
     }
   } catch (error) {
     deps.setFailed(`Action failed: ${error}`);
