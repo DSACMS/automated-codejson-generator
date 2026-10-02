@@ -22,7 +22,7 @@ jobs:
 
       - name: Update code.json
         id: generator
-        uses: DSACMS/automated-codejson-generator@sachin/local-ai-feature
+        uses: DSACMS/automated-codejson-generator@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: "main"
