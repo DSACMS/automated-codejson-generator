@@ -19,30 +19,34 @@ function generatedCodeJSON(deps: Dependencies): any {
   return JSON.parse(pullRequestArgs.changes[0].files["code.json"]);
 }
 
-describe("getMetaData", () => {
-  it("preserves an existing version when the latest release is unavailable", async () => {
-    const releaseOctokit = createMockOctokit({
-      rest: {
-        repos: {
-          getLatestRelease: jest
-            .fn<any>()
-            .mockRejectedValue(new Error("not found")),
-        },
-      },
-    });
-
-    const deps = createMockDeps({ octokit: releaseOctokit });
-    const helpers = createHelpers(deps);
-
-    const existing = {
-      ...validCodeJSON,
-      version: "7.8.9",
-    } as any;
-    const result = await getMetaData(helpers, existing);
-
-    expect(result.version).toBe("7.8.9");
+// runs the action against an existing code.json plus any other repository files and returns the code.json it shipped
+async function generateFrom(
+  existing: object | null,
+  files: Record<string, string> = {},
+  overrides: Partial<Dependencies> = {},
+): Promise<any> {
+  process.env.GITHUB_EVENT_NAME = "schedule";
+  const repoFiles: Record<string, string> = {
+    ...(existing
+      ? { "/github/workspace/code.json": JSON.stringify(existing) }
+      : {}),
+    ...files,
+  };
+  const deps = createMockDeps({
+    readFile: jest.fn<any>((filepath: string) =>
+      filepath in repoFiles
+        ? Promise.resolve(repoFiles[filepath])
+        : Promise.reject(new Error("ENOENT")),
+    ),
+    ...overrides,
   });
 
+  await runWithDeps(deps);
+
+  return generatedCodeJSON(deps);
+}
+
+describe("getMetaData", () => {
   it("uses the latest release version when available", async () => {
     const releaseOctokit = createMockOctokit({
       rest: {
@@ -60,29 +64,16 @@ describe("getMetaData", () => {
     const deps = createMockDeps({ octokit: releaseOctokit });
     const helpers = createHelpers(deps);
 
-    const result = await getMetaData(helpers, null);
+    const result = await getMetaData(helpers);
 
     expect(result.version).toBe("2.4.6");
   });
 
-  it("preserves existing languages over GitHub-detected languages", async () => {
+  it("reports GitHub-detected languages", async () => {
     const deps = createMockDeps();
     const helpers = createHelpers(deps);
 
-    const existing = {
-      ...validCodeJSON,
-      languages: ["TypeScript", "Markdown"],
-    } as any;
-    const result = await getMetaData(helpers, existing);
-
-    expect(result.languages).toEqual(["TypeScript", "Markdown"]);
-  });
-
-  it("falls back to GitHub-detected languages when none exist", async () => {
-    const deps = createMockDeps();
-    const helpers = createHelpers(deps);
-
-    const result = await getMetaData(helpers, null);
+    const result = await getMetaData(helpers);
 
     expect(result.languages).toEqual(["TypeScript", "JavaScript"]);
   });
@@ -115,7 +106,7 @@ describe("getMetaData", () => {
     const deps = createMockDeps({ octokit: forkOctokit });
     const helpers = createHelpers(deps);
 
-    const result = await getMetaData(helpers, null);
+    const result = await getMetaData(helpers);
 
     expect(result.reusedCode).toContainEqual({
       name: "upstream-owner/upstream-repo",
@@ -123,92 +114,26 @@ describe("getMetaData", () => {
     });
   });
 
-  it("preserves existing tags that are not repository topics", async () => {
+  it("reports repository topics as tags", async () => {
     const deps = createMockDeps();
     const helpers = createHelpers(deps);
 
-    const existing = {
-      ...validCodeJSON,
-      tags: ["featured"],
-    } as any;
-
-    const result = await getMetaData(helpers, existing);
-
-    expect(result.tags).toEqual(["test", "automation", "featured"]);
-  });
-
-  it("does not duplicate tags that already exist as repository topics", async () => {
-    const deps = createMockDeps();
-    const helpers = createHelpers(deps);
-
-    const existing = {
-      ...validCodeJSON,
-      tags: ["test", "featured"],
-    } as any;
-
-    const result = await getMetaData(helpers, existing);
-
-    expect(result.tags).toEqual(["test", "automation", "featured"]);
-  });
-
-  it("uses repository topics when no existing code.json is present", async () => {
-    const deps = createMockDeps();
-    const helpers = createHelpers(deps);
-
-    const result = await getMetaData(helpers, null);
+    const result = await getMetaData(helpers);
 
     expect(result.tags).toEqual(["test", "automation"]);
   });
 
   it("marks a public repository as open source", async () => {
-    const result = await getMetaData(createHelpers(createMockDeps()), null);
+    const result = await getMetaData(createHelpers(createMockDeps()));
 
     expect(result.permissions?.usageType).toEqual(["openSource"]);
   });
 
-  it("preserves an existing usageType rather than reclassifying it", async () => {
-    const existing = {
-      ...validCodeJSON,
-      permissions: {
-        licenses: [{ name: "MIT", URL: "https://example.gov/license" }],
-        usageType: ["exemptByAgencyMission"],
-        exemptionText: "sharing would risk agency operations",
-      },
-    } as any;
+  // licenses and exemptionText are not observations, so core fills them from the existing file or the baseline
+  it("reports only usageType under permissions", async () => {
+    const result = await getMetaData(createHelpers(createMockDeps()));
 
-    const result = await getMetaData(createHelpers(createMockDeps()), existing);
-
-    expect(result.permissions?.usageType).toEqual(["exemptByAgencyMission"]);
-  });
-
-  // usageType is the only part of permissions the action observes
-  it("carries existing licenses and exemption text through untouched", async () => {
-    const existing = {
-      ...validCodeJSON,
-      permissions: {
-        licenses: [{ name: "MIT", URL: "https://example.gov/license" }],
-        usageType: [],
-        exemptionText: "left over from an earlier exemption",
-      },
-    } as any;
-
-    const result = await getMetaData(createHelpers(createMockDeps()), existing);
-
-    expect(result.permissions?.licenses).toEqual([
-      { name: "MIT", URL: "https://example.gov/license" },
-    ]);
-    expect(result.permissions?.exemptionText).toBe(
-      "left over from an earlier exemption",
-    );
-    expect(result.permissions?.usageType).toEqual(["openSource"]);
-  });
-
-  it("defaults licenses to the draft baseline for a new repository", async () => {
-    const result = await getMetaData(createHelpers(createMockDeps()), null);
-
-    expect(result.permissions?.licenses).toEqual([
-      { name: "CC0-1.0", URL: "" },
-    ]);
+    expect(result.permissions).toEqual({ usageType: ["openSource"] });
   });
 
   it("derives the maturity tier from the community health files present", async () => {
@@ -220,38 +145,13 @@ describe("getMetaData", () => {
       ),
     });
 
-    const result = await getMetaData(createHelpers(deps), null);
+    const result = await getMetaData(createHelpers(deps));
 
     expect(result.maturityModelTier).toBe(4);
   });
 
-  it("preserves a maturity tier a human has already set", async () => {
-    const existing = { ...validCodeJSON, maturityModelTier: 2 } as any;
-
-    const result = await getMetaData(createHelpers(createMockDeps()), existing);
-
-    expect(result.maturityModelTier).toBe(2);
-  });
-
-  // every file this action has generated before carries the baseline 0, so a zero has to
-  // count as unset or the field could never be filled on a later run
-  it("treats a maturity tier of 0 as unset", async () => {
-    const deps = createMockDeps({
-      readFile: jest.fn<any>((filepath: string) =>
-        filepath === "/github/workspace/SECURITY.md"
-          ? Promise.resolve("report issues here")
-          : Promise.reject(new Error("ENOENT")),
-      ),
-    });
-    const existing = { ...validCodeJSON, maturityModelTier: 0 } as any;
-
-    const result = await getMetaData(createHelpers(deps), existing);
-
-    expect(result.maturityModelTier).toBe(1);
-  });
-
   it("omits repositoryHost when the repository is not under a known organization", async () => {
-    const result = await getMetaData(createHelpers(createMockDeps()), null);
+    const result = await getMetaData(createHelpers(createMockDeps()));
 
     expect(result).not.toHaveProperty("repositoryHost");
   });
@@ -280,20 +180,135 @@ describe("getMetaData", () => {
     });
 
     const deps = createMockDeps({ octokit: dsacmsOctokit });
-    const result = await getMetaData(createHelpers(deps), null);
+    const result = await getMetaData(createHelpers(deps));
 
     expect(result.repositoryHost).toBe("github.com/DSACMS");
   });
+});
+
+describe("merging with an existing code.json", () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it("preserves an existing version when the latest release is unavailable", async () => {
+    const releaseOctokit = createMockOctokit({
+      rest: {
+        repos: {
+          getLatestRelease: jest
+            .fn<any>()
+            .mockRejectedValue(new Error("not found")),
+        },
+      },
+    });
+
+    const generated = await generateFrom(
+      { ...validCodeJSON, version: "7.8.9" },
+      {},
+      { octokit: releaseOctokit },
+    );
+
+    expect(generated.version).toBe("7.8.9");
+  });
+
+  it("preserves existing languages over GitHub-detected languages", async () => {
+    const generated = await generateFrom({
+      ...validCodeJSON,
+      languages: ["TypeScript", "Markdown"],
+    });
+
+    expect(generated.languages).toEqual(["TypeScript", "Markdown"]);
+  });
+
+  it("preserves existing tags that are not repository topics", async () => {
+    const generated = await generateFrom({
+      ...validCodeJSON,
+      tags: ["featured"],
+    });
+
+    expect(generated.tags).toEqual(["featured", "test", "automation"]);
+  });
+
+  it("does not duplicate tags that already exist as repository topics", async () => {
+    const generated = await generateFrom({
+      ...validCodeJSON,
+      tags: ["test", "featured"],
+    });
+
+    expect(generated.tags).toEqual(["test", "featured", "automation"]);
+  });
+
+  it("preserves an existing usageType rather than reclassifying it", async () => {
+    const generated = await generateFrom({
+      ...validCodeJSON,
+      permissions: {
+        licenses: [{ name: "MIT", URL: "https://example.gov/license" }],
+        usageType: ["exemptByAgencyMission"],
+        exemptionText: "sharing would risk agency operations",
+      },
+    });
+
+    expect(generated.permissions.usageType).toEqual(["exemptByAgencyMission"]);
+  });
+
+  it("carries existing licenses and exemption text through untouched", async () => {
+    const generated = await generateFrom({
+      ...validCodeJSON,
+      permissions: {
+        licenses: [{ name: "MIT", URL: "https://example.gov/license" }],
+        usageType: [],
+        exemptionText: "left over from an earlier exemption",
+      },
+    });
+
+    expect(generated.permissions).toEqual({
+      licenses: [{ name: "MIT", URL: "https://example.gov/license" }],
+      usageType: ["openSource"],
+      exemptionText: "left over from an earlier exemption",
+    });
+  });
+
+  it("defaults licenses to the draft baseline for a new repository", async () => {
+    const generated = await generateFrom(null);
+
+    expect(generated.permissions.licenses).toEqual([
+      { name: "CC0-1.0", URL: "" },
+    ]);
+  });
+
+  it("preserves a maturity tier a human has already set", async () => {
+    const generated = await generateFrom({
+      ...validCodeJSON,
+      maturityModelTier: 2,
+    });
+
+    expect(generated.maturityModelTier).toBe(2);
+  });
+
+  // every file this action has generated before carries the baseline 0, so a zero has to
+  // count as unset or the field could never be filled on a later run
+  it("treats a maturity tier of 0 as unset", async () => {
+    const generated = await generateFrom(
+      { ...validCodeJSON, maturityModelTier: 0 },
+      { "/github/workspace/SECURITY.md": "report issues here" },
+    );
+
+    expect(generated.maturityModelTier).toBe(1);
+  });
 
   it("preserves an existing repositoryHost the URL cannot confirm", async () => {
-    const existing = {
+    const generated = await generateFrom({
       ...validCodeJSON,
       repositoryHost: "CCSQ GitHub",
-    } as any;
+    });
 
-    const result = await getMetaData(createHelpers(createMockDeps()), existing);
-
-    expect(result.repositoryHost).toBe("CCSQ GitHub");
+    expect(generated.repositoryHost).toBe("CCSQ GitHub");
   });
 });
 

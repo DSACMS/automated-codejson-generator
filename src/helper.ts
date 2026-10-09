@@ -454,7 +454,6 @@ export function createHelpers(deps: Dependencies) {
     readREADME,
     detectReusedCode,
     detectForkParent,
-    mergeReusedCode,
     getBaseBranch,
     validateOnly,
     validateCodeJSON,
@@ -490,32 +489,6 @@ export function parseRequirementsTxt(content: string): string[] {
     if (match) names.push(match[0]);
   }
   return names;
-}
-
-// keeps existing entries (manual edits) and appends detected ones, de-duped by name and URL
-export function mergeReusedCode(
-  existing: Array<{ name?: string; URL?: string }>,
-  detected: ReusedCodeEntry[],
-): Array<{ name?: string; URL?: string }> {
-  const base = Array.isArray(existing) ? existing : [];
-  const merged = [...base];
-  const seenURLs = new Set(
-    base.map((e) => e.URL?.toLowerCase()).filter(Boolean),
-  );
-  const seenNames = new Set(
-    base.map((e) => e.name?.toLowerCase()).filter(Boolean),
-  );
-
-  for (const entry of detected) {
-    const url = entry.URL.toLowerCase();
-    const name = entry.name.toLowerCase();
-    if (seenURLs.has(url) || seenNames.has(name)) continue;
-    merged.push(entry);
-    seenURLs.add(url);
-    seenNames.add(name);
-  }
-
-  return merged;
 }
 
 // reads the hosting organization off the repository URL

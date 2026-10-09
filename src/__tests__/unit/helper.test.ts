@@ -6,7 +6,6 @@ import {
   createHelpers,
   parsePackageJSON,
   parseRequirementsTxt,
-  mergeReusedCode,
   deriveRepositoryHost,
   deriveUsageType,
   deriveMaturityTier,
@@ -569,31 +568,6 @@ describe("createHelpers - detectForkParent", () => {
   });
 });
 
-describe("mergeReusedCode", () => {
-  it("appends detected entries to existing ones", () => {
-    const existing = [{ name: "Other Gov Tool", URL: "https://example.gov" }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual([...existing, USWDS]);
-  });
-
-  it("does not duplicate an entry already present by URL", () => {
-    const existing = [{ name: "USWDS (manual)", URL: USWDS.URL }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual(existing);
-  });
-
-  it("does not duplicate an entry already present by name", () => {
-    const existing = [{ name: USWDS.name, URL: "https://old.example" }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual(existing);
-  });
-
-  it("returns existing unchanged when nothing is detected", () => {
-    const existing = [{ name: "Gov Tool", URL: "https://example.gov" }];
-    expect(mergeReusedCode(existing, [])).toEqual(existing);
-  });
-
-  it("tolerates a non-array existing value", () => {
-    expect(mergeReusedCode(undefined as any, [USWDS])).toEqual([USWDS]);
-  });
-});
 describe("GOV_DEPENDENCIES integrity", () => {
   const entries = Object.entries(GOV_DEPENDENCIES);
 
