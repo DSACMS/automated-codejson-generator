@@ -638,10 +638,14 @@ describe("AGENCY", () => {
   it("generates a neutral code.json without CMS-only fields", async () => {
     const neutral = resolveProfile("neutral");
 
-    const result = await generateFrom(null, {}, {
-      agency: "neutral",
-      profile: neutral,
-    });
+    const result = await generateFrom(
+      null,
+      {},
+      {
+        agency: "neutral",
+        profile: neutral,
+      },
+    );
 
     for (const field of ["repositoryHost", "maturityModelTier", "fismaLevel"]) {
       expect(result).not.toHaveProperty(field);
@@ -654,5 +658,28 @@ describe("AGENCY", () => {
     process.env.INPUT_AGENCY = "foo";
 
     expect(() => createProductionDeps()).toThrow('Unknown AGENCY "foo"');
+  });
+
+  it("asks the model for tags only on neutral", async () => {
+    const generateText = jest.fn<any>().mockResolvedValue("");
+    const generateJSON = jest.fn<any>().mockResolvedValue({});
+    const runModel = jest.fn<any>(async (_log: unknown, run: any) =>
+      run({ generateText, generateJSON }),
+    );
+
+    await generateFrom(
+      null,
+      {},
+      {
+        agency: "neutral",
+        profile: resolveProfile("neutral"),
+        enableAI: true,
+        runModel,
+      },
+    );
+
+    expect(generateText).not.toHaveBeenCalled();
+    const schema = generateJSON.mock.calls[0][1] as any;
+    expect(Object.keys(schema.properties)).toEqual(["tags"]);
   });
 });

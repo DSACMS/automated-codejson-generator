@@ -1,6 +1,6 @@
 import * as fs from "fs/promises";
 import type { CMSCodeJSON } from "codejson-core";
-import { CodeJSON } from "./codejson.js";
+import { AgencyName, CodeJSON } from "./codejson.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
 import { Dependencies } from "./types/Dependencies.js";
 import {
@@ -37,8 +37,16 @@ function serializeCodeJSON(codeJSON: CodeJSON): string {
 }
 
 export function createHelpers(deps: Dependencies) {
-  const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } =
-    deps;
+  const {
+    owner,
+    repo,
+    octokit,
+    adminOctokit,
+    log,
+    setOutput,
+    isArchived,
+    agency,
+  } = deps;
 
   //===============================================
   // Meta Data
@@ -338,7 +346,7 @@ export function createHelpers(deps: Dependencies) {
           ? "Update code.json for archival"
           : "Update code.json",
         body:
-          (isArchived ? bodyOfArchivalPR() : bodyOfPR()) +
+          (isArchived ? bodyOfArchivalPR(agency) : bodyOfPR(agency)) +
           aiReviewNotice(aiGeneratedFields),
         base: baseBranchName,
         head: headBranchName,
@@ -571,13 +579,19 @@ export function mergeTags(
   return Array.from(new Set([...repositoryTopics, ...existingTags]));
 }
 
-function bodyOfPR(): string {
+const CMS_SENDER = " on behalf of the CMS Source Code Stewardship Taskforce,";
+const CMS_SLACK = " or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ)";
+
+function bodyOfPR(agency: AgencyName): string {
+  const sender = agency === "cms" ? CMS_SENDER : "";
+  const slack = agency === "cms" ? CMS_SLACK : "";
+
   return `
   ## Welcome to the Federal Open Source Community!
 
   Hello, and thank you for your contributions to the Federal Open Source Community. 🙏
 
-  This pull request adding [code.json repository metadata](https://github.com/DSACMS/gov-codejson/blob/main/docs/metadata.md) is being sent on behalf of the CMS Source Code Stewardship Taskforce, in compliance with [The Federal Source Code Inventory Policy](https://code.gov/agency-compliance/compliance/inventory-code), [M-16-21](https://obamawhitehouse.archives.gov/sites/default/files/omb/memoranda/2016/m_16_21.pdf), and in preparation for the [SHARE IT Act of 2024](https://www.congress.gov/bill/118th-congress/house-bill/9566). If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues) or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ).
+  This pull request adding [code.json repository metadata](https://github.com/DSACMS/gov-codejson/blob/main/docs/metadata.md) is being sent${sender} in compliance with [The Federal Source Code Inventory Policy](https://code.gov/agency-compliance/compliance/inventory-code), [M-16-21](https://obamawhitehouse.archives.gov/sites/default/files/omb/memoranda/2016/m_16_21.pdf), and in preparation for the [SHARE IT Act of 2024](https://www.congress.gov/bill/118th-congress/house-bill/9566). If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues)${slack}.
 
   ## Next Steps
   ### Add Missing Information to code.json
@@ -601,7 +615,9 @@ function aiReviewNotice(aiGeneratedFields: string[]): string {
 `;
 }
 
-function bodyOfArchivalPR(): string {
+function bodyOfArchivalPR(agency: AgencyName): string {
+  const slack = agency === "cms" ? CMS_SLACK : "";
+
   return `
   ## Archiving the Repository
 
@@ -609,7 +625,7 @@ function bodyOfArchivalPR(): string {
   
   As part of preparing the repository for archival, this pull request marks the repository for archival and ensures code.json repository metadata is up-to-date.
 
-  If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues) or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ).
+  If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues)${slack}.
 
   ## Next Steps
   ### Verify project metadata in code.json

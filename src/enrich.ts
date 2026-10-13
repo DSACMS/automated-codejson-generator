@@ -1,4 +1,4 @@
-import type { CMSCodeJSON } from "codejson-core";
+import type { CMSCodeJSON, CodeJSONProfile } from "codejson-core";
 import type { GbnfJsonSchema } from "node-llama-cpp";
 import { CodeJSON } from "./codejson.js";
 import {
@@ -41,8 +41,17 @@ export interface GeneratedFields {
 export type EnrichableField = (typeof ENRICHABLE_FIELDS)[number];
 type ClassificationField = Exclude<EnrichableField, "longDescription">;
 
-export function missingEnrichableFields(codeJSON: CodeJSON): EnrichableField[] {
-  return ENRICHABLE_FIELDS.filter((field) => {
+export function enrichableFields(
+  profile: CodeJSONProfile<CodeJSON>,
+): EnrichableField[] {
+  return ENRICHABLE_FIELDS.filter((field) => field in profile.baseline);
+}
+
+export function missingEnrichableFields(
+  codeJSON: CodeJSON,
+  fields: readonly EnrichableField[],
+): EnrichableField[] {
+  return fields.filter((field) => {
     switch (field) {
       case "longDescription":
         return (
@@ -209,11 +218,12 @@ export function applyEnrichment(
 
 export async function enrichCodeJSON(
   codeJSON: CodeJSON,
+  fields: readonly EnrichableField[],
   context: { readme: string | null; secrets: string[] },
   log: Logger,
   runModel: ModelRunner = withModel,
 ): Promise<CodeJSON> {
-  const missing = missingEnrichableFields(codeJSON);
+  const missing = missingEnrichableFields(codeJSON, fields);
 
   if (missing.length === 0) {
     log.info("No AI-enrichable fields are missing, skipping model generation.");
@@ -296,10 +306,10 @@ function buildPromptContext(codeJSON: CodeJSON, readme: string | null): string {
     `Repository URL: ${codeJSON.repositoryURL}`,
   ];
 
-  if ((codeJSON.softwareType as string) !== "") {
+  if (codeJSON.softwareType) {
     lines.push(`Software type: ${codeJSON.softwareType}`);
   }
-  if ((codeJSON.repositoryType as string) !== "") {
+  if (codeJSON.repositoryType) {
     lines.push(`Repository type: ${codeJSON.repositoryType}`);
   }
 

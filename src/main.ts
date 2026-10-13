@@ -3,7 +3,7 @@ import { CodeJSON } from "./codejson.js";
 import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, deriveUsageType, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
-import { enrichCodeJSON, enrichedFields } from "./enrich.js";
+import { enrichableFields, enrichCodeJSON, enrichedFields } from "./enrich.js";
 
 // gathers what can be observed about the repository right now. merging with the existing code.json belongs to codejson-core
 async function getMetaData(helpers: Helpers): Promise<Partial<CodeJSON>> {
@@ -71,6 +71,7 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
     const finalCodeJSON = deps.enableAI
       ? await enrichCodeJSON(
           draft,
+          enrichableFields(deps.profile),
           {
             readme: await helpers.readREADME(),
             secrets: [deps.githubToken, deps.adminToken],

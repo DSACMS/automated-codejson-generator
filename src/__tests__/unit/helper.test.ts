@@ -233,6 +233,49 @@ describe("createHelpers - sendPR AI review notice", () => {
   });
 });
 
+describe("createHelpers - sendPR agency wording", () => {
+  function prBody(deps: Dependencies): string {
+    const createPullRequestMock = deps.octokit.createPullRequest as jest.Mock;
+    return (createPullRequestMock.mock.calls[0][0] as any).body;
+  }
+
+  it.each([false, true])(
+    "keeps the CMS wording for cms (archival: %s)",
+    async (isArchived) => {
+      const deps = createMockDeps({ isArchived });
+      await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+      expect(prBody(deps)).toContain("cms-ospo");
+    },
+  );
+
+  it.each([false, true])(
+    "drops the CMS wording for neutral (archival: %s)",
+    async (isArchived) => {
+      const deps = createMockDeps({
+        isArchived,
+        agency: "neutral",
+        profile: resolveProfile("neutral"),
+      });
+      await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+      expect(prBody(deps)).not.toContain("Taskforce");
+      expect(prBody(deps)).not.toContain("cms-ospo");
+      expect(prBody(deps)).toContain("file an issue");
+    },
+  );
+
+  it("reads cleanly once the CMS sender is removed", async () => {
+    const deps = createMockDeps({
+      agency: "neutral",
+      profile: resolveProfile("neutral"),
+    });
+    await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+    expect(prBody(deps)).toContain("is being sent in compliance with");
+  });
+});
+
 describe("workspaceFileReader", () => {
   let root: string;
   let outside: string;
