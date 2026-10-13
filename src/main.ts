@@ -1,9 +1,5 @@
-import {
-  CodeJSON,
-  draftCodeJSON,
-  droppedFields,
-  validateCodeJSON,
-} from "./codejson.js";
+import * as core from "@actions/core";
+import { CodeJSON } from "./codejson.js";
 import { Dependencies } from "./types/Dependencies.js";
 import { createHelpers, deriveUsageType, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
@@ -64,12 +60,12 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
       "/github/workspace/code.json",
     );
 
-    for (const field of droppedFields(currentCodeJSON)) {
+    for (const field of deps.profile.droppedFields(currentCodeJSON)) {
       deps.log.info(`Removing outdated field from current code.json: ${field}`);
     }
 
     const metaData = await getMetaData(helpers);
-    const draft = draftCodeJSON(metaData, currentCodeJSON, {
+    const draft = deps.profile.draft(metaData, currentCodeJSON, {
       isArchived: deps.isArchived,
     });
     const finalCodeJSON = deps.enableAI
@@ -87,7 +83,7 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
     const aiGeneratedFields = enrichedFields(draft, finalCodeJSON);
 
     // a generated code.json is a draft so we must report what fields are missing
-    const validationErrors = validateCodeJSON(finalCodeJSON);
+    const validationErrors = deps.profile.validate(finalCodeJSON);
 
     if (validationErrors.length > 0) {
       deps.log.warning(
@@ -129,6 +125,12 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
 
 // prod entry point
 export async function run(): Promise<void> {
-  const deps = createProductionDeps();
+  let deps: Dependencies;
+  try {
+    deps = createProductionDeps();
+  } catch (error) {
+    core.setFailed(error instanceof Error ? error.message : String(error));
+    return;
+  }
   return runWithDeps(deps);
 }

@@ -7,6 +7,7 @@ import {
   enrichedFields,
   screenGeneratedContent,
 } from "../../enrich.js";
+import type { CMSCodeJSON } from "codejson-core";
 import { CodeJSON } from "../../codejson.js";
 import { ModelRunner, ModelSession } from "../../llm.js";
 import { createMockLogger } from "../fixtures/mock-deps.js";
@@ -193,7 +194,7 @@ describe("applyEnrichment", () => {
   it("drops platform values outside the schema's enum", () => {
     const result = applyEnrichment(
       blankDraft,
-      { platforms: ["web", "atari" as CodeJSON["platforms"][number]] },
+      { platforms: ["web", "atari" as CMSCodeJSON["platforms"][number]] },
       ["platforms"],
     );
 
@@ -203,7 +204,7 @@ describe("applyEnrichment", () => {
   it("rejects a softwareType outside the schema's enum", () => {
     const result = applyEnrichment(
       blankDraft,
-      { softwareType: "not-a-real-type" as CodeJSON["softwareType"] },
+      { softwareType: "not-a-real-type" as CMSCodeJSON["softwareType"] },
       ["softwareType"],
     );
 
@@ -221,7 +222,7 @@ describe("applyEnrichment", () => {
   it("rejects a repositoryType outside the schema's enum", () => {
     const result = applyEnrichment(
       blankDraft,
-      { repositoryType: "not-a-real-type" as CodeJSON["repositoryType"] },
+      { repositoryType: "not-a-real-type" as CMSCodeJSON["repositoryType"] },
       ["repositoryType"],
     );
 

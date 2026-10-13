@@ -1,5 +1,6 @@
 import * as fs from "fs/promises";
-import { CodeJSON, validateCodeJSON } from "./codejson.js";
+import type { CMSCodeJSON } from "codejson-core";
+import { CodeJSON } from "./codejson.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
 import { Dependencies } from "./types/Dependencies.js";
 import {
@@ -22,7 +23,7 @@ const COMMUNITY_FILE_CANDIDATES: Record<string, string[]> = {
   GOVERNANCE: ["GOVERNANCE.md", ".github/GOVERNANCE.md"],
 };
 
-const GITHUB_ORG_HOSTS: Record<string, CodeJSON["repositoryHost"]> = {
+const GITHUB_ORG_HOSTS: Record<string, CMSCodeJSON["repositoryHost"]> = {
   cmsgov: "github.com/CMSgov",
   "cms-enterprise": "github.com/CMS-Enterprise",
   "enterprise-cmcs": "github.com/Enterprise-CMCS",
@@ -42,7 +43,7 @@ export function createHelpers(deps: Dependencies) {
   //===============================================
   // Meta Data
   //===============================================
-  async function calculateMetaData(): Promise<Partial<CodeJSON>> {
+  async function calculateMetaData(): Promise<Partial<CMSCodeJSON>> {
     try {
       const [laborHours, basicInfo, version, communityFiles] =
         await Promise.all([
@@ -294,7 +295,7 @@ export function createHelpers(deps: Dependencies) {
         return;
       }
 
-      const validationErrors = validateCodeJSON(codeJSON);
+      const validationErrors = deps.profile.validate(codeJSON);
 
       if (validationErrors.length > 0) {
         const errorMessage = `code.json validation failed with ${validationErrors.length} error(s):\n\n${validationErrors.map((err, idx) => `${idx + 1}. ${err}`).join("\n")}`;
@@ -456,7 +457,6 @@ export function createHelpers(deps: Dependencies) {
     detectForkParent,
     getBaseBranch,
     validateOnly,
-    validateCodeJSON,
     readJSON,
     sendPR,
     pushDirectlyWithFallback,
@@ -494,7 +494,7 @@ export function parseRequirementsTxt(content: string): string[] {
 // reads the hosting organization off the repository URL
 export function deriveRepositoryHost(
   repositoryURL: string,
-): CodeJSON["repositoryHost"] | undefined {
+): CMSCodeJSON["repositoryHost"] | undefined {
   let url: URL;
   try {
     url = new URL(repositoryURL);

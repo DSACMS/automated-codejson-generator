@@ -7,6 +7,8 @@ import {
   afterEach,
 } from "@jest/globals";
 import { runWithDeps, getMetaData } from "../../main.js";
+import { resolveProfile } from "../../codejson.js";
+import { createProductionDeps } from "../../create-deps.js";
 import { createHelpers } from "../../helper.js";
 import { Dependencies } from "../../types/Dependencies.js";
 import { createMockDeps, createMockOctokit } from "../fixtures/mock-deps.js";
@@ -619,5 +621,38 @@ describe("runWithDeps", () => {
     expect(deps.setFailed).toHaveBeenCalledWith(
       expect.stringContaining("Action failed"),
     );
+  });
+});
+
+describe("AGENCY", () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it("generates a neutral code.json without CMS-only fields", async () => {
+    const neutral = resolveProfile("neutral");
+
+    const result = await generateFrom(null, {}, {
+      agency: "neutral",
+      profile: neutral,
+    });
+
+    for (const field of ["repositoryHost", "maturityModelTier", "fismaLevel"]) {
+      expect(result).not.toHaveProperty(field);
+    }
+    expect(neutral.droppedFields(result)).toEqual([]);
+  });
+
+  it("refuses an unknown agency before building any clients", () => {
+    process.env.INPUT_GITHUB_TOKEN = "fake-github-token";
+    process.env.INPUT_AGENCY = "foo";
+
+    expect(() => createProductionDeps()).toThrow('Unknown AGENCY "foo"');
   });
 });

@@ -1,3 +1,4 @@
+import type { CMSCodeJSON } from "codejson-core";
 import type { GbnfJsonSchema } from "node-llama-cpp";
 import { CodeJSON } from "./codejson.js";
 import {
@@ -32,9 +33,9 @@ export interface GeneratedFields {
   longDescription: string;
   tags: string[];
   categories: string[];
-  platforms: CodeJSON["platforms"];
-  softwareType: CodeJSON["softwareType"];
-  repositoryType: CodeJSON["repositoryType"];
+  platforms: CMSCodeJSON["platforms"];
+  softwareType: CMSCodeJSON["softwareType"];
+  repositoryType: CMSCodeJSON["repositoryType"];
 }
 
 export type EnrichableField = (typeof ENRICHABLE_FIELDS)[number];
@@ -45,13 +46,14 @@ export function missingEnrichableFields(codeJSON: CodeJSON): EnrichableField[] {
     switch (field) {
       case "longDescription":
         return (
-          codeJSON.longDescription.trim().length < LONG_DESCRIPTION_MIN_LENGTH
+          (codeJSON.longDescription ?? "").trim().length <
+          LONG_DESCRIPTION_MIN_LENGTH
         );
       case "tags":
         return codeJSON.tags.length < TARGET_ITEM_COUNT;
       case "categories":
       case "platforms":
-        return codeJSON[field].length === 0;
+        return (codeJSON[field] ?? []).length === 0;
       case "softwareType":
       case "repositoryType":
         return (codeJSON[field] as string) === "";

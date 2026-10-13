@@ -21,6 +21,8 @@ import {
   CMS_DS_HEALTHCARE_GOV,
 } from "../../gov-dependencies.js";
 import { createMockDeps, createMockOctokit } from "../fixtures/mock-deps.js";
+import validCodeJSON from "../fixtures/test-code.json";
+import { resolveProfile } from "../../codejson.js";
 import { Dependencies } from "../../types/Dependencies.js";
 
 const CUMULUS_MESSAGE_ADAPTER = {
@@ -350,6 +352,30 @@ describe("createHelpers - validateOnly", () => {
 
     expect(deps.setFailed).not.toHaveBeenCalled();
     expect(deps.log.info).toHaveBeenCalledWith("code.json is valid!");
+  });
+
+  it("validates against the selected agency's profile", async () => {
+    const neutral = resolveProfile("neutral");
+    const neutralCodeJSON = Object.fromEntries(
+      Object.entries(validCodeJSON).filter(([key]) => key in neutral.baseline),
+    );
+    const readFile = jest
+      .fn<any>()
+      .mockResolvedValue(JSON.stringify(neutralCodeJSON));
+
+    const cmsDeps = createMockDeps({ readFile });
+    await createHelpers(cmsDeps).validateOnly();
+    expect(cmsDeps.setFailed).toHaveBeenCalledWith(
+      expect.stringContaining("fismaLevel"),
+    );
+
+    const neutralDeps = createMockDeps({
+      readFile,
+      agency: "neutral",
+      profile: neutral,
+    });
+    await createHelpers(neutralDeps).validateOnly();
+    expect(neutralDeps.setFailed).not.toHaveBeenCalled();
   });
 });
 
