@@ -21,6 +21,12 @@ updates:
       - dependency-name: "@types/node"
         update-types:
           - "version-update:semver-major"
+      # Must match the version baked into the base image; bump it with a base rebuild (CONTRIBUTING.md).
+      - dependency-name: "node-llama-cpp"
+      # typescript-eslint and ts-jest don't support TypeScript 7 yet.
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
     groups:
       npm:
         patterns:
