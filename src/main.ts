@@ -1,63 +1,44 @@
-import {
-  CodeJSON,
-  assembleDraft,
-  droppedFields,
-  validateCodeJSON,
-} from "./codejson.js";
+import * as core from "@actions/core";
+import { CodeJSON } from "./codejson.js";
 import { Dependencies } from "./types/Dependencies.js";
-import { createHelpers, Helpers } from "./helper.js";
+import { createHelpers, deriveUsageType, Helpers } from "./helper.js";
 import { createProductionDeps } from "./create-deps.js";
+import { enrichableFields, enrichCodeJSON, enrichedFields } from "./enrich.js";
 
-// gathers what can be observed about the repository right now so anything not an observation belongs to codejson-core 
-async function getMetaData(
-  helpers: Helpers,
-  existingCodeJSON?: CodeJSON | null,
-): Promise<Partial<CodeJSON>> {
+// gathers what can be observed about the repository right now. merging with the existing code.json belongs to codejson-core
+async function getMetaData(helpers: Helpers): Promise<Partial<CodeJSON>> {
   const partialCodeJSON = await helpers.calculateMetaData();
 
-  // preserve a manually set version, only fall back to the latest release
-  const version = existingCodeJSON?.version || partialCodeJSON.version;
-
-  // preserve manually curated languages when they already exist in code.json,
-  // and only fall back to GitHub detected languages for new repositories.
-  const languages =
-    existingCodeJSON?.languages && existingCodeJSON.languages.length > 0
-      ? existingCodeJSON.languages
-      : partialCodeJSON.languages;
-
-  // preserve existing tags and append repository topics, de-duped
-  const tags = helpers.mergeTags(
-    partialCodeJSON.tags ?? [],
-    existingCodeJSON?.tags ?? [],
-  );
-
-  // detect the fork upstream and government-made dependencies, then merge with any existing reusedCode
   const [forkParent, detectedDeps] = await Promise.all([
     helpers.detectForkParent(),
     helpers.detectReusedCode(),
   ]);
-  const reusedCode = helpers.mergeReusedCode(
-    existingCodeJSON?.reusedCode ?? [],
-    [...(forkParent ? [forkParent] : []), ...detectedDeps],
-  );
 
   return {
     name: partialCodeJSON.name,
-    version: version,
+    version: partialCodeJSON.version,
     description: partialCodeJSON.description,
     repositoryURL: partialCodeJSON.repositoryURL,
     repositoryVisibility: partialCodeJSON.repositoryVisibility,
     laborHours: partialCodeJSON.laborHours,
-    languages: languages,
+    languages: partialCodeJSON.languages,
     reuseFrequency: {
       forks: partialCodeJSON.reuseFrequency?.forks ?? 0,
     },
-    tags: tags,
+    tags: partialCodeJSON.tags,
     date: {
       created: partialCodeJSON.date?.created ?? "",
       lastModified: partialCodeJSON.date?.lastModified ?? "",
     },
-    reusedCode,
+    reusedCode: [...(forkParent ? [forkParent] : []), ...detectedDeps],
+    // only usageType is observed. core fills licenses and exemptionText from the existing file or the baseline
+    permissions: {
+      usageType: deriveUsageType(partialCodeJSON.repositoryVisibility),
+    } as CodeJSON["permissions"],
+    maturityModelTier: partialCodeJSON.maturityModelTier,
+    ...(partialCodeJSON.repositoryHost
+      ? { repositoryHost: partialCodeJSON.repositoryHost }
+      : {}),
   };
 }
 
@@ -79,17 +60,31 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
       "/github/workspace/code.json",
     );
 
-    for (const field of droppedFields(currentCodeJSON)) {
+    for (const field of deps.profile.droppedFields(currentCodeJSON)) {
       deps.log.info(`Removing outdated field from current code.json: ${field}`);
     }
 
-    const metaData = await getMetaData(helpers, currentCodeJSON);
-    const finalCodeJSON = assembleDraft(metaData, currentCodeJSON, {
+    const metaData = await getMetaData(helpers);
+    const draft = deps.profile.draft(metaData, currentCodeJSON, {
       isArchived: deps.isArchived,
     });
+    const finalCodeJSON = deps.enableAI
+      ? await enrichCodeJSON(
+          draft,
+          enrichableFields(deps.profile),
+          {
+            readme: await helpers.readREADME(),
+            secrets: [deps.githubToken, deps.adminToken],
+          },
+          deps.log,
+          deps.runModel,
+        )
+      : draft;
+
+    const aiGeneratedFields = enrichedFields(draft, finalCodeJSON);
 
     // a generated code.json is a draft so we must report what fields are missing
-    const validationErrors = validateCodeJSON(finalCodeJSON);
+    const validationErrors = deps.profile.validate(finalCodeJSON);
 
     if (validationErrors.length > 0) {
       deps.log.warning(
@@ -102,7 +97,12 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
 
     const baseBranchName = await helpers.getBaseBranch();
 
-    if (deps.skipPR) {
+    if (deps.skipPR && aiGeneratedFields.length > 0) {
+      deps.log.info(
+        "AI-generated fields need human review, creating a pull request instead of pushing directly",
+      );
+      await helpers.sendPR(finalCodeJSON, baseBranchName, aiGeneratedFields);
+    } else if (deps.skipPR) {
       if (!deps.adminToken) {
         deps.log.warning("SKIP_PR is enabled but ADMIN_TOKEN is not provided.");
         deps.log.warning(
@@ -117,7 +117,7 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
       }
     } else {
       deps.log.info("Creating pull request with updated code.json");
-      await helpers.sendPR(finalCodeJSON, baseBranchName);
+      await helpers.sendPR(finalCodeJSON, baseBranchName, aiGeneratedFields);
     }
   } catch (error) {
     deps.setFailed(`Action failed: ${error}`);
@@ -126,6 +126,12 @@ export async function runWithDeps(deps: Dependencies): Promise<void> {
 
 // prod entry point
 export async function run(): Promise<void> {
-  const deps = createProductionDeps();
+  let deps: Dependencies;
+  try {
+    deps = createProductionDeps();
+  } catch (error) {
+    core.setFailed(error instanceof Error ? error.message : String(error));
+    return;
+  }
   return runWithDeps(deps);
 }

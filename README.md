@@ -133,6 +133,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: "main"
           SKIP_PR: "false"
+          AGENCY: "cms" # or "neutral"
 ```
 
 ### Inputs
@@ -155,6 +156,16 @@ SKIP_PR:
 ADMIN_TOKEN:
   description: "Personal Access Token with admin/write privileges for direct push. Required when SKIP_PR is true."
   required: false
+
+ENABLE_AI:
+  description: "Use a local AI model to draft missing fields from the README. Generated fields always go through a pull request."
+  required: false
+  default: "false"
+
+AGENCY:
+  description: "Which code.json schema to generate and validate against: 'cms' or 'neutral'."
+  required: false
+  default: "cms"
 ```
 
 ### Outputs
@@ -234,7 +245,19 @@ The automated code.json generator calculates specific fields by analyzing your r
 
 ## Schema and Validation
 
-The code.json schema, its validation rules, and the logic that merges newly observed metadata into an existing file all live in [codejson-core](https://github.com/DSACMS/codejson-core), a standalone library shared by every tool that produces or validates code.json. This action binds to its CMS variant (`cmsProfile`) and owns only the parts core deliberately leaves out: reading your repository through GitHub's API, running SCC, scanning dependency manifests, and opening the pull request.
+The code.json schema, its validation rules, and the logic that merges newly observed metadata into an existing file all live in [codejson-core](https://github.com/DSACMS/codejson-core), a standalone library shared by every tool that produces or validates code.json. This action owns only the parts core deliberately leaves out: reading your repository through GitHub's API, running SCC, scanning dependency manifests, and opening the pull request.
+
+The `AGENCY` input picks which of core's profiles to use, for both generation and pull request validation:
+
+| | `cms` (default) | `neutral` |
+| --- | --- | --- |
+| Schema | Neutral fields plus CMS-only fields such as `fismaLevel`, `maturityModelTier` and `repositoryHost` | Neutral fields only |
+| `organization` | Centers for Medicare & Medicaid Services | Left blank to fill in |
+| Default license | CC0-1.0 | None |
+| `ENABLE_AI` drafts | `longDescription`, `tags`, `categories`, `platforms`, `softwareType`, `repositoryType` | `tags` |
+| Pull request text | Mentions the CMS Source Code Stewardship Taskforce and #cms-ospo | Agency-neutral |
+
+Switching an existing repository from `cms` to `neutral` removes the CMS-only fields from its code.json on the next run.
 
 The schema is version-pinned by the `codejson-core` release, so schema updates reach this action as a dependency bump rather than a code change. Dependabot opens those automatically.
 

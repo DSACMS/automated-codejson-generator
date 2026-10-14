@@ -1,9 +1,15 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
+import * as fs from "fs/promises";
+import * as os from "os";
+import * as path from "path";
 import {
   createHelpers,
   parsePackageJSON,
   parseRequirementsTxt,
-  mergeReusedCode,
+  deriveRepositoryHost,
+  deriveUsageType,
+  deriveMaturityTier,
+  workspaceFileReader,
 } from "../../helper.js";
 import {
   GOV_DEPENDENCIES,
@@ -15,6 +21,8 @@ import {
   CMS_DS_HEALTHCARE_GOV,
 } from "../../gov-dependencies.js";
 import { createMockDeps, createMockOctokit } from "../fixtures/mock-deps.js";
+import validCodeJSON from "../fixtures/test-code.json";
+import { resolveProfile } from "../../codejson.js";
 import { Dependencies } from "../../types/Dependencies.js";
 
 const CUMULUS_MESSAGE_ADAPTER = {
@@ -200,6 +208,133 @@ describe("createHelpers - sendPR", () => {
   });
 });
 
+describe("createHelpers - sendPR AI review notice", () => {
+  function prBody(deps: Dependencies): string {
+    const createPullRequestMock = deps.octokit.createPullRequest as jest.Mock;
+    return (createPullRequestMock.mock.calls[0][0] as any).body;
+  }
+
+  it("lists AI-generated fields for review", async () => {
+    const deps = createMockDeps();
+    await createHelpers(deps).sendPR({ name: "test" } as any, "main", [
+      "longDescription",
+      "tags",
+    ]);
+
+    expect(prBody(deps)).toContain("Review AI-Generated Fields");
+    expect(prBody(deps)).toContain("`longDescription`, `tags`");
+  });
+
+  it("omits the notice when nothing was AI-generated", async () => {
+    const deps = createMockDeps();
+    await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+    expect(prBody(deps)).not.toContain("AI-Generated");
+  });
+});
+
+describe("createHelpers - sendPR agency wording", () => {
+  function prBody(deps: Dependencies): string {
+    const createPullRequestMock = deps.octokit.createPullRequest as jest.Mock;
+    return (createPullRequestMock.mock.calls[0][0] as any).body;
+  }
+
+  it.each([false, true])(
+    "keeps the CMS wording for cms (archival: %s)",
+    async (isArchived) => {
+      const deps = createMockDeps({ isArchived });
+      await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+      expect(prBody(deps)).toContain("cms-ospo");
+    },
+  );
+
+  it.each([false, true])(
+    "drops the CMS wording for neutral (archival: %s)",
+    async (isArchived) => {
+      const deps = createMockDeps({
+        isArchived,
+        agency: "neutral",
+        profile: resolveProfile("neutral"),
+      });
+      await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+      expect(prBody(deps)).not.toContain("Taskforce");
+      expect(prBody(deps)).not.toContain("cms-ospo");
+      expect(prBody(deps)).toContain("file an issue");
+    },
+  );
+
+  it("reads cleanly once the CMS sender is removed", async () => {
+    const deps = createMockDeps({
+      agency: "neutral",
+      profile: resolveProfile("neutral"),
+    });
+    await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+    expect(prBody(deps)).toContain("is being sent in compliance with");
+  });
+});
+
+describe("workspaceFileReader", () => {
+  let root: string;
+  let outside: string;
+
+  beforeEach(async () => {
+    root = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-"));
+    outside = await fs.mkdtemp(path.join(os.tmpdir(), "outside-"));
+    await fs.writeFile(path.join(root, "README.md"), "hello");
+    await fs.writeFile(path.join(outside, "secrets"), "INPUT_ADMIN_TOKEN=x");
+  });
+
+  it("reads a regular file inside the workspace", async () => {
+    const read = workspaceFileReader(root);
+
+    expect(await read(path.join(root, "README.md"))).toBe("hello");
+  });
+
+  it("follows a symlink that stays inside the workspace", async () => {
+    await fs.symlink("README.md", path.join(root, "README"));
+
+    expect(await workspaceFileReader(root)(path.join(root, "README"))).toBe(
+      "hello",
+    );
+  });
+
+  it("refuses a symlink that escapes the workspace", async () => {
+    await fs.rm(path.join(root, "README.md"));
+    await fs.symlink(
+      path.join(outside, "secrets"),
+      path.join(root, "README.md"),
+    );
+
+    await expect(
+      workspaceFileReader(root)(path.join(root, "README.md")),
+    ).rejects.toThrow("Refusing to read");
+  });
+
+  it("refuses a file reached through a symlinked directory", async () => {
+    await fs.symlink(outside, path.join(root, ".github"));
+
+    await expect(
+      workspaceFileReader(root)(path.join(root, ".github", "secrets")),
+    ).rejects.toThrow("Refusing to read");
+  });
+
+  it("refuses non-regular and oversized files", async () => {
+    await fs.mkdir(path.join(root, "dir"));
+    await fs.writeFile(path.join(root, "big"), "a".repeat(1_000_001));
+    const read = workspaceFileReader(root);
+
+    await expect(read(path.join(root, "dir"))).rejects.toThrow(
+      "Refusing to read",
+    );
+    await expect(read(path.join(root, "big"))).rejects.toThrow(
+      "Refusing to read",
+    );
+  });
+});
+
 describe("createHelpers - pushDirectlyWithFallback", () => {
   it("falls back to PR when no admin token", async () => {
     const deps = createMockDeps({ adminToken: "" });
@@ -260,6 +395,30 @@ describe("createHelpers - validateOnly", () => {
 
     expect(deps.setFailed).not.toHaveBeenCalled();
     expect(deps.log.info).toHaveBeenCalledWith("code.json is valid!");
+  });
+
+  it("validates against the selected agency's profile", async () => {
+    const neutral = resolveProfile("neutral");
+    const neutralCodeJSON = Object.fromEntries(
+      Object.entries(validCodeJSON).filter(([key]) => key in neutral.baseline),
+    );
+    const readFile = jest
+      .fn<any>()
+      .mockResolvedValue(JSON.stringify(neutralCodeJSON));
+
+    const cmsDeps = createMockDeps({ readFile });
+    await createHelpers(cmsDeps).validateOnly();
+    expect(cmsDeps.setFailed).toHaveBeenCalledWith(
+      expect.stringContaining("fismaLevel"),
+    );
+
+    const neutralDeps = createMockDeps({
+      readFile,
+      agency: "neutral",
+      profile: neutral,
+    });
+    await createHelpers(neutralDeps).validateOnly();
+    expect(neutralDeps.setFailed).not.toHaveBeenCalled();
   });
 });
 
@@ -478,31 +637,6 @@ describe("createHelpers - detectForkParent", () => {
   });
 });
 
-describe("mergeReusedCode", () => {
-  it("appends detected entries to existing ones", () => {
-    const existing = [{ name: "Other Gov Tool", URL: "https://example.gov" }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual([...existing, USWDS]);
-  });
-
-  it("does not duplicate an entry already present by URL", () => {
-    const existing = [{ name: "USWDS (manual)", URL: USWDS.URL }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual(existing);
-  });
-
-  it("does not duplicate an entry already present by name", () => {
-    const existing = [{ name: USWDS.name, URL: "https://old.example" }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual(existing);
-  });
-
-  it("returns existing unchanged when nothing is detected", () => {
-    const existing = [{ name: "Gov Tool", URL: "https://example.gov" }];
-    expect(mergeReusedCode(existing, [])).toEqual(existing);
-  });
-
-  it("tolerates a non-array existing value", () => {
-    expect(mergeReusedCode(undefined as any, [USWDS])).toEqual([USWDS]);
-  });
-});
 describe("GOV_DEPENDENCIES integrity", () => {
   const entries = Object.entries(GOV_DEPENDENCIES);
 
@@ -524,4 +658,178 @@ describe("GOV_DEPENDENCIES_PYPI integrity", () => {
       expect(entry.URL).toMatch(/^https:\/\//);
     },
   );
+});
+
+describe("deriveRepositoryHost", () => {
+  it.each([
+    ["https://github.com/CMSgov/some-repo", "github.com/CMSgov"],
+    [
+      "https://github.com/CMS-Enterprise/some-repo",
+      "github.com/CMS-Enterprise",
+    ],
+    [
+      "https://github.com/Enterprise-CMCS/some-repo",
+      "github.com/Enterprise-CMCS",
+    ],
+    ["https://github.com/DSACMS/some-repo", "github.com/DSACMS"],
+    [
+      "https://github.com/MeasureAuthoringTool/some-repo",
+      "github.com/MeasureAuthoringTool",
+    ],
+    ["https://github.cms.gov/some-org/some-repo", "github.cms.gov"],
+  ])("maps %s to %s", (url, expected) => {
+    expect(deriveRepositoryHost(url)).toBe(expected);
+  });
+
+  it("matches the organization regardless of case", () => {
+    expect(deriveRepositoryHost("https://github.com/dsacms/some-repo")).toBe(
+      "github.com/DSACMS",
+    );
+  });
+
+  it("returns undefined for an organization outside the enum", () => {
+    expect(
+      deriveRepositoryHost("https://github.com/some-vendor/some-repo"),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined for a host outside the enum", () => {
+    expect(
+      deriveRepositoryHost("https://gitlab.com/DSACMS/some-repo"),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined when the URL has no organization segment", () => {
+    expect(deriveRepositoryHost("https://github.com/")).toBeUndefined();
+  });
+
+  it("returns undefined for a value that is not a URL", () => {
+    expect(deriveRepositoryHost("")).toBeUndefined();
+    expect(deriveRepositoryHost("private")).toBeUndefined();
+  });
+});
+
+describe("deriveUsageType", () => {
+  it("treats a public repository as open source", () => {
+    expect(deriveUsageType("public")).toEqual(["openSource"]);
+  });
+
+  // every remaining usageType value is an exemption needing a written justification
+  it("leaves a private repository for a human to classify", () => {
+    expect(deriveUsageType("private")).toEqual([]);
+    expect(deriveUsageType(undefined)).toEqual([]);
+  });
+});
+
+describe("deriveMaturityTier", () => {
+  const tier3Files = new Set([
+    "LICENSE",
+    "README",
+    "COMMUNITY",
+    "SECURITY",
+    "CONTRIBUTING",
+    "CODE_OF_CONDUCT",
+  ]);
+
+  it("reports tier 4 when the repository documents its governance", () => {
+    expect(
+      deriveMaturityTier(new Set([...tier3Files, "GOVERNANCE"]), "public"),
+    ).toBe(4);
+  });
+
+  it("reports tier 3 for a public repository open to contribution", () => {
+    expect(deriveMaturityTier(tier3Files, "public")).toBe(3);
+  });
+
+  // tiers 2 and 3 require the same documents, so visibility is the only separator
+  it("reports tier 2 for the same documents in a private repository", () => {
+    expect(deriveMaturityTier(tier3Files, "private")).toBe(2);
+  });
+
+  it("reports tier 1 when only a security policy is present", () => {
+    expect(
+      deriveMaturityTier(new Set(["LICENSE", "README", "SECURITY"]), "public"),
+    ).toBe(1);
+  });
+
+  it("reports tier 0 when the distinguishing documents are absent", () => {
+    expect(deriveMaturityTier(new Set(["LICENSE", "README"]), "public")).toBe(
+      0,
+    );
+    expect(deriveMaturityTier(new Set(), "public")).toBe(0);
+  });
+
+  // a contributing guide on its own does not reach the tier 2 checklist
+  it("requires both a contributing guide and a code of conduct", () => {
+    expect(
+      deriveMaturityTier(new Set(["LICENSE", "CONTRIBUTING"]), "public"),
+    ).toBe(0);
+  });
+});
+
+describe("createHelpers - detectCommunityFiles", () => {
+  it("reports the documents the repository ships", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({
+        "/github/workspace/LICENSE": "CC0",
+        "/github/workspace/README.md": "# Project",
+        "/github/workspace/CONTRIBUTING.md": "how to contribute",
+      }),
+    });
+
+    const files = await createHelpers(deps).detectCommunityFiles();
+
+    expect(files).toEqual(new Set(["LICENSE", "README", "CONTRIBUTING"]));
+  });
+
+  it("accepts community health files stored under .github", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({
+        "/github/workspace/.github/SECURITY.md": "report issues here",
+        "/github/workspace/.github/CODE_OF_CONDUCT.md": "be kind",
+      }),
+    });
+
+    const files = await createHelpers(deps).detectCommunityFiles();
+
+    expect(files).toEqual(new Set(["SECURITY", "CODE_OF_CONDUCT"]));
+  });
+
+  it("accepts alternate LICENSE extensions", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({ "/github/workspace/LICENSE.md": "CC0" }),
+    });
+
+    const files = await createHelpers(deps).detectCommunityFiles();
+
+    expect(files).toEqual(new Set(["LICENSE"]));
+  });
+
+  it("returns an empty set for a repository with no documents", async () => {
+    const files = await createHelpers(createMockDeps()).detectCommunityFiles();
+
+    expect(files).toEqual(new Set());
+  });
+});
+
+describe("createHelpers - readREADME", () => {
+  it("reads README.md", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({ "/github/workspace/README.md": "# Project" }),
+    });
+
+    expect(await createHelpers(deps).readREADME()).toBe("# Project");
+  });
+
+  it("falls back to other README spellings", async () => {
+    const deps = createMockDeps({
+      readFile: readFileFrom({ "/github/workspace/README.rst": "Project" }),
+    });
+
+    expect(await createHelpers(deps).readREADME()).toBe("Project");
+  });
+
+  it("returns null when the repository has no README", async () => {
+    expect(await createHelpers(createMockDeps()).readREADME()).toBeNull();
+  });
 });

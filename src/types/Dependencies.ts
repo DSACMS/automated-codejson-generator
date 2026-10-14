@@ -1,3 +1,7 @@
+import type { CodeJSONProfile } from "codejson-core";
+import type { AgencyName, CodeJSON } from "../codejson.js";
+import type { ModelRunner } from "../llm.js";
+
 // abstracting external dependencies
 export interface Dependencies {
   owner: string;
@@ -8,12 +12,16 @@ export interface Dependencies {
   branch: string;
   skipPR: boolean;
   isArchived: boolean;
+  enableAI: boolean;
+  agency: AgencyName;
+  profile: CodeJSONProfile<CodeJSON>;
 
   octokit: OctokitClient;
   adminOctokit: OctokitClient | null;
 
   exec: (command: string) => Promise<{ stdout: string; stderr: string }>;
   readFile: (filepath: string) => Promise<string>;
+  runModel: ModelRunner;
 
   log: Logger;
 
