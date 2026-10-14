@@ -1,6 +1,4 @@
-# Code.json Auto Generator
-
-###### _⚠️ Please update your action to v1.2.1 if your workflow is failing due to Docker builds within the action ⚠️_
+# automated-codejson-generator
 
 A GitHub Action that automatically generates and maintains code.json files for federal open source repositories, ensuring schema consistency and automating metadata calculations.
 
@@ -75,13 +73,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Update code.json
         id: update
-        uses: DSACMS/automated-codejson-generator@v1.2.1
+        uses: DSACMS/automated-codejson-generator@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ADMIN_TOKEN: ${{ secrets.ADMIN_PAT }} # PAT with admin/push permissions
@@ -123,12 +121,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Update code.json
-        uses: DSACMS/automated-codejson-generator@v1.2.1
+        uses: DSACMS/automated-codejson-generator@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: "main"
@@ -140,7 +138,7 @@ jobs:
 
 ```yaml
 GITHUB_TOKEN:
-  description: "GitHub token used for API access and PR creation"
+  description: "GitHub token used for API access"
   required: true
   default: ${{ github.token }}
 
@@ -156,6 +154,11 @@ SKIP_PR:
 ADMIN_TOKEN:
   description: "Personal Access Token with admin/write privileges for direct push. Required when SKIP_PR is true."
   required: false
+
+ARCHIVE:
+  description: "Option to set this tool to archive mode which prepares a repository for archival."
+  required: false
+  default: "false"
 
 ENABLE_AI:
   description: "Use a local AI model to draft missing fields from the README. Generated fields always go through a pull request."
@@ -217,31 +220,49 @@ To use the direct push functionality, you'll need to create a Personal Access To
 
 ## Generation Context
 
-The automated code.json generator calculates specific fields by analyzing your repository and using GitHub's API. Here's what gets generated and what your repository needs for successful generation.
+The automated code.json generator calculates specific fields by analyzing your repository and using GitHub's API. None of them need configuration. Every other field is left for you to fill in.
 
-**name**: This field pulls directly from your repository's name as configured in GitHub. No configuration needed.
+### Refreshed on every run
 
-**description**: The generator extracts this from your repository's description field in GitHub settings. _Make sure you've added a description to your repository through GitHub's interface for this field to populate properly._
+**repositoryURL**: Your repository's GitHub URL.
 
-**repositoryURL**: This automatically uses your repository's public GitHub URL. No configuration needed.
+**repositoryVisibility**: Whether your repository is public or private.
 
-**repositoryVisibility**: The generator determines whether your repository is private or public. No configuration needed.
+**laborHours**: An estimate of development time, from running SCC against your workspace.
 
-**laborHours**: The generator runs SCC against your workspace to analyze your codebase and estimate development time. No configuration needed.
+**reuseFrequency.forks**: Your repository's fork count.
 
-**languages**: This field populates the programming languages in your repository. No configuration needed.
+**date.created** and **date.lastModified**: Your repository's creation date and last update timestamp.
 
-**SBOM**: The repository's SBOM URL in the format of {repositoryURL/network/dependencies}. If you already have a code.json file with the SBOM, the generator preserves those values. No configuration needed.
+**date.metadataLastUpdated**: The time of the run, as a record of when the metadata was last refreshed.
 
-**dateCreated**: The generator pulls your repository's creation date. No configuration needed.
+**tags**: Your repository's GitHub topics, added to any tags already in your code.json.
 
-**dateLastModified**: This uses your repository's last update timestamp, reflecting the most recent changes. No configuration needed.
+**reusedCode**: Federal dependencies found in your `package.json` and `requirements.txt`, each linked to the agency repository it comes from, plus the parent repository if yours is a fork. Dependencies are matched against a curated list of federal packages (see below). Entries already in your code.json are kept.
 
-**dateMetadataLastUpdated**: The generator sets this to the current timestamp each time it runs, providing a record of when the metadata was last refreshed. No configuration needed.
+**status** (only with `ARCHIVE: "true"`): Set to `Archival`, and `archived` is added to `tags`.
 
-**feedbackMechanism**: The repository's issues URL in the format of {repositoryURL}/issues. If you already have a code.json file with existing feedback mechanisms, the generator preserves those values. No configuration needed.
+### Filled in only when blank
 
-**reusedCode**: The generator scans your `package.json` and `requirements.txt` for dependencies published by federal agencies and lists them here, each linked to the agency repository it comes from. It matches against a curated list of federal packages (see below). Entries already in your code.json are preserved. No configuration needed.
+These fields are set the first time, or whenever your code.json leaves them empty. After that, your value is kept, so manual edits stick.
+
+**name**: Your repository's name.
+
+**description**: Your repository's description from GitHub settings. _Make sure you've added a description to your repository through GitHub's interface for this field to populate properly._
+
+**version**: The version from your latest GitHub release's tag or title.
+
+**languages**: The programming languages in your repository.
+
+**permissions.usageType**: `openSource` for a public repository. Left empty for a private one.
+
+**maturityModelTier**: Derived from the community files present: `SECURITY`, `CONTRIBUTING`, `CODE_OF_CONDUCT` and `GOVERNANCE`.
+
+**repositoryHost** (`cms` profile only): Where your repository is hosted, such as `github.com/CMSgov`.
+
+**SBOM**: `{repositoryURL}/network/dependencies`.
+
+**feedbackMechanism**: `{repositoryURL}/issues`.
 
 ## Schema and Validation
 
@@ -324,10 +345,10 @@ An up-to-date list of core team members can be found in [MAINTAINERS.md](MAINTAI
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Guidelines for contributing to the project
 - [SECURITY.md](SECURITY.md) - Security and vulnerability disclosure policies
 - [LICENSE](LICENSE) - CC0 1.0 Universal public domain dedication
-- [MAINTAINERS.md](MAINTAINERS.md) - List of project maintainers
-- [COMMUNITY_GUIDELINES.md](COMMUNITY_GUIDELINES.md) - Guidelines for community participation
-- [GOVERNANCE.md](GOVERNANCE.md) - Project governance information
-- [GLOSSARY.md](GLOSSARY.md) - Terminology and acronyms
+- [MAINTAINERS.md](MAINTAINERS.md) - List of project maintainers and contributors
+- [COMMUNITY.md](COMMUNITY.md) - Project members, roles and community guidelines
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) - Code of conduct
+- [CODEOWNERS.md](.github/CODEOWNERS.md) - Points of contact for the code
 
 ## Repository Structure
 
@@ -339,10 +360,16 @@ An up-to-date list of core team members can be found in [MAINTAINERS.md](MAINTAI
 │   ├── codejson.ts          # codejson-core bindings: schema, validation, assembly
 │   ├── helper.ts            # GitHub API, SCC, manifest reads, PR and push
 │   ├── create-deps.ts       # Wires the production dependencies
-│   ├── gov-dependencies.ts  # Lookup table of government-made dependencies
+│   ├── enrich.ts            # ENABLE_AI: drafts missing fields from the README
+│   ├── llm.ts               # Local model runner used by enrich.ts
+│   ├── gov-dependencies.ts  # Lookup of government-made dependencies
+│   ├── gov-dependencies.data.ts  # The federal package list (generated)
+│   ├── gov-update/          # Job that keeps the federal package list current
 │   └── types/               # Shared interfaces
 ├── .github/
 │   └── workflows/           # GitHub Actions workflow definitions
+├── Dockerfile               # Builds the action on top of the base image
+├── Dockerfile.base          # Base image: node-llama-cpp, the model and scc
 └── action.yml               # Action metadata file
 ```
 
@@ -355,23 +382,18 @@ This project follows GitHub Actions development practices. For information on co
 To develop locally:
 
 1. Clone the repository
-2. Install dependencies with `npm install`
-3. Install Go and SCC tool: `go install github.com/boyter/scc/v3@latest`
+2. Install dependencies with `npm install` (Node.js 20, see `.node-version`)
+3. Install [SCC](https://github.com/boyter/scc) from its [releases](https://github.com/boyter/scc/releases) or with `brew install scc`
 4. Build the project with `npm run bundle`
 5. Run tests with `npm test`
 
 ## Coding Style and Linters
 
-This project uses TypeScript and follows standard TypeScript conventions. Lint and code tests are run on each commit, so linters and tests should be run locally before committing.
+This project uses TypeScript and follows standard TypeScript conventions. Lint and tests run on every pull request, so run `npm run lint` and `npm test` locally before pushing.
 
 ## Branching Model
 
-This project follows trunk-based development:
-
-- Make small changes in short-lived feature branches and merge to `main` frequently
-- Each change merged to `main` should be immediately deployable
-- Pull requests are required for all changes
-- Changes are deployed automatically via GitHub Actions
+Feature branches are opened as pull requests into `dev`, the integration branch. When `dev` is ready to ship, a pull request from `dev` into `main` with exactly one `release:*` label creates the next version tag and GitHub Release automatically. See [CONTRIBUTING.md](CONTRIBUTING.md#workflow-and-branching) for the full steps.
 
 ## Contributing
 
