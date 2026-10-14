@@ -26,7 +26,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       # Discovery results record each repo's last push time, so a restored cache
       # lets the run skip every repo that has not changed. The run id in the key

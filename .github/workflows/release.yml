@@ -23,16 +23,17 @@ jobs:
 
       - name: Get release label
         id: label
+        env:
+          LABELS: ${{ toJson(github.event.pull_request.labels) }}
         run: |
-          labels='${{ toJson(github.event.pull_request.labels) }}'
-
-          if echo "$labels" | grep -q 'release:major'; then
+          if echo "$LABELS" | grep -q 'release:major'; then
             echo "bump=major" >> $GITHUB_OUTPUT
-          elif echo "$labels" | grep -q 'release:minor'; then
+          elif echo "$LABELS" | grep -q 'release:minor'; then
             echo "bump=minor" >> $GITHUB_OUTPUT
-          elif echo "$labels" | grep -q 'release:patch'; then
+          elif echo "$LABELS" | grep -q 'release:patch'; then
             echo "bump=patch" >> $GITHUB_OUTPUT
-          elif echo "$labels" | grep -q 'release:none'; then
+          elif echo "$LABELS" | grep -q 'release:none'; then
+            echo "No release requested."
             echo "bump=none" >> $GITHUB_OUTPUT
           else
             echo "No release label found. Add one of:"
@@ -40,28 +41,24 @@ jobs:
             exit 1
           fi
 
-      - name: Exit if no release needed
-        if: steps.label.outputs.bump == 'none'
-        run: |
-          echo "No release requested. Exiting."
-          exit 0
-
       - name: Get latest version tag
+        if: steps.label.outputs.bump != 'none'
         id: version
         run: |
           latest=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
           echo "latest=$latest" >> $GITHUB_OUTPUT
 
       - name: Calculate next version
+        if: steps.label.outputs.bump != 'none'
         id: next
+        env:
+          LATEST: ${{ steps.version.outputs.latest }}
+          BUMP: ${{ steps.label.outputs.bump }}
         run: |
-          version=${{ steps.version.outputs.latest }}
-          bump=${{ steps.label.outputs.bump }}
-
-          version=${version#v}
+          version=${LATEST#v}
           IFS='.' read -r major minor patch <<< "$version"
 
-          case "$bump" in
+          case "$BUMP" in
             major)
               major=$((major+1))
               minor=0
@@ -80,17 +77,24 @@ jobs:
           echo "next=$next" >> $GITHUB_OUTPUT
 
       - name: Create version tag
+        if: steps.label.outputs.bump != 'none'
+        env:
+          NEXT: ${{ steps.next.outputs.next }}
         run: |
-          git tag ${{ steps.next.outputs.next }}
-          git push origin ${{ steps.next.outputs.next }}
+          git tag "$NEXT"
+          git push origin "$NEXT"
 
       - name: Update moving major tag (v1)
+        if: steps.label.outputs.bump != 'none'
+        env:
+          NEXT: ${{ steps.next.outputs.next }}
         run: |
-          major=$(echo "${{ steps.next.outputs.next }}" | cut -d. -f1)
-          git tag -f $major
-          git push origin $major --force
+          major="${NEXT%%.*}"
+          git tag -f "$major"
+          git push origin "$major" --force
 
       - name: Create GitHub Release
+        if: steps.label.outputs.bump != 'none'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.next.outputs.next }}
