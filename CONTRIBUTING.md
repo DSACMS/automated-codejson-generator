@@ -38,6 +38,47 @@ npm run bundle
 npm test
 ```
 
+### Rebuilding the Base Image
+
+The action's image comes in two parts. `Dockerfile.base` holds the heavy, slow-changing pieces: `node-llama-cpp`, the model and `scc`. It is pushed to GHCR by hand as `ghcr.io/dsacms/automated-codejson-generator-base`. `Dockerfile` builds the action code on top of it on every run, so a release tag always ships the code it points at.
+
+Rebuild the base when any of these change:
+
+- the `node-llama-cpp` version in `package-lock.json` (the `Dockerfile` build fails until the base matches)
+- the model (`MODEL_*` args)
+- the `scc` version
+- the Node major version
+
+Steps, from the repo root:
+
+1. Update `Dockerfile.base` (for a `node-llama-cpp` bump, set `NODE_LLAMA_CPP_VERSION` to the version `package-lock.json` resolves) and pick the next base version.
+
+2. Log in with a token that can write packages:
+
+   ```bash
+   gh auth refresh -h github.com -s write:packages
+   gh auth token | docker login ghcr.io -u <your-github-username> --password-stdin
+   ```
+
+3. Build and push for `linux/amd64`. The action runs on amd64 runners, and building on Apple Silicon without `--platform` produces an arm64 image that fails there.
+
+   ```bash
+   docker buildx build --platform linux/amd64 -f Dockerfile.base \
+     -t ghcr.io/dsacms/automated-codejson-generator-base:<version> --push .
+   ```
+
+4. Get the digest (the top-level `Digest: sha256:…` line):
+
+   ```bash
+   docker buildx imagetools inspect ghcr.io/dsacms/automated-codejson-generator-base:<version>
+   ```
+
+5. Make sure the package is public: in the DSACMS org's Packages, open `automated-codejson-generator-base`, then Package settings → Change visibility → Public. A new package starts private, and every consumer's run fails to pull a private base.
+
+6. Pin it in `Dockerfile` as `BASE_IMAGE=ghcr.io/dsacms/automated-codejson-generator-base:<version>@sha256:<digest>` and open a PR. Pinning by digest means a new base always shows up as a reviewed diff instead of silently reaching consumers.
+
+To test a base locally before pushing, build it with `--load -t acg-base:local` and pass `--build-arg BASE_IMAGE=acg-base:local` when building `Dockerfile`.
+
 ## Schema and Validation
 
 The code.json schema, its validation rules, and the logic that merges freshly observed metadata into an existing file are owned by [codejson-core](https://github.com/DSACMS/codejson-core). This repository binds to that library's CMS profile in a single module, `src/codejson.ts`, and owns nothing else about the schema.

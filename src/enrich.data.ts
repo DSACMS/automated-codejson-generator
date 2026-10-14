@@ -1,4 +1,4 @@
-import { CodeJSON } from "./codejson.js";
+import type { CMSCodeJSON } from "codejson-core";
 
 export const SOFTWARE_TYPES = [
   "standalone/mobile",
@@ -10,7 +10,7 @@ export const SOFTWARE_TYPES = [
   "addon",
   "library",
   "configurationFiles",
-] as const satisfies readonly CodeJSON["softwareType"][];
+] as const satisfies readonly CMSCodeJSON["softwareType"][];
 
 export const REPOSITORY_TYPES = [
   "package",
@@ -21,7 +21,7 @@ export const REPOSITORY_TYPES = [
   "application",
   "tools",
   "APIs",
-] as const satisfies readonly CodeJSON["repositoryType"][];
+] as const satisfies readonly CMSCodeJSON["repositoryType"][];
 
 export const PLATFORMS = [
   "mac",
@@ -31,7 +31,7 @@ export const PLATFORMS = [
   "ios",
   "android",
   "other",
-] as const satisfies readonly CodeJSON["platforms"][number][];
+] as const satisfies readonly CMSCodeJSON["platforms"][number][];
 
 // the publiccode.yml controlled vocabulary, mirrored here because the model runs
 // offline and cannot read https://publiccodeyml.github.io/v0/categories-list.html

@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { resolveProfile } from "../../codejson.js";
 import { withModel } from "../../llm.js";
 import {
   Dependencies,
@@ -94,6 +95,8 @@ export function createMockDeps(
     skipPR: false,
     isArchived: false,
     enableAI: false,
+    agency: "cms",
+    profile: resolveProfile("cms"),
 
     octokit: mockOctokit,
     adminOctokit: null,

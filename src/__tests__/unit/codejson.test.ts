@@ -1,9 +1,28 @@
 import { describe, it, expect } from "@jest/globals";
-import { droppedFields, validateCodeJSON } from "../../codejson.js";
+import { resolveProfile } from "../../codejson.js";
 import validCodeJSON from "../fixtures/test-code.json";
 
 // The schema itself is owned and exhaustively tested by codejson-core. What follows
-// pins the contract this action depends on: that we're bound to the CMS variant.
+// pins the contract this action depends on: that "cms" resolves to the CMS variant.
+const { validate: validateCodeJSON, droppedFields } = resolveProfile("cms");
+
+describe("resolveProfile", () => {
+  it("resolves the neutral profile without CMS-only fields", () => {
+    expect(resolveProfile("neutral").baseline).not.toHaveProperty(
+      "maturityModelTier",
+    );
+  });
+
+  it("rejects an unknown agency and lists the valid ones", () => {
+    expect(() => resolveProfile("foo")).toThrow(
+      'Unknown AGENCY "foo". Use one of: neutral, cms',
+    );
+  });
+
+  it("does not resolve inherited object keys", () => {
+    expect(() => resolveProfile("toString")).toThrow("Unknown AGENCY");
+  });
+});
 
 describe("validateCodeJSON", () => {
   it("accepts a complete CMS code.json", () => {

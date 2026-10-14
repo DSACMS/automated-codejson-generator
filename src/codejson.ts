@@ -1,7 +1,21 @@
-import { cmsProfile, type CMSCodeJSON } from "codejson-core";
+import {
+  profiles,
+  type CodeJSON as NeutralCodeJSON,
+  type CMSCodeJSON,
+  type CodeJSONProfile,
+  type ProfileName,
+} from "codejson-core";
 
-export type CodeJSON = CMSCodeJSON;
+export type AgencyName = ProfileName;
 
-export const draftCodeJSON = cmsProfile.draft;
-export const validateCodeJSON = cmsProfile.validate;
-export const droppedFields = cmsProfile.droppedFields;
+// neutral fields are always present; fields only some agencies define are optional
+export type CodeJSON = NeutralCodeJSON & Partial<CMSCodeJSON>;
+
+export function resolveProfile(agency: string): CodeJSONProfile<CodeJSON> {
+  if (!Object.hasOwn(profiles, agency)) {
+    throw new Error(
+      `Unknown AGENCY "${agency}". Use one of: ${Object.keys(profiles).join(", ")}`,
+    );
+  }
+  return profiles[agency as AgencyName] as unknown as CodeJSONProfile<CodeJSON>;
+}

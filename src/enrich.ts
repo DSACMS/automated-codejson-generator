@@ -1,3 +1,4 @@
+import type { CMSCodeJSON, CodeJSONProfile } from "codejson-core";
 import type { GbnfJsonSchema } from "node-llama-cpp";
 import { CodeJSON } from "./codejson.js";
 import {
@@ -32,26 +33,36 @@ export interface GeneratedFields {
   longDescription: string;
   tags: string[];
   categories: string[];
-  platforms: CodeJSON["platforms"];
-  softwareType: CodeJSON["softwareType"];
-  repositoryType: CodeJSON["repositoryType"];
+  platforms: CMSCodeJSON["platforms"];
+  softwareType: CMSCodeJSON["softwareType"];
+  repositoryType: CMSCodeJSON["repositoryType"];
 }
 
 export type EnrichableField = (typeof ENRICHABLE_FIELDS)[number];
 type ClassificationField = Exclude<EnrichableField, "longDescription">;
 
-export function missingEnrichableFields(codeJSON: CodeJSON): EnrichableField[] {
-  return ENRICHABLE_FIELDS.filter((field) => {
+export function enrichableFields(
+  profile: CodeJSONProfile<CodeJSON>,
+): EnrichableField[] {
+  return ENRICHABLE_FIELDS.filter((field) => field in profile.baseline);
+}
+
+export function missingEnrichableFields(
+  codeJSON: CodeJSON,
+  fields: readonly EnrichableField[],
+): EnrichableField[] {
+  return fields.filter((field) => {
     switch (field) {
       case "longDescription":
         return (
-          codeJSON.longDescription.trim().length < LONG_DESCRIPTION_MIN_LENGTH
+          (codeJSON.longDescription ?? "").trim().length <
+          LONG_DESCRIPTION_MIN_LENGTH
         );
       case "tags":
         return codeJSON.tags.length < TARGET_ITEM_COUNT;
       case "categories":
       case "platforms":
-        return codeJSON[field].length === 0;
+        return (codeJSON[field] ?? []).length === 0;
       case "softwareType":
       case "repositoryType":
         return (codeJSON[field] as string) === "";
@@ -207,11 +218,12 @@ export function applyEnrichment(
 
 export async function enrichCodeJSON(
   codeJSON: CodeJSON,
+  fields: readonly EnrichableField[],
   context: { readme: string | null; secrets: string[] },
   log: Logger,
   runModel: ModelRunner = withModel,
 ): Promise<CodeJSON> {
-  const missing = missingEnrichableFields(codeJSON);
+  const missing = missingEnrichableFields(codeJSON, fields);
 
   if (missing.length === 0) {
     log.info("No AI-enrichable fields are missing, skipping model generation.");
@@ -294,10 +306,10 @@ function buildPromptContext(codeJSON: CodeJSON, readme: string | null): string {
     `Repository URL: ${codeJSON.repositoryURL}`,
   ];
 
-  if ((codeJSON.softwareType as string) !== "") {
+  if (codeJSON.softwareType) {
     lines.push(`Software type: ${codeJSON.softwareType}`);
   }
-  if ((codeJSON.repositoryType as string) !== "") {
+  if (codeJSON.repositoryType) {
     lines.push(`Repository type: ${codeJSON.repositoryType}`);
   }
 

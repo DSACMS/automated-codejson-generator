@@ -2,7 +2,7 @@
   "name": "automated-codejson-generator",
   "version": "1.2.1",
   "description": "Tooling that allows for code.json creation through automation",
-  "longDescription": "",
+  "longDescription": "A GitHub Action that generates and maintains code.json metadata files for federal open source repositories. It reads repository data such as languages, labor hours, dependencies and dates, merges it into the existing file, can draft missing fields from the README with a local AI model, and validates code.json on pull requests.",
   "status": "Production",
   "permissions": {
     "licenses": [
@@ -30,7 +30,7 @@
   },
   "platforms": [],
   "categories": [],
-  "softwareType": "",
+  "softwareType": "standalone/other",
   "languages": ["TypeScript", "JavaScript"],
   "maintenance": "internal",
   "contractNumber": [],
@@ -51,7 +51,7 @@
   "feedbackMechanism": "https://github.com/DSACMS/automated-codejson-generator/issues",
   "AIUseCaseID": "0",
   "localisation": false,
-  "repositoryType": "",
+  "repositoryType": "tools",
   "userInput": false,
   "fismaLevel": "low",
   "group": "CMS/OA/DSAC",

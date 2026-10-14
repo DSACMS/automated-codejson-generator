@@ -1,5 +1,7 @@
 import { describe, it, expect, jest } from "@jest/globals";
 import {
+  ENRICHABLE_FIELDS,
+  enrichableFields,
   missingEnrichableFields,
   condenseReadme,
   applyEnrichment,
@@ -7,7 +9,8 @@ import {
   enrichedFields,
   screenGeneratedContent,
 } from "../../enrich.js";
-import { CodeJSON } from "../../codejson.js";
+import type { CMSCodeJSON } from "codejson-core";
+import { CodeJSON, resolveProfile } from "../../codejson.js";
 import { ModelRunner, ModelSession } from "../../llm.js";
 import { createMockLogger } from "../fixtures/mock-deps.js";
 import validCodeJSON from "../fixtures/test-code.json";
@@ -29,19 +32,40 @@ function runnerFor(session: ModelSession): ModelRunner {
   return (async (_log, run) => run(session)) as ModelRunner;
 }
 
+describe("enrichableFields", () => {
+  it("offers every field for the CMS profile", () => {
+    expect(enrichableFields(resolveProfile("cms"))).toEqual([
+      ...ENRICHABLE_FIELDS,
+    ]);
+  });
+
+  it("offers only tags for the neutral profile", () => {
+    expect(enrichableFields(resolveProfile("neutral"))).toEqual(["tags"]);
+  });
+});
+
 describe("missingEnrichableFields", () => {
+  it("only checks the fields it is given", () => {
+    const codeJSON = { ...complete, tags: [], softwareType: blank };
+    expect(missingEnrichableFields(codeJSON, ["tags"])).toEqual(["tags"]);
+  });
+
   it("reports nothing missing for a fully populated code.json", () => {
-    expect(missingEnrichableFields(complete)).toEqual([]);
+    expect(missingEnrichableFields(complete, ENRICHABLE_FIELDS)).toEqual([]);
   });
 
   it("treats a longDescription under 150 characters as missing", () => {
     const codeJSON = { ...complete, longDescription: "too short" };
-    expect(missingEnrichableFields(codeJSON)).toEqual(["longDescription"]);
+    expect(missingEnrichableFields(codeJSON, ENRICHABLE_FIELDS)).toEqual([
+      "longDescription",
+    ]);
   });
 
   it("treats a tag list under the minimum as missing", () => {
     const codeJSON = { ...complete, tags: ["only", "two"] };
-    expect(missingEnrichableFields(codeJSON)).toEqual(["tags"]);
+    expect(missingEnrichableFields(codeJSON, ENRICHABLE_FIELDS)).toEqual([
+      "tags",
+    ]);
   });
 
   it("treats empty arrays as missing", () => {
@@ -51,7 +75,7 @@ describe("missingEnrichableFields", () => {
       categories: [],
       platforms: [],
     };
-    expect(missingEnrichableFields(codeJSON)).toEqual([
+    expect(missingEnrichableFields(codeJSON, ENRICHABLE_FIELDS)).toEqual([
       "tags",
       "categories",
       "platforms",
@@ -64,7 +88,7 @@ describe("missingEnrichableFields", () => {
       softwareType: blank,
       repositoryType: blank,
     };
-    expect(missingEnrichableFields(codeJSON)).toEqual([
+    expect(missingEnrichableFields(codeJSON, ENRICHABLE_FIELDS)).toEqual([
       "softwareType",
       "repositoryType",
     ]);
@@ -80,7 +104,7 @@ describe("missingEnrichableFields", () => {
       softwareType: blank,
       repositoryType: blank,
     };
-    expect(missingEnrichableFields(codeJSON)).toEqual([
+    expect(missingEnrichableFields(codeJSON, ENRICHABLE_FIELDS)).toEqual([
       "longDescription",
       "tags",
       "categories",
@@ -193,7 +217,7 @@ describe("applyEnrichment", () => {
   it("drops platform values outside the schema's enum", () => {
     const result = applyEnrichment(
       blankDraft,
-      { platforms: ["web", "atari" as CodeJSON["platforms"][number]] },
+      { platforms: ["web", "atari" as CMSCodeJSON["platforms"][number]] },
       ["platforms"],
     );
 
@@ -203,7 +227,7 @@ describe("applyEnrichment", () => {
   it("rejects a softwareType outside the schema's enum", () => {
     const result = applyEnrichment(
       blankDraft,
-      { softwareType: "not-a-real-type" as CodeJSON["softwareType"] },
+      { softwareType: "not-a-real-type" as CMSCodeJSON["softwareType"] },
       ["softwareType"],
     );
 
@@ -221,7 +245,7 @@ describe("applyEnrichment", () => {
   it("rejects a repositoryType outside the schema's enum", () => {
     const result = applyEnrichment(
       blankDraft,
-      { repositoryType: "not-a-real-type" as CodeJSON["repositoryType"] },
+      { repositoryType: "not-a-real-type" as CMSCodeJSON["repositoryType"] },
       ["repositoryType"],
     );
 
@@ -270,6 +294,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       complete,
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       createMockLogger(),
       runModel as unknown as ModelRunner,
@@ -284,6 +309,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       createMockLogger(),
       runModel,
@@ -300,6 +326,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       log,
       runModel,
@@ -325,6 +352,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       createMockLogger(),
       runnerFor(session),
@@ -352,6 +380,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       { ...blankDraft, repositoryType: "tools" },
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       log,
       runnerFor(session),
@@ -376,6 +405,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       draft,
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       createMockLogger(),
       runnerFor(session),
@@ -396,6 +426,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       log,
       runnerFor(session),
@@ -419,6 +450,7 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       blankDraft,
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       log,
       runnerFor(session),
@@ -440,12 +472,35 @@ describe("enrichCodeJSON", () => {
 
     const result = await enrichCodeJSON(
       { ...complete, softwareType: blank },
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [] },
       createMockLogger(),
       runnerFor(session),
     );
 
     expect(result.softwareType).toBe(blank);
+  });
+
+  it("leaves CMS-only fields out of the prompt for a neutral draft", async () => {
+    const generateJSON = jest.fn<any>().mockResolvedValue({});
+    const session = createFakeSession({ generateJSON });
+    const {
+      softwareType: _softwareType,
+      repositoryType: _repositoryType,
+      ...neutralDraft
+    } = { ...complete, tags: [] };
+
+    await enrichCodeJSON(
+      neutralDraft as CodeJSON,
+      ["tags"],
+      { readme: null, secrets: [] },
+      createMockLogger(),
+      runnerFor(session),
+    );
+
+    const prompt = generateJSON.mock.calls[0][0] as string;
+    expect(prompt).not.toContain("Software type");
+    expect(prompt).not.toContain("Repository type");
   });
 
   it("passes the condensed readme and known fields into the prompt", async () => {
@@ -455,6 +510,7 @@ describe("enrichCodeJSON", () => {
 
     await enrichCodeJSON(
       { ...complete, longDescription: "" },
+      ENRICHABLE_FIELDS,
       { readme, secrets: [] },
       createMockLogger(),
       runnerFor(session),
@@ -546,6 +602,7 @@ describe("enrichCodeJSON output screening", () => {
 
     const result = await enrichCodeJSON(
       { ...complete, longDescription: "" },
+      ENRICHABLE_FIELDS,
       { readme: null, secrets: [token] },
       createMockLogger(),
       runnerFor(session),

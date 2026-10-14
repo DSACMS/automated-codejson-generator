@@ -1,27 +1,16 @@
+# base image that holds everything heavy and slow-changing (node-llama-cpp, the model, scc)
+# pushed to GHCR by hand, the thin Dockerfile builds the action code on top of it
+# see "Rebuilding the base image" in CONTRIBUTING.md for when and how
+
 ARG MODEL_REPO=unsloth/gemma-4-E2B-it-GGUF
 ARG MODEL_FILE=gemma-4-E2B-it-Q4_K_M.gguf
 ARG MODEL_REVISION=0314792d7f1f7e229411f620751375812bb9faf2
 ARG MODEL_SHA256=740185b21d22ceb83a11c3aa62ad5842ef32c70f6096d756bbee85a1e4ec34b8
 
-# stage 1: builder
-# install deps and build TS
-FROM node:20-bookworm AS builder
+# must match the version package-lock.json resolves, the thin Dockerfile checks this
+ARG NODE_LLAMA_CPP_VERSION=3.21.1
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        git \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV NODE_LLAMA_CPP_SKIP_DOWNLOAD=true
-
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm ci
-
-COPY . .
-RUN npm run package
- 
-# stage 2: model 
+# stage 1: model
 # download the model GGUF and cache
 FROM debian:bookworm-slim AS model
 ARG MODEL_REPO
@@ -40,9 +29,17 @@ RUN mkdir -p /opt/models \
         -o /opt/models/model.gguf \
     && echo "${MODEL_SHA256}  /opt/models/model.gguf" | sha256sum -c -
 
-# stage 3: runtime 
-# final image the action actually runs 
-FROM node:20-bookworm-slim AS runtime
+# stage 2: base
+FROM node:20-bookworm-slim AS base
+ARG MODEL_FILE
+ARG MODEL_REVISION
+ARG NODE_LLAMA_CPP_VERSION
+
+LABEL org.opencontainers.image.source=https://github.com/DSACMS/automated-codejson-generator \
+      org.opencontainers.image.description="Base image for automated-codejson-generator: node-llama-cpp, the model and scc" \
+      gov.cms.acg.node-llama-cpp.version="${NODE_LLAMA_CPP_VERSION}" \
+      gov.cms.acg.model.file="${MODEL_FILE}" \
+      gov.cms.acg.model.revision="${MODEL_REVISION}"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
@@ -62,12 +59,16 @@ RUN curl -fSL --retry 3 \
 
 WORKDIR /app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
+# node-llama-cpp is the only runtime dependency rollup leaves out of dist/index.js
+# the prebuilt linux-x64 binaries come in as optional deps, so skip the source download
+# the thin image copies its own package.json over this placeholder one
+ENV NODE_LLAMA_CPP_SKIP_DOWNLOAD=true
+RUN echo '{"private": true}' > package.json \
+    && npm install --omit=dev --no-audit --no-fund --no-package-lock \
+        "node-llama-cpp@${NODE_LLAMA_CPP_VERSION}" \
+    && npm cache clean --force \
+    && test "$(node -p "require('/app/node_modules/node-llama-cpp/package.json').version")" = "${NODE_LLAMA_CPP_VERSION}"
 
 COPY --from=model /opt/models/model.gguf /opt/models/model.gguf
 
 ENV ACG_MODEL_PATH=/opt/models/model.gguf
-
-ENTRYPOINT ["node", "/app/dist/index.js"]

@@ -1,5 +1,6 @@
 import * as fs from "fs/promises";
-import { CodeJSON, validateCodeJSON } from "./codejson.js";
+import type { CMSCodeJSON } from "codejson-core";
+import { AgencyName, CodeJSON } from "./codejson.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
 import { Dependencies } from "./types/Dependencies.js";
 import {
@@ -22,7 +23,7 @@ const COMMUNITY_FILE_CANDIDATES: Record<string, string[]> = {
   GOVERNANCE: ["GOVERNANCE.md", ".github/GOVERNANCE.md"],
 };
 
-const GITHUB_ORG_HOSTS: Record<string, CodeJSON["repositoryHost"]> = {
+const GITHUB_ORG_HOSTS: Record<string, CMSCodeJSON["repositoryHost"]> = {
   cmsgov: "github.com/CMSgov",
   "cms-enterprise": "github.com/CMS-Enterprise",
   "enterprise-cmcs": "github.com/Enterprise-CMCS",
@@ -36,13 +37,21 @@ function serializeCodeJSON(codeJSON: CodeJSON): string {
 }
 
 export function createHelpers(deps: Dependencies) {
-  const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } =
-    deps;
+  const {
+    owner,
+    repo,
+    octokit,
+    adminOctokit,
+    log,
+    setOutput,
+    isArchived,
+    agency,
+  } = deps;
 
   //===============================================
   // Meta Data
   //===============================================
-  async function calculateMetaData(): Promise<Partial<CodeJSON>> {
+  async function calculateMetaData(): Promise<Partial<CMSCodeJSON>> {
     try {
       const [laborHours, basicInfo, version, communityFiles] =
         await Promise.all([
@@ -294,7 +303,7 @@ export function createHelpers(deps: Dependencies) {
         return;
       }
 
-      const validationErrors = validateCodeJSON(codeJSON);
+      const validationErrors = deps.profile.validate(codeJSON);
 
       if (validationErrors.length > 0) {
         const errorMessage = `code.json validation failed with ${validationErrors.length} error(s):\n\n${validationErrors.map((err, idx) => `${idx + 1}. ${err}`).join("\n")}`;
@@ -337,7 +346,7 @@ export function createHelpers(deps: Dependencies) {
           ? "Update code.json for archival"
           : "Update code.json",
         body:
-          (isArchived ? bodyOfArchivalPR() : bodyOfPR()) +
+          (isArchived ? bodyOfArchivalPR(agency) : bodyOfPR(agency)) +
           aiReviewNotice(aiGeneratedFields),
         base: baseBranchName,
         head: headBranchName,
@@ -454,10 +463,8 @@ export function createHelpers(deps: Dependencies) {
     readREADME,
     detectReusedCode,
     detectForkParent,
-    mergeReusedCode,
     getBaseBranch,
     validateOnly,
-    validateCodeJSON,
     readJSON,
     sendPR,
     pushDirectlyWithFallback,
@@ -492,36 +499,10 @@ export function parseRequirementsTxt(content: string): string[] {
   return names;
 }
 
-// keeps existing entries (manual edits) and appends detected ones, de-duped by name and URL
-export function mergeReusedCode(
-  existing: Array<{ name?: string; URL?: string }>,
-  detected: ReusedCodeEntry[],
-): Array<{ name?: string; URL?: string }> {
-  const base = Array.isArray(existing) ? existing : [];
-  const merged = [...base];
-  const seenURLs = new Set(
-    base.map((e) => e.URL?.toLowerCase()).filter(Boolean),
-  );
-  const seenNames = new Set(
-    base.map((e) => e.name?.toLowerCase()).filter(Boolean),
-  );
-
-  for (const entry of detected) {
-    const url = entry.URL.toLowerCase();
-    const name = entry.name.toLowerCase();
-    if (seenURLs.has(url) || seenNames.has(name)) continue;
-    merged.push(entry);
-    seenURLs.add(url);
-    seenNames.add(name);
-  }
-
-  return merged;
-}
-
 // reads the hosting organization off the repository URL
 export function deriveRepositoryHost(
   repositoryURL: string,
-): CodeJSON["repositoryHost"] | undefined {
+): CMSCodeJSON["repositoryHost"] | undefined {
   let url: URL;
   try {
     url = new URL(repositoryURL);
@@ -598,13 +579,19 @@ export function mergeTags(
   return Array.from(new Set([...repositoryTopics, ...existingTags]));
 }
 
-function bodyOfPR(): string {
+const CMS_SENDER = " on behalf of the CMS Source Code Stewardship Taskforce,";
+const CMS_SLACK = " or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ)";
+
+function bodyOfPR(agency: AgencyName): string {
+  const sender = agency === "cms" ? CMS_SENDER : "";
+  const slack = agency === "cms" ? CMS_SLACK : "";
+
   return `
   ## Welcome to the Federal Open Source Community!
 
   Hello, and thank you for your contributions to the Federal Open Source Community. 🙏
 
-  This pull request adding [code.json repository metadata](https://github.com/DSACMS/gov-codejson/blob/main/docs/metadata.md) is being sent on behalf of the CMS Source Code Stewardship Taskforce, in compliance with [The Federal Source Code Inventory Policy](https://code.gov/agency-compliance/compliance/inventory-code), [M-16-21](https://obamawhitehouse.archives.gov/sites/default/files/omb/memoranda/2016/m_16_21.pdf), and in preparation for the [SHARE IT Act of 2024](https://www.congress.gov/bill/118th-congress/house-bill/9566). If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues) or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ).
+  This pull request adding [code.json repository metadata](https://github.com/DSACMS/gov-codejson/blob/main/docs/metadata.md) is being sent${sender} in compliance with [The Federal Source Code Inventory Policy](https://code.gov/agency-compliance/compliance/inventory-code), [M-16-21](https://obamawhitehouse.archives.gov/sites/default/files/omb/memoranda/2016/m_16_21.pdf), and in preparation for the [SHARE IT Act of 2024](https://www.congress.gov/bill/118th-congress/house-bill/9566). If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues)${slack}.
 
   ## Next Steps
   ### Add Missing Information to code.json
@@ -628,7 +615,9 @@ function aiReviewNotice(aiGeneratedFields: string[]): string {
 `;
 }
 
-function bodyOfArchivalPR(): string {
+function bodyOfArchivalPR(agency: AgencyName): string {
+  const slack = agency === "cms" ? CMS_SLACK : "";
+
   return `
   ## Archiving the Repository
 
@@ -636,7 +625,7 @@ function bodyOfArchivalPR(): string {
   
   As part of preparing the repository for archival, this pull request marks the repository for archival and ensures code.json repository metadata is up-to-date.
 
-  If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues) or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ).
+  If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues)${slack}.
 
   ## Next Steps
   ### Verify project metadata in code.json

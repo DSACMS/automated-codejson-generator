@@ -31,6 +31,11 @@ inputs:
     required: false
     default: "false"
 
+  AGENCY:
+    description: "Which code.json schema to generate and validate against: 'cms' or 'neutral'."
+    required: false
+    default: "cms"
+
 outputs:
   updated:
     description: "Boolean indicating whether code.json was updated"
@@ -43,7 +48,7 @@ outputs:
 
 runs:
   using: docker
-  image: docker://ghcr.io/dsacms/automated-codejson-generator:v2.0.2
+  image: Dockerfile
 
 branding:
   icon: "file-text"

@@ -6,7 +6,6 @@ import {
   createHelpers,
   parsePackageJSON,
   parseRequirementsTxt,
-  mergeReusedCode,
   deriveRepositoryHost,
   deriveUsageType,
   deriveMaturityTier,
@@ -22,6 +21,8 @@ import {
   CMS_DS_HEALTHCARE_GOV,
 } from "../../gov-dependencies.js";
 import { createMockDeps, createMockOctokit } from "../fixtures/mock-deps.js";
+import validCodeJSON from "../fixtures/test-code.json";
+import { resolveProfile } from "../../codejson.js";
 import { Dependencies } from "../../types/Dependencies.js";
 
 const CUMULUS_MESSAGE_ADAPTER = {
@@ -232,6 +233,49 @@ describe("createHelpers - sendPR AI review notice", () => {
   });
 });
 
+describe("createHelpers - sendPR agency wording", () => {
+  function prBody(deps: Dependencies): string {
+    const createPullRequestMock = deps.octokit.createPullRequest as jest.Mock;
+    return (createPullRequestMock.mock.calls[0][0] as any).body;
+  }
+
+  it.each([false, true])(
+    "keeps the CMS wording for cms (archival: %s)",
+    async (isArchived) => {
+      const deps = createMockDeps({ isArchived });
+      await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+      expect(prBody(deps)).toContain("cms-ospo");
+    },
+  );
+
+  it.each([false, true])(
+    "drops the CMS wording for neutral (archival: %s)",
+    async (isArchived) => {
+      const deps = createMockDeps({
+        isArchived,
+        agency: "neutral",
+        profile: resolveProfile("neutral"),
+      });
+      await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+      expect(prBody(deps)).not.toContain("Taskforce");
+      expect(prBody(deps)).not.toContain("cms-ospo");
+      expect(prBody(deps)).toContain("file an issue");
+    },
+  );
+
+  it("reads cleanly once the CMS sender is removed", async () => {
+    const deps = createMockDeps({
+      agency: "neutral",
+      profile: resolveProfile("neutral"),
+    });
+    await createHelpers(deps).sendPR({ name: "test" } as any, "main");
+
+    expect(prBody(deps)).toContain("is being sent in compliance with");
+  });
+});
+
 describe("workspaceFileReader", () => {
   let root: string;
   let outside: string;
@@ -351,6 +395,30 @@ describe("createHelpers - validateOnly", () => {
 
     expect(deps.setFailed).not.toHaveBeenCalled();
     expect(deps.log.info).toHaveBeenCalledWith("code.json is valid!");
+  });
+
+  it("validates against the selected agency's profile", async () => {
+    const neutral = resolveProfile("neutral");
+    const neutralCodeJSON = Object.fromEntries(
+      Object.entries(validCodeJSON).filter(([key]) => key in neutral.baseline),
+    );
+    const readFile = jest
+      .fn<any>()
+      .mockResolvedValue(JSON.stringify(neutralCodeJSON));
+
+    const cmsDeps = createMockDeps({ readFile });
+    await createHelpers(cmsDeps).validateOnly();
+    expect(cmsDeps.setFailed).toHaveBeenCalledWith(
+      expect.stringContaining("fismaLevel"),
+    );
+
+    const neutralDeps = createMockDeps({
+      readFile,
+      agency: "neutral",
+      profile: neutral,
+    });
+    await createHelpers(neutralDeps).validateOnly();
+    expect(neutralDeps.setFailed).not.toHaveBeenCalled();
   });
 });
 
@@ -569,31 +637,6 @@ describe("createHelpers - detectForkParent", () => {
   });
 });
 
-describe("mergeReusedCode", () => {
-  it("appends detected entries to existing ones", () => {
-    const existing = [{ name: "Other Gov Tool", URL: "https://example.gov" }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual([...existing, USWDS]);
-  });
-
-  it("does not duplicate an entry already present by URL", () => {
-    const existing = [{ name: "USWDS (manual)", URL: USWDS.URL }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual(existing);
-  });
-
-  it("does not duplicate an entry already present by name", () => {
-    const existing = [{ name: USWDS.name, URL: "https://old.example" }];
-    expect(mergeReusedCode(existing, [USWDS])).toEqual(existing);
-  });
-
-  it("returns existing unchanged when nothing is detected", () => {
-    const existing = [{ name: "Gov Tool", URL: "https://example.gov" }];
-    expect(mergeReusedCode(existing, [])).toEqual(existing);
-  });
-
-  it("tolerates a non-array existing value", () => {
-    expect(mergeReusedCode(undefined as any, [USWDS])).toEqual([USWDS]);
-  });
-});
 describe("GOV_DEPENDENCIES integrity", () => {
   const entries = Object.entries(GOV_DEPENDENCIES);
 
