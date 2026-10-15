@@ -6,5 +6,5 @@ dist
 .gitignore
 .npmrc
 coverage
-.env
+.env*
 *.log

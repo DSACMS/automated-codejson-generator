@@ -6,13 +6,13 @@ export interface BasicRepoInfo {
   languages: string[];
   forks: number;
   tags: string[];
-  date: Date;
+  date: RepoDates;
 }
 
-interface Date {
+// metadataLastUpdated is stamped by codejson-core during assembly, not observed here
+interface RepoDates {
   created: string;
   lastModified: string;
-  metadataLastUpdated: string
 }
 
 type RepositoryVisibility = "public" | "private" | undefined;

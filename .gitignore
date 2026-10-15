@@ -69,7 +69,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+.env*
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -103,3 +103,7 @@ __tests__/runner/*
 # IDE files
 .idea
 *.code-workspace
+
+# Gov dependency updater artifacts
+.gov-update-cache/
+gov-update-report.md

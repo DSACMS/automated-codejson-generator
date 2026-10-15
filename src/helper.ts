@@ -1,25 +1,71 @@
-import { CodeJSON } from "./types/CodeJSONSchema.js";
+import * as fs from "fs/promises";
+import type { CMSCodeJSON } from "codejson-core";
+import { AgencyName, CodeJSON } from "./codejson.js";
 import { BasicRepoInfo } from "./types/BasicRepoInfo.js";
-import { validateCodeJSON } from "./zod-validation.js";
 import { Dependencies } from "./types/Dependencies.js";
+import {
+  ReusedCodeEntry,
+  lookupGovDependency,
+  lookupPyPIGovDependency,
+} from "./gov-dependencies.js";
 
 const HOURS_PER_MONTH = 730.001;
+const WORKSPACE_PATH = "/github/workspace";
+const MAX_READ_BYTES = 1_000_000;
+
+const COMMUNITY_FILE_CANDIDATES: Record<string, string[]> = {
+  LICENSE: ["LICENSE", "LICENSE.md", "LICENSE.txt"],
+  README: ["README.md", "README.rst", "README.txt", "README"],
+  COMMUNITY: ["COMMUNITY.md", ".github/COMMUNITY.md"],
+  SECURITY: ["SECURITY.md", ".github/SECURITY.md"],
+  CONTRIBUTING: ["CONTRIBUTING.md", ".github/CONTRIBUTING.md"],
+  CODE_OF_CONDUCT: ["CODE_OF_CONDUCT.md", ".github/CODE_OF_CONDUCT.md"],
+  GOVERNANCE: ["GOVERNANCE.md", ".github/GOVERNANCE.md"],
+};
+
+const GITHUB_ORG_HOSTS: Record<string, CMSCodeJSON["repositoryHost"]> = {
+  cmsgov: "github.com/CMSgov",
+  "cms-enterprise": "github.com/CMS-Enterprise",
+  "enterprise-cmcs": "github.com/Enterprise-CMCS",
+  dsacms: "github.com/DSACMS",
+  measureauthoringtool: "github.com/MeasureAuthoringTool",
+};
+
+// both write paths go through here so the committed file is byte-identical either way
+function serializeCodeJSON(codeJSON: CodeJSON): string {
+  return JSON.stringify(codeJSON, null, 2) + "\n";
+}
 
 export function createHelpers(deps: Dependencies) {
-  const { owner, repo, octokit, adminOctokit, log, setOutput, isArchived } = deps;
+  const {
+    owner,
+    repo,
+    octokit,
+    adminOctokit,
+    log,
+    setOutput,
+    isArchived,
+    agency,
+  } = deps;
 
   //===============================================
   // Meta Data
   //===============================================
-  async function calculateMetaData(): Promise<Partial<CodeJSON>> {
+  async function calculateMetaData(): Promise<Partial<CMSCodeJSON>> {
     try {
-      const [laborHours, basicInfo] = await Promise.all([
-        getLaborHours(),
-        getBasicInfo(),
-      ]);
+      const [laborHours, basicInfo, version, communityFiles] =
+        await Promise.all([
+          getLaborHours(),
+          getBasicInfo(),
+          getVersion(),
+          detectCommunityFiles(),
+        ]);
+
+      const repositoryHost = deriveRepositoryHost(basicInfo.url);
 
       return {
         name: basicInfo.title,
+        version: version,
         description: basicInfo.description,
         repositoryURL: basicInfo.url,
         repositoryVisibility: basicInfo.repositoryVisibility,
@@ -33,13 +79,56 @@ export function createHelpers(deps: Dependencies) {
         date: {
           created: basicInfo.date.created,
           lastModified: basicInfo.date.lastModified,
-          metadataLastUpdated: basicInfo.date.metadataLastUpdated,
         },
+        maturityModelTier: deriveMaturityTier(
+          communityFiles,
+          basicInfo.repositoryVisibility,
+        ),
+        ...(repositoryHost ? { repositoryHost } : {}),
       };
     } catch (error) {
       log.error(`Failed to calculate meta data: ${error}`);
       throw error;
     }
+  }
+
+  async function getVersion(): Promise<string> {
+    try {
+      const release = await octokit.rest.repos.getLatestRelease({
+        owner,
+        repo,
+      });
+      const versionFromRelease = normalizeVersionString(release.data.tag_name);
+
+      if (versionFromRelease !== "") {
+        return versionFromRelease;
+      }
+
+      const releaseName = release.data.name;
+      if (typeof releaseName === "string") {
+        const versionFromName = normalizeVersionString(releaseName);
+
+        if (versionFromName !== "") {
+          return versionFromName;
+        }
+      }
+
+      log.warning("Latest release did not include a usable version string.");
+    } catch (error) {
+      log.warning(`Failed to fetch latest release version: ${error}`);
+    }
+
+    return "";
+  }
+
+  function normalizeVersionString(value: string): string {
+    const trimmedValue = value.trim();
+
+    if (trimmedValue.length > 1 && /^v\d/i.test(trimmedValue)) {
+      return trimmedValue.replace(/^v/i, "");
+    }
+
+    return trimmedValue;
   }
 
   async function getBasicInfo(): Promise<BasicRepoInfo> {
@@ -66,7 +155,6 @@ export function createHelpers(deps: Dependencies) {
         date: {
           created: repoData.data.created_at,
           lastModified: repoData.data.updated_at,
-          metadataLastUpdated: new Date().toISOString(),
         },
       };
     } catch (error) {
@@ -77,7 +165,9 @@ export function createHelpers(deps: Dependencies) {
 
   async function getLaborHours(): Promise<number> {
     try {
-      const { stdout } = await deps.exec(`scc /github/workspace --format json2`);
+      const { stdout } = await deps.exec(
+        `scc /github/workspace --format json2`,
+      );
       const sccData = JSON.parse(stdout);
 
       const laborHours = Math.ceil(
@@ -87,6 +177,101 @@ export function createHelpers(deps: Dependencies) {
     } catch (error) {
       log.error(`Failed to get labor hours: ${error}`);
       throw error;
+    }
+  }
+
+  //===============================================
+  // Reused Code
+  //===============================================
+  async function detectReusedCode(): Promise<ReusedCodeEntry[]> {
+    const [packageJSON, requirements] = await Promise.all([
+      readManifest("/github/workspace/package.json"),
+      readManifest("/github/workspace/requirements.txt"),
+    ]);
+
+    // npm and PyPI normalize package names differently, so each ecosystem is
+    // resolved through its own lookup.
+    const detected: Array<ReusedCodeEntry | undefined> = [];
+    if (packageJSON) {
+      for (const name of parsePackageJSON(packageJSON)) {
+        detected.push(lookupGovDependency(name));
+      }
+    }
+    if (requirements) {
+      for (const name of parseRequirementsTxt(requirements)) {
+        detected.push(lookupPyPIGovDependency(name));
+      }
+    }
+
+    const entries: ReusedCodeEntry[] = [];
+    const seen = new Set<string>();
+    for (const entry of detected) {
+      if (entry && !seen.has(entry.URL)) {
+        seen.add(entry.URL);
+        entries.push(entry);
+      }
+    }
+    return entries;
+  }
+
+  async function readManifest(filepath: string): Promise<string | null> {
+    try {
+      return await deps.readFile(filepath);
+    } catch {
+      return null;
+    }
+  }
+
+  async function detectCommunityFiles(): Promise<Set<string>> {
+    const found = await Promise.all(
+      Object.entries(COMMUNITY_FILE_CANDIDATES).map(
+        async ([document, candidates]) => {
+          for (const candidate of candidates) {
+            const content = await readManifest(
+              `${WORKSPACE_PATH}/${candidate}`,
+            );
+            if (content !== null) {
+              return document;
+            }
+          }
+          return null;
+        },
+      ),
+    );
+
+    return new Set(
+      found.filter((document): document is string => document !== null),
+    );
+  }
+
+  async function readREADME(): Promise<string | null> {
+    for (const candidate of COMMUNITY_FILE_CANDIDATES.README) {
+      const content = await readManifest(`${WORKSPACE_PATH}/${candidate}`);
+      if (content !== null) {
+        return content;
+      }
+    }
+
+    return null;
+  }
+
+  //===============================================
+  // Fork Upstream
+  //===============================================
+  async function detectForkParent(): Promise<ReusedCodeEntry | null> {
+    try {
+      const repoData = await octokit.rest.repos.get({ owner, repo });
+      const { fork, parent } = repoData.data;
+
+      if (!fork || !parent) return null;
+
+      return {
+        name: parent.full_name,
+        URL: parent.html_url,
+      };
+    } catch (error) {
+      log.error(`Failed to detect fork parent: ${error}`);
+      return null;
     }
   }
 
@@ -118,7 +303,7 @@ export function createHelpers(deps: Dependencies) {
         return;
       }
 
-      const validationErrors = validateCodeJSON(codeJSON);
+      const validationErrors = deps.profile.validate(codeJSON);
 
       if (validationErrors.length > 0) {
         const errorMessage = `code.json validation failed with ${validationErrors.length} error(s):\n\n${validationErrors.map((err, idx) => `${idx + 1}. ${err}`).join("\n")}`;
@@ -148,16 +333,21 @@ export function createHelpers(deps: Dependencies) {
   async function sendPR(
     updatedCodeJSON: CodeJSON,
     baseBranchName: string,
+    aiGeneratedFields: string[] = [],
   ) {
     try {
-      const formattedContent = JSON.stringify(updatedCodeJSON, null, 2) + "\n";
+      const formattedContent = serializeCodeJSON(updatedCodeJSON);
       const headBranchName = `code-json-${new Date().getTime()}`;
 
       const PR = await octokit.createPullRequest({
         owner,
         repo,
-        title: isArchived ? "Update code.json for archival" : "Update code.json",
-        body: isArchived ? bodyOfArchivalPR() : bodyOfPR(),
+        title: isArchived
+          ? "Update code.json for archival"
+          : "Update code.json",
+        body:
+          (isArchived ? bodyOfArchivalPR(agency) : bodyOfPR(agency)) +
+          aiReviewNotice(aiGeneratedFields),
         base: baseBranchName,
         head: headBranchName,
         labels: isArchived ? ["archived"] : ["codejson-initialized"],
@@ -196,7 +386,7 @@ export function createHelpers(deps: Dependencies) {
     }
 
     try {
-      const formattedContent = JSON.stringify(updatedCodeJSON, null, 2);
+      const formattedContent = serializeCodeJSON(updatedCodeJSON);
 
       let currentFileSha: string | undefined;
       try {
@@ -224,7 +414,9 @@ export function createHelpers(deps: Dependencies) {
         sha: currentFileSha,
       });
 
-      log.info(`Successfully pushed commit with PAT: ${result.data.commit.sha}`);
+      log.info(
+        `Successfully pushed commit with PAT: ${result.data.commit.sha}`,
+      );
 
       setOutput("updated", true);
       setOutput("commit_sha", result.data.commit.sha);
@@ -267,25 +459,139 @@ export function createHelpers(deps: Dependencies) {
 
   return {
     calculateMetaData,
+    detectCommunityFiles,
+    readREADME,
+    detectReusedCode,
+    detectForkParent,
     getBaseBranch,
     validateOnly,
-    validateCodeJSON,
     readJSON,
     sendPR,
     pushDirectlyWithFallback,
+    mergeTags,
   };
 }
 
 // export the type for convenience
 export type Helpers = ReturnType<typeof createHelpers>;
 
-function bodyOfPR(): string {
+export function parsePackageJSON(content: string): string[] {
+  try {
+    const pkg = JSON.parse(content);
+    return [
+      ...Object.keys(pkg.dependencies ?? {}),
+      ...Object.keys(pkg.devDependencies ?? {}),
+    ];
+  } catch {
+    return [];
+  }
+}
+
+// strips version specifiers, extras, markers and comments, leaving the bare package name
+export function parseRequirementsTxt(content: string): string[] {
+  const names: string[] = [];
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.split("#")[0].trim();
+    if (!line || line.startsWith("-")) continue;
+    const match = line.match(/^[A-Za-z0-9._-]+/);
+    if (match) names.push(match[0]);
+  }
+  return names;
+}
+
+// reads the hosting organization off the repository URL
+export function deriveRepositoryHost(
+  repositoryURL: string,
+): CMSCodeJSON["repositoryHost"] | undefined {
+  let url: URL;
+  try {
+    url = new URL(repositoryURL);
+  } catch {
+    return undefined;
+  }
+
+  if (url.hostname === "github.cms.gov") {
+    return "github.cms.gov";
+  }
+
+  if (url.hostname !== "github.com" && url.hostname !== "www.github.com") {
+    return undefined;
+  }
+
+  const organization = url.pathname.split("/").filter(Boolean)[0];
+  if (!organization) {
+    return undefined;
+  }
+
+  return GITHUB_ORG_HOSTS[organization.toLowerCase()];
+}
+
+export function deriveUsageType(
+  repositoryVisibility: "public" | "private" | undefined,
+): CodeJSON["permissions"]["usageType"] {
+  return repositoryVisibility === "public" ? ["openSource"] : [];
+}
+
+export function deriveMaturityTier(
+  presentFiles: Set<string>,
+  repositoryVisibility: "public" | "private" | undefined,
+): 0 | 1 | 2 | 3 | 4 {
+  if (presentFiles.has("GOVERNANCE")) {
+    return 4;
+  }
+
+  if (presentFiles.has("CONTRIBUTING") && presentFiles.has("CODE_OF_CONDUCT")) {
+    return repositoryVisibility === "public" ? 3 : 2;
+  }
+
+  if (presentFiles.has("SECURITY")) {
+    return 1;
+  }
+
+  return 0;
+}
+
+export function workspaceFileReader(root: string) {
+  return async (filepath: string): Promise<string> => {
+    const [realRoot, realPath] = await Promise.all([
+      fs.realpath(root),
+      fs.realpath(filepath),
+    ]);
+    const stat = await fs.stat(realPath);
+
+    if (
+      !realPath.startsWith(`${realRoot}/`) ||
+      !stat.isFile() ||
+      stat.size > MAX_READ_BYTES
+    ) {
+      throw new Error(`Refusing to read ${filepath}`);
+    }
+
+    return fs.readFile(realPath, "utf8");
+  };
+}
+
+// combines repository topics with existing manually added tags, de-duped
+export function mergeTags(
+  repositoryTopics: string[] = [],
+  existingTags: string[] = [],
+): string[] {
+  return Array.from(new Set([...repositoryTopics, ...existingTags]));
+}
+
+const CMS_SENDER = " on behalf of the CMS Source Code Stewardship Taskforce,";
+const CMS_SLACK = " or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ)";
+
+function bodyOfPR(agency: AgencyName): string {
+  const sender = agency === "cms" ? CMS_SENDER : "";
+  const slack = agency === "cms" ? CMS_SLACK : "";
+
   return `
   ## Welcome to the Federal Open Source Community!
 
   Hello, and thank you for your contributions to the Federal Open Source Community. 🙏
 
-  This pull request adding [code.json repository metadata](https://github.com/DSACMS/gov-codejson/blob/main/docs/metadata.md) is being sent on behalf of the CMS Source Code Stewardship Taskforce, in compliance with [The Federal Source Code Inventory Policy](https://code.gov/agency-compliance/compliance/inventory-code), [M-16-21](https://obamawhitehouse.archives.gov/sites/default/files/omb/memoranda/2016/m_16_21.pdf), and in preparation for the [SHARE IT Act of 2024](https://www.congress.gov/bill/118th-congress/house-bill/9566). If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues) or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ).
+  This pull request adding [code.json repository metadata](https://github.com/DSACMS/gov-codejson/blob/main/docs/metadata.md) is being sent${sender} in compliance with [The Federal Source Code Inventory Policy](https://code.gov/agency-compliance/compliance/inventory-code), [M-16-21](https://obamawhitehouse.archives.gov/sites/default/files/omb/memoranda/2016/m_16_21.pdf), and in preparation for the [SHARE IT Act of 2024](https://www.congress.gov/bill/118th-congress/house-bill/9566). If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues)${slack}.
 
   ## Next Steps
   ### Add Missing Information to code.json
@@ -297,7 +603,21 @@ function bodyOfPR(): string {
   `;
 }
 
-function bodyOfArchivalPR(): string {
+function aiReviewNotice(aiGeneratedFields: string[]): string {
+  if (aiGeneratedFields.length === 0) {
+    return "";
+  }
+
+  return `
+
+  ## Review AI-Generated Fields
+  These fields were drafted by a local AI model from this repository's README. Please verify them before merging: ${aiGeneratedFields.map((field) => `\`${field}\``).join(", ")}
+`;
+}
+
+function bodyOfArchivalPR(agency: AgencyName): string {
+  const slack = agency === "cms" ? CMS_SLACK : "";
+
   return `
   ## Archiving the Repository
 
@@ -305,7 +625,7 @@ function bodyOfArchivalPR(): string {
   
   As part of preparing the repository for archival, this pull request marks the repository for archival and ensures code.json repository metadata is up-to-date.
 
-  If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues) or join our #cms-ospo slack channel [here](https://cmsgov.enterprise.slack.com/archives/C07HM92S9QQ).
+  If you have questions, please file an issue [here](https://github.com/DSACMS/automated-codejson-generator/issues)${slack}.
 
   ## Next Steps
   ### Verify project metadata in code.json

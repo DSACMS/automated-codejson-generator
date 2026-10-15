@@ -25,7 +25,7 @@
     "clones": 50
   },
   "platforms": ["web", "linux"],
-  "categories": ["compliance", "automation"],
+  "categories": ["compliance-management", "it-development"],
   "softwareType": "standalone/other",
   "languages": ["TypeScript"],
   "maintenance": "internal",
@@ -36,7 +36,7 @@
     "lastModified": "2024-06-15T00:00:00Z",
     "metadataLastUpdated": "2024-06-20T00:00:00Z"
   },
-  "tags": ["code.json", "federal", "open-source"],
+  "tags": ["code.json", "federal", "open-source", "metadata", "compliance"],
   "contact": {
     "email": "opensource@cms.hhs.gov",
     "name": "CMS Open Source Team"

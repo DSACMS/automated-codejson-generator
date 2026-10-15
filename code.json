@@ -1,8 +1,8 @@
 {
   "name": "automated-codejson-generator",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "description": "Tooling that allows for code.json creation through automation",
-  "longDescription": "This project provides a GitHub Action that helps federal agencies maintain their code.json files, which are required for compliance with the Federal Source Code Policy. The action automatically calculates and updates various metadata fields including labor hours, programming languages used, repository information, and timestamps. It creates pull requests with these updates, making it easier to keep code.json files accurate and up-to-date.",
+  "longDescription": "A GitHub Action that generates and maintains code.json metadata files for federal open source repositories. It reads repository data such as languages, labor hours, dependencies and dates, merges it into the existing file, can draft missing fields from the README with a local AI model, and validates code.json on pull requests.",
   "status": "Production",
   "permissions": {
     "licenses": [
@@ -23,35 +23,32 @@
   "disclaimerURL": "",
   "disclaimerText": "",
   "vcs": "git",
-  "laborHours": 3137,
+  "laborHours": 6482,
   "reuseFrequency": {
-    "forks": 4,
+    "forks": 7,
     "clones": 0
   },
-  "platforms": ["web", "linux"],
-  "categories": ["developer-tools", "automation"],
-  "softwareType": "standalone/backend",
+  "platforms": [],
+  "categories": [],
+  "softwareType": "standalone/other",
   "languages": ["TypeScript", "JavaScript"],
   "maintenance": "internal",
   "contractNumber": [],
   "SBOM": "https://github.com/DSACMS/automated-codejson-generator/network/dependencies",
   "relatedCode": [],
-  "reusedCode": [],
+  "reusedCode": [
+    {
+      "name": "codejson-core (CMS Digital Service)",
+      "URL": "https://github.com/dsacms/codejson-core"
+    }
+  ],
   "partners": [],
   "date": {
     "created": "2025-02-07T16:29:38Z",
-    "lastModified": "2025-10-21T21:52:17Z",
-    "metadataLastUpdated": "2025-10-30T22:53:09.463Z"
+    "lastModified": "2026-10-14T20:39:29Z",
+    "metadataLastUpdated": "2026-10-14T21:00:00.000Z"
   },
-  "tags": [
-    "cmsoss-tier2",
-    "metadata",
-    "codejson",
-    "ci",
-    "github-action",
-    "workflow",
-    "featured"
-  ],
+  "tags": ["code-json", "dsacms-tier3", "federal-open-source", "github-action", "codejson-generator", "metadata"],
   "contact": {
     "email": "opensource@cms.hhs.gov",
     "name": "CMS Open Source Team"

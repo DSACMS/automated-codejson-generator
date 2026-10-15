@@ -6,6 +6,8 @@ import typescript from "@rollup/plugin-typescript";
 
 const config = {
   input: "src/index.ts",
+  // native llama.cpp bindings load their own .node binaries, they can't be bundled
+  external: ["node-llama-cpp"],
   output: {
     esModule: true,
     file: "dist/index.js",

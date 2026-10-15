@@ -5,6 +5,9 @@ on:
       - "main"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check-first-run:
     name: Check For First Run
@@ -15,7 +18,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: check
         run: |
           # If manually triggered, always run
@@ -60,7 +63,7 @@ jobs:
     env:
       RAW_JSON: ${{ needs.resolve-repolinter-json.outputs.raw-json }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: echo $RAW_JSON > repolinter.json
       - uses: DSACMS/repolinter-action@main
         with:
