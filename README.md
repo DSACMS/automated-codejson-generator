@@ -393,7 +393,7 @@ This project uses TypeScript and follows standard TypeScript conventions. Lint a
 
 ## Branching Model
 
-Feature branches are opened as pull requests into `dev`, the integration branch. When `dev` is ready to ship, a pull request from `dev` into `main` with exactly one `release:*` label creates the next version tag and GitHub Release automatically. See [CONTRIBUTING.md](CONTRIBUTING.md#workflow-and-branching) for the full steps.
+Feature branches are opened as pull requests into `dev`, the integration branch. When `dev` is ready to ship, a pull request from `dev` into `main` with exactly one `release:*` label creates the next version tag and GitHub Release automatically. See [CONTRIBUTING.md](CONTRIBUTING.md#shipping-releases) for the full steps.
 
 ## Contributing
 

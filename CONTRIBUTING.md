@@ -111,15 +111,9 @@ We follow a **GitHub Flow–inspired workflow** with a protected `main` branch a
 4. Write code and tests for your change
 5. Open a pull request from your feature branch **into `dev`**
 6. Work with repo maintainers to get your change reviewed and merged into `dev`
-7. When `dev` is ready for release, open a pull request from **`dev` into `main`**
-8. Add **exactly one** release label to the PR:
-   - `release:patch`
-   - `release:minor`
-   - `release:major`
-   - `release:none` (merge without cutting a release)
-9. Once the required checks pass, merge the PR into `main`
-   - This triggers automatic versioning, tagging, and GitHub Release creation
-10. Delete your feature branch after merge
+7. Delete your feature branch after merge
+
+Maintainers release `dev` by merging it into `main` (see [Shipping Releases](#shipping-releases)).
 
 ### Testing Conventions
 
@@ -191,9 +185,38 @@ Pull requests are reviewed by the maintainers listed in [COMMUNITY.md](COMMUNITY
 
 ## Shipping Releases
 
-Releases follow semantic versioning and are cut automatically when a `dev` → `main` pull request merges (see [Workflow and Branching](#workflow-and-branching)). The release label picks the bump. The workflow tags `vX.Y.Z`, moves the major tag (such as `v2`) that consumers pin to, and publishes a GitHub Release with generated notes.
+`dev` is the default branch, and `main` holds the latest release. Many consumers pin the action to `@main` instead of a version tag, so merging into `main` ships to them right away. Consumers pinned to an older major tag, such as `@v1`, stay where they are.
 
-If the release changes `node-llama-cpp`, the model, `scc` or the Node major version, rebuild the base image first (see [Rebuilding the Base Image](#rebuilding-the-base-image)).
+Releases follow semantic versioning:
+
+1. If the release changes `node-llama-cpp`, the model, `scc` or the Node major version, rebuild the base image first (see [Rebuilding the Base Image](#rebuilding-the-base-image))
+2. Open a pull request from **`dev` into `main`**. In the description, list each change since the last release as a one-line summary with its PR number
+3. Add **exactly one** release label. The `require-release-label` check fails without one
+   - `release:patch`
+   - `release:minor`
+   - `release:major`
+   - `release:none` (merge without cutting a release)
+4. If the PR shows conflicts, see [When the `dev` → `main` PR has conflicts](#when-the-dev--main-pr-has-conflicts)
+5. Once the required checks pass and the PR is approved, merge it with **Create a merge commit**. Don't squash it, so `main` stays in `dev`'s history
+
+Merging runs `release.yml`, which bumps the latest `vX.Y.Z` tag by the label, pushes the new tag, moves the major tag (such as `v2`) to the merge commit, and publishes a GitHub Release with generated notes. To check the result:
+
+```sh
+git fetch --tags -f origin
+git rev-parse origin/main v2 v2.0.0   # all three should match
+```
+
+### When the `dev` → `main` PR has conflicts
+
+This happens when `main` has a commit that `dev`'s history doesn't, usually from a squash merge into `main`. If `dev` already contains that content, record `main` in `dev`'s history without changing any files:
+
+```sh
+git switch -c sync-main-into-dev origin/dev
+git merge -s ours origin/main
+git diff origin/dev   # must print nothing
+```
+
+Open a PR into `dev` and merge it with **Create a merge commit**. The release PR then merges cleanly. If `main` has changes that `dev` lacks, merge `main` into `dev` normally and resolve the conflicts instead.
 
 ## Documentation
 
