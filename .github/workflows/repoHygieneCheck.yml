@@ -5,6 +5,9 @@ on:
       - "main"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check-first-run:
     name: Check For First Run
