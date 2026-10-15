@@ -4,10 +4,6 @@ automated-codejson-generator is supported by a dedicated team of individuals ful
 
 ## Project Members
 
-<!-- TODO: Who are the points of contact in your project who are responsible/accountable for the project? This can often be an engineering or design manager or leader, who may or may not be the primary maintainers of the project.
-
-Roles to include, but not limited to: Project Owner, Technical Lead, Developers/Contributors, Community Manager, Security Team, Policy Advisor, Contracting Officer's Representative, Compliance Officer, Procurement Officer -->
-
 | Role              | Name                | Affiliation |
 | :---------------- | :------------------ | :---------- |
 | Open Source Lead  | Remy DeCausemaker   | DSAC        |
@@ -18,7 +14,7 @@ Roles to include, but not limited to: Project Owner, Technical Lead, Developers/
 
 See [CODEOWNERS.md](.github/CODEOWNERS.md) for a list of those responsible for the code and documentation in this repository.
 
-See [Community Guidelines](COMMUNITY.md) on principles and guidelines for participating in this open source project.
+See [Community Guidelines](#automated-codejson-generator-open-source-community-guidelines) on principles and guidelines for participating in this open source project.
 
 ## Roles & Responsibilities
 
@@ -56,54 +52,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more details on the release process.
 
 ## Contributors
 
-<!-- TODO: A list of CONTRIBUTORS is generated below using contributors.yml located in the workflows directory. In order to automatically update the COMMUNITY.md, you must enter a secret into your Secrets and Variables under Actions within your repository settings. The name of the secret must be PUSH_TO_PROTECTED_BRANCH and the value must be a Personal Access Token with specific permissions. Please follow [this link](https://github.com/CasperWA/push-protected?tab=readme-ov-file#notes-on-token-and-user-permissions) for more information. -->
+The full list of contributors is kept up to date in [MAINTAINERS.md](MAINTAINERS.md).
 
 ![](https://img.shields.io/github/contributors/DSACMS/automated-codejson-generator?style=flat-square&label=Contributor%20Count(incl.%20bots))
-
-<!-- readme: contributors -start -->
-<table>
-	<tbody>
-		<tr>
-            <td align="center">
-                <a href="https://github.com/sachin-panayil">
-                    <img src="https://avatars.githubusercontent.com/u/79382140?v=4" width="100;" alt="sachin-panayil"/>
-                    <br />
-                    <sub><b>Sachin Panayil</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/natalialuzuriaga">
-                    <img src="https://avatars.githubusercontent.com/u/29980737?v=4" width="100;" alt="natalialuzuriaga"/>
-                    <br />
-                    <sub><b>Natalia Luzuriaga</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/IsaacMilarky">
-                    <img src="https://avatars.githubusercontent.com/u/24639268?v=4" width="100;" alt="IsaacMilarky"/>
-                    <br />
-                    <sub><b>Isaac Milarsky</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/mjburling">
-                    <img src="https://avatars.githubusercontent.com/u/905175?v=4" width="100;" alt="mjburling"/>
-                    <br />
-                    <sub><b>Michael J Burling</b></sub>
-                </a>
-            </td>
-		</tr>
-	<tbody>
-</table>
-<!-- readme: contributors -end -->
-
-<!--
-### Alumni
-
-TODO: Who are the past maintainers or contributors who previously played significant roles in this project who are no longer actively involved? Consider including their roles and dates for context.
-
-We'd like to acknowledge the following individuals for their past contributions of this project:
--->
 
 ## automated-codejson-generator Open Source Community Guidelines
 
@@ -135,7 +86,6 @@ When participating in Code.json Auto Generator open source community conversatio
   - your superpower, and how you hope to use it for automated-codejson-generator
 - Embrace a culture of learning, and educate each other. We are all entering this conversation from different starting points and with different backgrounds. There are no dumb questions.
 - Take space and give space. We strive to create an equitable environment in which all are welcome and able to participate. We hope individuals feel comfortable voicing their opinions and providing contributions and will do our best to recognize and make space for individuals who may be struggling to find space here. Likewise, we expect individuals to recognize when they are taking up significant space and take a step back to allow room for others.
-<!-- TODO: Add if your repo has a community chat - Be present when joining synchronous conversations such as our community chat. Why be here if you're not going to _be here_? -->
 - Be respectful.
 - Default to positive. Assume others' contributions are legitimate and valuable and that they are made with good intention.
 
