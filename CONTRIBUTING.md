@@ -2,7 +2,7 @@
 
 We're so thankful you're considering contributing to an [open source project of the U.S. government](https://code.gov/)! If you're unsure about anything, just ask -- or submit the issue or pull request anyway. The worst that can happen is you'll be politely asked to change something. We appreciate all friendly contributions.
 
-We encourage you to read this project's CONTRIBUTING policy (you are here), its [LICENSE](LICENSE.md), and its [README](README.md).
+We encourage you to read this project's CONTRIBUTING policy (you are here), its [LICENSE](LICENSE), and its [README](README.md).
 
 ## Getting Started
 
@@ -16,9 +16,9 @@ Our project maintainers are listed in [COMMUNITY.md](COMMUNITY.md). They are res
 
 To work on this project, you'll need:
 
-1. Node.js 20 or later
-2. Go 1.22 or later
-3. SCC tool (installed via `go install github.com/boyter/scc/v3@latest`)
+1. Node.js 20 (see `.node-version`)
+2. [SCC](https://github.com/boyter/scc), from its [releases](https://github.com/boyter/scc/releases) or `brew install scc`
+3. Docker, to build the action image or rebuild the base image (see below)
 4. GitHub CLI (optional, but helpful for testing)
 
 ### Building the Project
@@ -81,15 +81,15 @@ To test a base locally before pushing, build it with `--load -t acg-base:local` 
 
 ## Schema and Validation
 
-The code.json schema, its validation rules, and the logic that merges freshly observed metadata into an existing file are owned by [codejson-core](https://github.com/DSACMS/codejson-core). This repository binds to that library's CMS profile in a single module, `src/codejson.ts`, and owns nothing else about the schema.
+The code.json schema, its validation rules, and the logic that merges freshly observed metadata into an existing file are owned by [codejson-core](https://github.com/DSACMS/codejson-core). This repository binds to that library in a single module, `src/codejson.ts`, and owns nothing else about the schema.
 
 That means there is no schema to regenerate here. When `gov-codejson` publishes a new schema version, `codejson-core` cuts a release and Dependabot opens the bump.
 
-`src/codejson.ts` exposes three things to the rest of the action:
+`src/codejson.ts` resolves the `AGENCY` input to one of core's profiles (`cms` or `neutral`). The action uses three things from that profile:
 
-- `assembleDraft` — merges observed metadata over the existing file. It runs against a permissive schema so it never rejects an incomplete file (see below).
-- `validateCodeJSON` — strict validation against the full CMS schema. An empty array means valid.
-- `draftBaseline` — the skeleton written for a repository that has no code.json yet.
+- `draft`: merges observed metadata into the existing file, starting from the profile's baseline when there is no code.json yet. It never rejects an incomplete file (see below).
+- `validate`: strict validation against the profile's schema. An empty array means valid.
+- `droppedFields`: fields in the existing file that the profile doesn't define, which the next run removes.
 
 Validation runs in two scenarios:
 
@@ -116,10 +116,10 @@ We follow a **GitHub Flow–inspired workflow** with a protected `main` branch a
    - `release:patch`
    - `release:minor`
    - `release:major`
+   - `release:none` (merge without cutting a release)
 9. Once the required checks pass, merge the PR into `main`
    - This triggers automatic versioning, tagging, and GitHub Release creation
 10. Delete your feature branch after merge
-
 
 ### Testing Conventions
 
@@ -191,7 +191,9 @@ Pull requests are reviewed by the maintainers listed in [COMMUNITY.md](COMMUNITY
 
 ## Shipping Releases
 
-Releases are created by maintainers as needed when significant changes are merged. We use semantic versioning for releases.
+Releases follow semantic versioning and are cut automatically when a `dev` → `main` pull request merges (see [Workflow and Branching](#workflow-and-branching)). The release label picks the bump. The workflow tags `vX.Y.Z`, moves the major tag (such as `v2`) that consumers pin to, and publishes a GitHub Release with generated notes.
+
+If the release changes `node-llama-cpp`, the model, `scc` or the Node major version, rebuild the base image first (see [Rebuilding the Base Image](#rebuilding-the-base-image)).
 
 ## Documentation
 
